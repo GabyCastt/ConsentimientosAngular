@@ -1,0 +1,46 @@
+<app-loading [show]="loading()" message="Cargando estadísticas..."></app-loading>
+
+<div class="dashboard-container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>Resumen General</h3>
+    <button class="btn btn-outline-primary" (click)="loadStats()">
+      <i class="fas fa-sync-alt me-2"></i>Actualizar
+    </button>
+  </div>
+
+  <div class="row">
+    @for (card of statCards(); track card.title) {
+      <div class="col-md-3 mb-4">
+        <div class="card stat-card text-center">
+          <div class="card-body">
+            <i [class]="card.icon + ' fa-2x text-' + card.color + ' mb-2'"></i>
+            <h5 class="card-title">{{ card.title }}</h5>
+            <h3 class="card-text">{{ card.value }}</h3>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (!loading() && stats()) {
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-chart-line me-2"></i>
+              Actividad Reciente
+            </h5>
+          </div>
+          <div class="card-body">
+            <p class="text-muted">
+              Sistema funcionando correctamente. 
+              {{ stats()!.total_verificados }} de {{ stats()!.total_consentimientos }} 
+              consentimientos verificados.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
