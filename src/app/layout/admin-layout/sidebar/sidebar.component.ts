@@ -8,6 +8,7 @@ interface MenuItem {
   icon: string;
   route: string;
   roles?: string[];
+  disabled?: boolean;
 }
 
 @Component({
@@ -64,6 +65,11 @@ interface MenuItem {
       font-weight: 600;
     }
     
+    .nav-link.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
     .nav-link i {
       margin-right: 0.5rem;
       width: 20px;
@@ -82,6 +88,12 @@ export class SidebarComponent {
     { label: 'Clientes', icon: 'fas fa-users', route: '/clientes' },
     { label: 'Formularios', icon: 'fas fa-clipboard-list', route: '/formularios' },
     { label: 'Documentos', icon: 'fas fa-file-pdf', route: '/documentos' },
+    { 
+      label: 'Panel DIDIT', 
+      icon: 'fas fa-user-check', 
+      route: '/didit/admin',
+      roles: ['admin', 'super_admin']
+    },
     { 
       label: 'Empresas', 
       icon: 'fas fa-building', 

@@ -22,9 +22,15 @@
     }
   </div>
 
-  @if (!loading() && stats()) {
+  @if (!loading() && stats() && stats()!.consentimientos) {
     <div class="row mt-4">
-      <div class="col-12">
+      <!-- Componente de Clientes DIDIT Pendientes -->
+      <div class="col-lg-6 mb-4">
+        <app-clientes-didit-pendientes></app-clientes-didit-pendientes>
+      </div>
+
+      <!-- Actividad Reciente -->
+      <div class="col-lg-6 mb-4">
         <div class="card">
           <div class="card-header bg-primary text-white">
             <h5 class="mb-0">
@@ -33,10 +39,39 @@
             </h5>
           </div>
           <div class="card-body">
-            <p class="text-muted">
-              Sistema funcionando correctamente. 
-              {{ stats()!.total_verificados }} de {{ stats()!.total_consentimientos }} 
-              consentimientos verificados.
+            <div class="activity-stats">
+              <div class="stat-item">
+                <i class="fas fa-check-circle text-success me-2"></i>
+                <span class="stat-label">Verificados:</span>
+                <span class="stat-value">{{ stats()!.consentimientos!.verificados }}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-file-contract text-info me-2"></i>
+                <span class="stat-label">Consentimientos:</span>
+                <span class="stat-value">{{ stats()!.consentimientos!.total }}</span>
+              </div>
+              <div class="stat-item">
+                <i class="fas fa-clock text-warning me-2"></i>
+                <span class="stat-label">Pendientes:</span>
+                <span class="stat-value">{{ stats()!.consentimientos!.pendientes }}</span>
+              </div>
+            </div>
+            @if (stats()!.consentimientos!.total > 0) {
+              <div class="progress mt-3" style="height: 25px;">
+                <div 
+                  class="progress-bar bg-success" 
+                  role="progressbar" 
+                  [style.width.%]="(stats()!.consentimientos!.verificados / stats()!.consentimientos!.total * 100)"
+                  [attr.aria-valuenow]="stats()!.consentimientos!.verificados"
+                  [attr.aria-valuemin]="0"
+                  [attr.aria-valuemax]="stats()!.consentimientos!.total">
+                  {{ (stats()!.consentimientos!.verificados / stats()!.consentimientos!.total * 100).toFixed(1) }}%
+                </div>
+              </div>
+            }
+            <p class="text-muted mt-3 mb-0">
+              <i class="fas fa-info-circle me-1"></i>
+              Sistema funcionando correctamente
             </p>
           </div>
         </div>

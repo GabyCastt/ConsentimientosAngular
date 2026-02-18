@@ -1,0 +1,138 @@
+@if (isOpen()) {
+  <div class="modal show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-user me-2"></i>
+            {{ isEditMode() ? 'Editar Cliente' : 'Nuevo Cliente' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+        </div>
+
+        <div class="modal-body">
+          @if (errors()['general']) {
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{ errors()['general'] }}
+            </div>
+          }
+
+          @if (errors()['contacto']) {
+            <div class="alert alert-warning">
+              <i class="fas fa-info-circle me-2"></i>
+              {{ errors()['contacto'] }}
+            </div>
+          }
+
+          <form>
+            <!-- Cédula -->
+            <div class="mb-3">
+              <label class="form-label">
+                Cédula <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="cedula"
+                name="cedula"
+                maxlength="10"
+                [class.is-invalid]="errors()['cedula']"
+                [disabled]="isEditMode()">
+              @if (errors()['cedula']) {
+                <div class="invalid-feedback d-block">
+                  {{ errors()['cedula'] }}
+                </div>
+              }
+            </div>
+
+            <!-- Nombre y Apellido -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">
+                    Nombre <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="nombre"
+                    name="nombre"
+                    [class.is-invalid]="errors()['nombre']">
+                  @if (errors()['nombre']) {
+                    <div class="invalid-feedback d-block">
+                      {{ errors()['nombre'] }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Apellido</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="apellido"
+                    name="apellido">
+                </div>
+              </div>
+            </div>
+
+            <!-- Email y Teléfono -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    [(ngModel)]="email"
+                    name="email"
+                    [class.is-invalid]="errors()['email']">
+                  @if (errors()['email']) {
+                    <div class="invalid-feedback d-block">
+                      {{ errors()['email'] }}
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Teléfono</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    [(ngModel)]="telefono"
+                    name="telefono"
+                    [class.is-invalid]="errors()['telefono']">
+                  @if (errors()['telefono']) {
+                    <div class="invalid-feedback d-block">
+                      {{ errors()['telefono'] }}
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="close()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="save()"
+            [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop show"></div>
+}

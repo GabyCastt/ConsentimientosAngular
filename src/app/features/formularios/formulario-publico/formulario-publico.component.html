@@ -1,0 +1,556 @@
+<div class="formulario-publico-wrapper">
+  <div class="container py-3">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="formulario-container">
+          
+          <!-- Header de la empresa -->
+          <div class="empresa-header">
+            <div class="empresa-logo-container">
+              @if (formulario()?.empresa?.logo) {
+                <div class="empresa-logo-wrapper">
+                  <img 
+                    [src]="getLogoUrl(formulario()?.empresa?.logo)" 
+                    [alt]="'Logo ' + formulario()?.empresa?.nombre"
+                    class="empresa-logo">
+                </div>
+              }
+              <div class="escudo-container">
+                <i class="fas fa-shield-alt escudo-icon"></i>
+                <div class="empresa-info">
+                  <h2>{{ formulario()?.empresa?.nombre || 'Cargando...' }}</h2>
+                  <p class="mb-0">{{ formulario()?.empresa?.slogan || '' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contenido del formulario -->
+          <div class="p-3">
+            
+            <!-- Mensajes globales -->
+            @if (mensajeVerificacion()) {
+              <div 
+                class="alert"
+                [class.alert-success]="tipoMensaje() === 'success'"
+                [class.alert-danger]="tipoMensaje() === 'error'"
+                [class.alert-info]="tipoMensaje() === 'info'">
+                <i class="fas" 
+                   [class.fa-check-circle]="tipoMensaje() === 'success'"
+                   [class.fa-exclamation-triangle]="tipoMensaje() === 'error'"
+                   [class.fa-info-circle]="tipoMensaje() === 'info'"
+                   class="me-2"></i>
+                {{ mensajeVerificacion() }}
+              </div>
+            }
+
+            <!-- Sección 1: Búsqueda por Cédula -->
+            <div class="seccion seccion-activa" id="seccion-busqueda">
+              <h4>
+                <i class="fas fa-search text-primary me-2"></i>
+                BUSCAR POR CÉDULA
+              </h4>
+              <p class="text-muted mb-3">
+                Ingresa tu cédula para verificar si ya tienes datos registrados
+              </p>
+              
+              <div class="row align-items-end">
+                <div class="col-md-8">
+                  <input 
+                    type="text" 
+                    class="form-control form-control-lg cedula-input"
+                    [(ngModel)]="cedula"
+                    placeholder="1234567890"
+                    maxlength="10"
+                    (keypress)="$event.key === 'Enter' && buscarPorCedula()">
+                  <small class="text-muted">Solo números, exactamente 10 dígitos</small>
+                </div>
+                <div class="col-md-4">
+                  <button 
+                    type="button"
+                    class="btn btn-primary btn-lg w-100"
+                    (click)="buscarPorCedula()"
+                    [disabled]="loading() || cedula().length !== 10">
+                    <i class="fas fa-search me-1"></i>
+                    Buscar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sección 2: Datos Personales -->
+            @if (estado().cedula && estado().cedula.length === 10) {
+              <div class="seccion seccion-activa" id="seccion-datos">
+                <h4>
+                  <i class="fas fa-user text-primary me-2"></i>
+                  DATOS PERSONALES
+                </h4>
+                
+                @if (clienteEncontrado()) {
+                  <div class="cliente-info-card mb-3">
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-check-circle text-success me-2 fa-2x"></i>
+                      <div>
+                        <h5 class="mb-0 text-success">
+                          Cliente encontrado: {{ clienteEncontrado()?.nombre }}
+                        </h5>
+                        <small class="text-muted">Datos pre-llenados automáticamente</small>
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <form>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label">Nombre *</label>
+                        <input 
+                          type="text"
+                          class="form-control"
+                          [(ngModel)]="nombre"
+                          name="nombre"
+                          (ngModelChange)="validarDatosPersonales()"
+                          required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label">Apellido *</label>
+                        <input 
+                          type="text"
+                          class="form-control"
+                          [(ngModel)]="apellido"
+                          name="apellido"
+                          (ngModelChange)="validarDatosPersonales()"
+                          required>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label">
+                          Email
+                          @if (estado().tipoValidacion === 'biometria_free' || estado().tipoValidacion === 'biometria_premium') {
+                            <span class="text-danger">*</span>
+                          }
+                        </label>
+                        <input 
+                          type="email"
+                          class="form-control"
+                          [(ngModel)]="email"
+                          name="email"
+                          (ngModelChange)="validarDatosPersonales()">
+                        @if (estado().tipoValidacion === 'biometria_free' || estado().tipoValidacion === 'biometria_premium') {
+                          <small class="text-danger">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Obligatorio para verificación biométrica
+                          </small>
+                        }
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label class="form-label">
+                          Teléfono
+                          @if (estado().tipoValidacion === 'sms_didit') {
+                            <span class="text-danger">*</span>
+                          }
+                        </label>
+                        <input 
+                          type="tel"
+                          class="form-control"
+                          [(ngModel)]="telefono"
+                          name="telefono"
+                          (ngModelChange)="validarDatosPersonales()">
+                        @if (estado().tipoValidacion === 'sms_didit') {
+                          <small class="text-danger">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Obligatorio para verificación por SMS
+                          </small>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nota:</strong> Email y teléfono son obligatorios para recibir notificaciones.
+                  </div>
+                </form>
+              </div>
+            }
+
+            <!-- Sección 3: Consentimientos -->
+            @if (estado().datosPersonalesCompletos) {
+              <div class="seccion seccion-activa" id="seccion-consentimientos">
+                <h4>
+                  <i class="fas fa-file-contract text-primary me-2"></i>
+                  CONSENTIMIENTOS A AUTORIZAR
+                </h4>
+                <p class="text-muted mb-4">
+                  Selecciona los consentimientos que deseas otorgar:
+                </p>
+
+                <div class="consentimientos-lista">
+                  @for (consentimiento of formulario()?.consentimientos; track consentimiento.id) {
+                    <div 
+                      class="consentimiento-item"
+                      [class.selected]="isConsentimientoSeleccionado(consentimiento.id.toString())"
+                      (click)="toggleConsentimiento(consentimiento.id.toString())">
+                      <div class="d-flex align-items-start">
+                        <div class="form-check me-3">
+                          <input 
+                            class="form-check-input"
+                            type="checkbox"
+                            [checked]="isConsentimientoSeleccionado(consentimiento.id.toString())"
+                            (click)="$event.stopPropagation()">
+                        </div>
+                        <div class="flex-grow-1">
+                          <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-shield-alt text-primary me-2"></i>
+                            <label class="form-check-label fw-bold">
+                              {{ consentimiento.tipo }}
+                            </label>
+                          </div>
+                          @if (consentimiento.descripcion) {
+                            <p class="text-muted small mb-2">{{ consentimiento.descripcion }}</p>
+                          }
+                          @if (consentimiento.archivos && consentimiento.archivos.length > 0) {
+                            <div class="archivos-relacionados">
+                              <small class="text-muted d-block mb-1">
+                                <i class="fas fa-paperclip me-1"></i>
+                                Archivos relacionados:
+                              </small>
+                              @for (archivo of consentimiento.archivos; track archivo.id) {
+                                <a 
+                                  [href]="getPdfUrl(archivo.ruta)"
+                                  target="_blank"
+                                  class="archivo-link d-block"
+                                  (click)="$event.stopPropagation()">
+                                  <i class="fas fa-file-pdf me-1"></i>
+                                  {{ archivo.nombre }}
+                                </a>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <div class="text-center mt-4">
+                  <button 
+                    type="button"
+                    class="btn btn-success btn-lg"
+                    (click)="continuarConConsentimientos()"
+                    [disabled]="consentimientosSeleccionados().length === 0">
+                    <i class="fas fa-arrow-right me-2"></i>
+                    CONTINUAR CON CONSENTIMIENTOS
+                  </button>
+                </div>
+              </div>
+            }
+
+            <!-- Sección 4: Verificación -->
+            @if (estado().consentimientosSeleccionados) {
+              <div class="seccion seccion-activa" id="seccion-verificacion">
+                <h4>
+                  <i class="fas fa-shield-alt text-primary me-2"></i>
+                  VERIFICACIÓN DE IDENTIDAD
+                </h4>
+                <p class="text-muted mb-3">
+                  Para procesar tus consentimientos, necesitamos verificar tu identidad
+                </p>
+
+                <!-- Verificación tradicional -->
+                @if (estado().tipoValidacion === 'sms_email') {
+                  <div class="card border-primary">
+                    <div class="card-body">
+                      <h6>
+                        <i class="fas fa-envelope me-2"></i>
+                        Verificación por Código
+                      </h6>
+                      <p class="text-muted mb-3">
+                        Recibirás un código de 6 dígitos por Email + WhatsApp
+                      </p>
+
+                      @if (!estado().codigoEnviado) {
+                        <button 
+                          type="button"
+                          class="btn btn-outline-primary btn-lg w-100 mb-3"
+                          (click)="solicitarCodigo()"
+                          [disabled]="loading()">
+                          <i class="fas fa-envelope me-1"></i>
+                          Solicitar Código de Verificación
+                        </button>
+                      } @else {
+                        <div class="alert alert-success">
+                          <i class="fas fa-check-circle me-2"></i>
+                          Código enviado correctamente
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Código de 6 dígitos</label>
+                          <input 
+                            type="text"
+                            class="form-control form-control-lg codigo-input"
+                            [(ngModel)]="codigoVerificacion"
+                            maxlength="6"
+                            placeholder="123456">
+                          <small class="text-muted">Revisa tu email y WhatsApp</small>
+                        </div>
+
+                        <button 
+                          type="button"
+                          class="btn btn-success btn-lg w-100"
+                          (click)="verificarCodigo()"
+                          [disabled]="loading() || codigoVerificacion().length !== 6">
+                          <i class="fas fa-check me-1"></i>
+                          VERIFICAR Y AUTORIZAR CONSENTIMIENTOS
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Verificación biométrica -->
+                @if (estado().tipoValidacion === 'biometria_free' || estado().tipoValidacion === 'biometria_premium') {
+                  <div class="card border-success">
+                    <div class="card-body">
+                      <h6>
+                        <i class="fas fa-fingerprint me-2"></i>
+                        Verificación Biométrica
+                      </h6>
+                      <p class="text-muted mb-3">
+                        Verifica tu identidad usando reconocimiento facial y documento
+                      </p>
+
+                      <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Proceso automático:</strong> Recibirás un email con el enlace de verificación.
+                      </div>
+
+                      <button 
+                        type="button"
+                        class="btn btn-success btn-lg w-100"
+                        (click)="solicitarCodigo()"
+                        [disabled]="loading()">
+                        <i class="fas fa-envelope me-1"></i>
+                        ENVIAR VERIFICACIÓN BIOMÉTRICA
+                      </button>
+                    </div>
+                  </div>
+                }
+
+                <!-- Verificación SMS DIDIT -->
+                @if (estado().tipoValidacion === 'sms_didit') {
+                  <div class="card border-warning">
+                    <div class="card-body">
+                      <h6>
+                        <i class="fas fa-mobile-alt me-2"></i>
+                        Verificación por SMS
+                      </h6>
+                      <p class="text-muted mb-3">
+                        Recibirás un código de verificación por SMS
+                      </p>
+
+                      @if (smsPasoActual() === 'telefono') {
+                        <div class="alert alert-info">
+                          <i class="fas fa-info-circle me-2"></i>
+                          Haz clic en el botón para enviar el código SMS a tu teléfono
+                        </div>
+
+                        <button 
+                          type="button"
+                          class="btn btn-warning btn-lg w-100"
+                          (click)="solicitarCodigo()"
+                          [disabled]="loading() || smsAttempts() >= smsMaxAttempts()">
+                          <i class="fas fa-sms me-1"></i>
+                          ENVIAR CÓDIGO SMS
+                        </button>
+
+                        @if (smsAttempts() > 0) {
+                          <small class="text-muted d-block mt-2 text-center">
+                            Intentos: {{ smsAttempts() }} / {{ smsMaxAttempts() }}
+                          </small>
+                        }
+                      }
+
+                      @if (smsPasoActual() === 'codigo') {
+                        <div class="alert alert-success">
+                          <i class="fas fa-check-circle me-2"></i>
+                          Código SMS enviado a {{ telefono() }}
+                        </div>
+
+                        <div class="mb-3">
+                          <label class="form-label">Código de 6 dígitos</label>
+                          <input 
+                            type="text"
+                            class="form-control form-control-lg codigo-input"
+                            [(ngModel)]="codigoVerificacion"
+                            maxlength="6"
+                            placeholder="123456">
+                          <small class="text-muted">Revisa tu teléfono</small>
+                        </div>
+
+                        <button 
+                          type="button"
+                          class="btn btn-success btn-lg w-100 mb-2"
+                          (click)="verificarCodigo()"
+                          [disabled]="loading() || codigoVerificacion().length !== 6">
+                          <i class="fas fa-check me-1"></i>
+                          VERIFICAR Y AUTORIZAR CONSENTIMIENTOS
+                        </button>
+
+                        <button 
+                          type="button"
+                          class="btn btn-outline-secondary w-100"
+                          (click)="reenviarCodigoSms()"
+                          [disabled]="loading() || smsAttempts() >= smsMaxAttempts()">
+                          <i class="fas fa-redo me-1"></i>
+                          Reenviar código
+                        </button>
+                      }
+
+                      @if (smsPasoActual() === 'exitoso') {
+                        <div class="alert alert-success">
+                          <i class="fas fa-check-circle me-2"></i>
+                          Verificación completada exitosamente
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Sección 5: Finalización -->
+            @if (estado().consentimientosCompletados) {
+              <div class="seccion seccion-activa" id="seccion-finalizacion">
+                <div class="text-center">
+                  <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                  </div>
+                  <h3 class="text-success">¡Consentimientos autorizados exitosamente!</h3>
+                  <p class="text-muted mb-4">El proceso se ha completado correctamente.</p>
+
+                  <div class="documentos-section">
+                    <h5>
+                      <i class="fas fa-download text-primary me-2"></i>
+                      DOCUMENTOS DISPONIBLES
+                    </h5>
+                    
+                    <div class="row mt-3">
+                      <div class="col-md-6 mb-3">
+                        <div class="card border-primary h-100">
+                          <div class="card-body text-center">
+                            <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                            <h6>Certificado de Consentimientos</h6>
+                            <p class="text-muted small">Documento oficial con todos tus consentimientos</p>
+                            <a 
+                              [href]="getCertificadoUrl()"
+                              target="_blank"
+                              class="btn btn-primary">
+                              <i class="fas fa-download me-1"></i>
+                              Descargar PDF
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-md-6 mb-3">
+                        <div class="card border-info h-100">
+                          <div class="card-body text-center">
+                            <i class="fas fa-file-contract fa-3x text-info mb-3"></i>
+                            <h6>Términos y Condiciones</h6>
+                            <p class="text-muted small">Términos completos que has aceptado</p>
+                            <a 
+                              [href]="getTerminosUrl()"
+                              target="_blank"
+                              class="btn btn-info">
+                              <i class="fas fa-download me-1"></i>
+                              Descargar PDF
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="alert alert-info mt-4">
+                    <i class="fas fa-envelope me-2"></i>
+                    Los documentos también fueron enviados a tu email
+                  </div>
+                </div>
+              </div>
+            }
+
+          </div>
+        </div>
+
+        <!-- Footer con branding BEGROUP -->
+        <div class="begroup-footer mt-4">
+          <div class="text-center">
+            <p class="mb-2">
+              <i class="fas fa-shield-check text-primary me-2"></i>
+              Plataforma desarrollada por
+            </p>
+            <h5 class="begroup-brand mb-3">BEGROUP</h5>
+            
+            <div class="social-links mb-3">
+              <a [href]="config.adminCompany.social.youtube" target="_blank" class="social-link" title="YouTube">
+                <i class="fab fa-youtube"></i>
+              </a>
+              <a [href]="config.adminCompany.social.linkedin" target="_blank" class="social-link" title="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+              </a>
+              <a [href]="config.adminCompany.social.instagram" target="_blank" class="social-link" title="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a [href]="config.adminCompany.social.tiktok" target="_blank" class="social-link" title="TikTok">
+                <i class="fab fa-tiktok"></i>
+              </a>
+              <a [href]="config.adminCompany.social.facebook" target="_blank" class="social-link" title="Facebook">
+                <i class="fab fa-facebook"></i>
+              </a>
+            </div>
+
+            <div class="contact-info">
+              <p class="mb-1">
+                <i class="fas fa-envelope me-2"></i>
+                <a [href]="'mailto:' + config.adminCompany.email">{{ config.adminCompany.email }}</a>
+              </p>
+              <p class="mb-1">
+                <i class="fas fa-phone me-2"></i>
+                {{ config.adminCompany.phone }}
+              </p>
+              <p class="mb-0">
+                <a [href]="config.adminCompany.whatsapp" target="_blank" class="whatsapp-link">
+                  <i class="fab fa-whatsapp me-1"></i>
+                  Contáctanos por WhatsApp
+                </a>
+              </p>
+            </div>
+
+            <div class="copyright mt-3">
+              <small class="text-muted">
+                © {{ getCurrentYear() }} BEGROUP. Todos los derechos reservados.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  @if (loading()) {
+    <div class="loading-overlay">
+      <div class="loading-content">
+        <div class="spinner-border text-primary mb-3"></div>
+        <h5>Procesando...</h5>
+      </div>
+    </div>
+  }
+</div>

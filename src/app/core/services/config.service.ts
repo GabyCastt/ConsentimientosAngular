@@ -264,4 +264,32 @@ export class ConfigService {
   sanitizeInput(input: string): string {
     return input.replace(/[<>"']/g, '');
   }
+
+  /**
+   * Verifica la configuración del entorno
+   */
+  private verificarConfiguracion(): void {
+    if (this.isDevelopment()) {
+      console.log('🔧 Modo desarrollo activado');
+      console.log('📡 Usando proxy para evitar CORS');
+      console.log('🌐 Backend esperado en: http://localhost:3811');
+    } else {
+      console.log('🚀 Modo producción activado');
+      console.log('📡 API URL:', this.apiUrl);
+    }
+  }
+
+  /**
+   * Obtiene información del entorno actual
+   */
+  getEnvironmentInfo(): Record<string, any> {
+    return {
+      production: this.isProduction(),
+      development: this.isDevelopment(),
+      apiUrl: this.apiUrl,
+      hostname: window.location.hostname,
+      version: this.version,
+      appName: this.appName
+    };
+  }
 }

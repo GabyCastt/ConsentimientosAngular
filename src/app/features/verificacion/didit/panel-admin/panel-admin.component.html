@@ -1,0 +1,248 @@
+<!-- Loading Overlay -->
+@if (procesando()) {
+  <div class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner-border text-primary mb-3"></div>
+      <h5>Procesando...</h5>
+      <p class="text-muted mb-0">Culminando proceso del cliente</p>
+    </div>
+  </div>
+}
+
+<div class="admin-container">
+  <!-- Header -->
+  <div class="admin-header">
+    <div class="container-fluid">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1>
+            <i class="fas fa-users-cog me-3"></i>
+            Panel Administrativo DIDIT
+          </h1>
+          <p class="mb-0 opacity-75">
+            Gestión de clientes verificados pendientes de completar
+          </p>
+        </div>
+        <div class="col-md-4 text-end">
+          <button 
+            class="btn refresh-btn"
+            (click)="cargarClientesPendientes()"
+            [disabled]="loading()">
+            <i class="fas fa-sync-alt me-2" [class.fa-spin]="loading()"></i>
+            Actualizar Lista
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-number">{{ clientes().length }}</div>
+          <div class="text-muted">Pendientes</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-number">{{ estadisticas().completados_hoy }}</div>
+          <div class="text-muted">Completados Hoy</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-number">{{ estadisticas().total_verificados }}</div>
+          <div class="text-muted">Total Verificados</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stats-card">
+          <div class="stats-number">{{ estadisticas().tasa_exito }}%</div>
+          <div class="text-muted">Tasa Éxito</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla de Clientes -->
+    <div class="card">
+      <div class="card-header bg-white">
+        <h5 class="mb-0">
+          <i class="fas fa-list me-2 text-primary"></i>
+          Clientes Verificados por DIDIT - Pendientes de Completar
+        </h5>
+      </div>
+      
+      <div class="card-body p-0">
+        <app-loading [show]="loading()" message="Cargando clientes pendientes..."></app-loading>
+
+        @if (!loading() && clientes().length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-check-circle text-success"></i>
+            <h4>¡Excelente!</h4>
+            <p>
+              No hay clientes pendientes de completar.<br>
+              Todos los procesos están al día.
+            </p>
+          </div>
+        }
+
+        @if (!loading() && clientes().length > 0) {
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th><i class="fas fa-user me-1"></i>Cliente</th>
+                  <th><i class="fas fa-id-card me-1"></i>Cédula</th>
+                  <th><i class="fas fa-envelope me-1"></i>Email</th>
+                  <th><i class="fas fa-phone me-1"></i>Teléfono</th>
+                  <th><i class="fas fa-calendar me-1"></i>Verificado</th>
+                  <th><i class="fas fa-info-circle me-1"></i>Estado</th>
+                  <th><i class="fas fa-cogs me-1"></i>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (cliente of clientes(); track cliente.token_verificacion) {
+                  <tr>
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="avatar-circle me-2">
+                          <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                          <strong>{{ cliente.nombre }} {{ cliente.apellido }}</strong><br>
+                          <small class="text-muted">ID: {{ cliente.id }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <code>{{ cliente.cedula }}</code>
+                    </td>
+                    <td>
+                      @if (cliente.email) {
+                        <a [href]="'mailto:' + cliente.email" class="text-decoration-none">
+                          <i class="fas fa-envelope me-1"></i>{{ cliente.email }}
+                        </a>
+                      } @else {
+                        <span class="text-muted">No registrado</span>
+                      }
+                    </td>
+                    <td>
+                      @if (cliente.telefono) {
+                        <a [href]="'tel:' + cliente.telefono" class="text-decoration-none">
+                          <i class="fas fa-phone me-1"></i>{{ cliente.telefono }}
+                        </a>
+                      } @else {
+                        <span class="text-muted">No registrado</span>
+                      }
+                    </td>
+                    <td>
+                      <small class="text-muted">
+                        {{ formatearFecha(cliente.fecha_verificacion) }}
+                      </small>
+                    </td>
+                    <td>
+                      <span class="badge-warning-custom">
+                        <i class="fas fa-clock me-1"></i>
+                        Verificado - Incompleto
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        class="btn btn-culminar"
+                        (click)="culminarProceso(cliente)"
+                        [disabled]="procesando() || isClienteProcesando(cliente.token_verificacion)"
+                        title="Culminar proceso y enviar documentos">
+                        @if (isClienteProcesando(cliente.token_verificacion)) {
+                          <span class="spinner-border spinner-border-sm me-1"></span>
+                          Procesando...
+                        } @else {
+                          <i class="fas fa-check me-1"></i>
+                          Culminar Proceso
+                        }
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Información Adicional -->
+    <div class="row mt-4">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h6>
+              <i class="fas fa-info-circle me-2"></i>
+              ¿Qué hace "Culminar Proceso"?
+            </h6>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              <li>
+                <i class="fas fa-check text-success me-2"></i>
+                Marca consentimientos como completados
+              </li>
+              <li>
+                <i class="fas fa-file-pdf text-danger me-2"></i>
+                Genera certificado personalizado
+              </li>
+              <li>
+                <i class="fas fa-envelope text-primary me-2"></i>
+                Envía documentos por email
+              </li>
+              <li>
+                <i class="fas fa-sms text-info me-2"></i>
+                Envía notificación por SMS
+              </li>
+              <li>
+                <i class="fas fa-database text-secondary me-2"></i>
+                Actualiza estado en base de datos
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h6>
+              <i class="fas fa-shield-alt me-2"></i>
+              Validaciones de Seguridad
+            </h6>
+          </div>
+          <div class="card-body">
+            <ul class="list-unstyled mb-0">
+              <li>
+                <i class="fas fa-user-check text-success me-2"></i>
+                Cliente verificado por DIDIT
+              </li>
+              <li>
+                <i class="fas fa-times-circle text-warning me-2"></i>
+                Proceso no completado previamente
+              </li>
+              <li>
+                <i class="fas fa-envelope-open text-info me-2"></i>
+                Email válido para envío
+              </li>
+              <li>
+                <i class="fas fa-file-contract text-primary me-2"></i>
+                Consentimientos configurados
+              </li>
+              <li>
+                <i class="fas fa-database text-secondary me-2"></i>
+                Token válido en sistema
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

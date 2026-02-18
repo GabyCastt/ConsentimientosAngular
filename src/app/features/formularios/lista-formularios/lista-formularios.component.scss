@@ -1,0 +1,190 @@
+.formularios-container {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+
+  .card-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-bottom: 2px solid #042396;
+    padding: 1.25rem;
+
+    h5 {
+      font-weight: 700;
+      color: #042396;
+      margin: 0;
+    }
+  }
+}
+
+.table {
+  margin-bottom: 0;
+
+  thead {
+    background: #f8f9fa;
+
+    th {
+      font-weight: 600;
+      color: #042396;
+      border-bottom: 2px solid #dee2e6;
+      padding: 1rem 0.75rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  tbody {
+    tr {
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: #f8f9fa;
+        transform: scale(1.01);
+      }
+
+      &.table-secondary {
+        opacity: 0.6;
+      }
+
+      td {
+        vertical-align: middle;
+        padding: 0.75rem;
+      }
+    }
+  }
+}
+
+.badge {
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+.btn-group-sm {
+  .btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+}
+
+// Modal DIDIT
+.modal {
+  &.show {
+    display: block;
+  }
+}
+
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1040;
+}
+
+.modal {
+  z-index: 1050;
+}
+
+.cliente-didit-card {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #042396;
+    box-shadow: 0 4px 12px rgba(4, 35, 150, 0.15);
+    transform: translateX(5px);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h6 {
+    font-weight: 600;
+    color: #042396;
+    margin: 0;
+  }
+
+  small {
+    font-size: 0.85rem;
+  }
+}
+
+.btn-culminar {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    color: white;
+    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+
+  .card-header {
+    h5 {
+      font-size: 1rem;
+    }
+  }
+
+  .cliente-didit-card {
+    padding: 1rem;
+
+    .row {
+      flex-direction: column;
+    }
+
+    .col-md-4 {
+      margin-top: 1rem;
+      text-align: left !important;
+    }
+
+    .btn-culminar {
+      width: 100%;
+    }
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+}

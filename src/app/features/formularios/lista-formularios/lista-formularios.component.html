@@ -1,0 +1,218 @@
+<app-loading [show]="loading()" message="Cargando formularios..."></app-loading>
+
+<div class="formularios-container">
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <div>
+        <h5>
+          <i class="fas fa-clipboard-list me-2"></i>
+          Gestión de Formularios
+        </h5>
+        <div class="form-check form-switch mt-2">
+          <input 
+            class="form-check-input" 
+            type="checkbox" 
+            id="mostrar-inactivos"
+            [checked]="mostrarInactivos()"
+            (change)="toggleInactivos()">
+          <label class="form-check-label small text-muted" for="mostrar-inactivos">
+            <i class="fas fa-eye-slash me-1"></i>
+            Mostrar formularios inactivos
+          </label>
+        </div>
+      </div>
+      <button class="btn btn-primary" disabled title="Próximamente">
+        <i class="fas fa-plus me-2"></i>Nuevo Formulario
+      </button>
+    </div>
+
+    <div class="card-body">
+      @if (formulariosFiltrados().length === 0 && !loading()) {
+        <div class="text-center py-5">
+          <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No se encontraron formularios</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Tipos</th>
+                <th>Verificación</th>
+                <th>Respuestas</th>
+                <th>DIDIT Pendientes</th>
+                <th>Estado</th>
+                <th>URL Pública</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (formulario of formulariosFiltrados(); track formulario.id) {
+                <tr [class.table-secondary]="!formulario.activo">
+                  <td>
+                    <strong>{{ formulario.nombre }}</strong>
+                  </td>
+                  <td>
+                    <small class="text-muted">{{ formulario.descripcion || '-' }}</small>
+                  </td>
+                  <td>
+                    @for (tipo of formulario.tipos_consentimientos; track tipo) {
+                      <span class="badge bg-info me-1">{{ tipo }}</span>
+                    }
+                  </td>
+                  <td>
+                    <span class="badge bg-primary">
+                      {{ getTipoValidacionLabel(formulario.tipo_validacion) }}
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span class="badge bg-success">{{ formulario.respuestas_count }}</span>
+                  </td>
+                  <td class="text-center">
+                    @if (formulario.clientes_didit_pendientes && formulario.clientes_didit_pendientes > 0) {
+                      <button 
+                        class="btn btn-sm btn-warning"
+                        (click)="abrirModalDidit(formulario)"
+                        title="Ver clientes DIDIT pendientes">
+                        <i class="fas fa-fingerprint me-1"></i>
+                        {{ formulario.clientes_didit_pendientes }}
+                      </button>
+                    } @else {
+                      <span class="text-muted">-</span>
+                    }
+                  </td>
+                  <td>
+                    @if (formulario.activo) {
+                      <span class="badge bg-success">
+                        <i class="fas fa-check-circle me-1"></i>Activo
+                      </span>
+                    } @else {
+                      <span class="badge bg-secondary">
+                        <i class="fas fa-pause-circle me-1"></i>Inactivo
+                      </span>
+                    }
+                  </td>
+                  <td>
+                    <button 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="copiarUrl(formulario.token)"
+                      title="Copiar URL">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button 
+                        class="btn btn-outline-warning"
+                        (click)="toggleEstado(formulario)"
+                        [title]="formulario.activo ? 'Desactivar' : 'Activar'">
+                        <i [class]="formulario.activo ? 'fas fa-pause' : 'fas fa-play'"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<!-- Modal DIDIT Pendientes -->
+@if (mostrarModalDidit()) {
+  <div class="modal-backdrop fade show" (click)="cerrarModalDidit()"></div>
+  <div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-fingerprint me-2"></i>
+            Clientes DIDIT Pendientes - {{ formularioSeleccionado()?.nombre }}
+          </h5>
+          <button 
+            type="button" 
+            class="btn-close btn-close-white" 
+            (click)="cerrarModalDidit()"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Clientes verificados por DIDIT que necesitan completar el proceso:</strong><br>
+            <small>Al hacer clic en "Culminar Proceso" se generarán y enviarán automáticamente los documentos por email y SMS.</small>
+          </div>
+
+          @if (formularioSeleccionado()) {
+            @for (cliente of getClientesDiditFormulario(formularioSeleccionado()!.id); track cliente.id) {
+              <div class="cliente-didit-card">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6 class="mb-1">
+                      <i class="fas fa-user me-2 text-primary"></i>
+                      {{ cliente.nombre }} {{ cliente.apellido }}
+                    </h6>
+                    <small class="text-muted">
+                      <i class="fas fa-id-card me-1"></i>{{ cliente.cedula }}
+                      @if (cliente.email) {
+                        <i class="fas fa-envelope ms-2 me-1"></i>{{ cliente.email }}
+                      }
+                      @if (cliente.telefono) {
+                        <i class="fas fa-phone ms-2 me-1"></i>{{ cliente.telefono }}
+                      }
+                    </small>
+                    <br>
+                    <span class="badge bg-warning text-dark mt-1">
+                      <i class="fas fa-clock me-1"></i>
+                      Verificado {{ formatearTiempoRelativo(cliente.fecha_verificacion) }}
+                    </span>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    <button 
+                      class="btn btn-success btn-culminar"
+                      (click)="culminarProceso(cliente)"
+                      [disabled]="procesandoDidit()"
+                      title="Culminar proceso y enviar documentos">
+                      @if (procesandoDidit()) {
+                        <span class="spinner-border spinner-border-sm me-1"></span>
+                      } @else {
+                        <i class="fas fa-check me-1"></i>
+                      }
+                      Culminar Proceso
+                    </button>
+                  </div>
+                </div>
+              </div>
+            } @empty {
+              <div class="text-center py-4">
+                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                <h6>¡Todo al día!</h6>
+                <p class="text-muted mb-0">No hay clientes DIDIT pendientes para este formulario</p>
+              </div>
+            }
+          }
+        </div>
+        
+        <div class="modal-footer">
+          <button 
+            type="button" 
+            class="btn btn-outline-primary"
+            (click)="actualizarManual()"
+            [disabled]="procesandoDidit()">
+            <i class="fas fa-sync-alt me-1"></i>
+            Actualizar
+          </button>
+          <button 
+            type="button" 
+            class="btn btn-secondary" 
+            (click)="cerrarModalDidit()">
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

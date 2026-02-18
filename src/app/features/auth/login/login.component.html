@@ -1,1 +1,209 @@
-<p>login works!</p>
+<div class="login-wrapper">
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-md-5 col-lg-4">
+        
+        <!-- Card de Login -->
+        <div class="login-card">
+          
+          <!-- Header -->
+          <div class="login-header text-center mb-4">
+            <div class="logo-container mb-3">
+              <i class="fas fa-shield-alt fa-3x text-primary"></i>
+            </div>
+            <h2 class="mb-1">ConsentPro</h2>
+            <p class="text-muted">Sistema de Gestión de Consentimientos</p>
+          </div>
+
+          <!-- Mensajes de error -->
+          @if (errorMessage()) {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{ errorMessage() }}
+              <button 
+                type="button" 
+                class="btn-close" 
+                (click)="errorMessage.set('')">
+              </button>
+            </div>
+          }
+
+          <!-- Mensajes de éxito -->
+          @if (successMessage()) {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="fas fa-check-circle me-2"></i>
+              {{ successMessage() }}
+              <button 
+                type="button" 
+                class="btn-close" 
+                (click)="successMessage.set('')">
+              </button>
+            </div>
+          }
+
+          <!-- Formulario -->
+          <form (ngSubmit)="onSubmit()">
+            
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label">
+                <i class="fas fa-envelope me-1"></i>
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                class="form-control form-control-lg"
+                [class.is-valid]="emailValid() === true"
+                [class.is-invalid]="emailValid() === false"
+                [(ngModel)]="email"
+                (ngModelChange)="onEmailChange()"
+                name="email"
+                placeholder="tu&#64;email.com"
+                required
+                autocomplete="email"
+                [disabled]="loading()">
+              @if (emailValid() === false) {
+                <div class="invalid-feedback d-block">
+                  <i class="fas fa-times-circle me-1"></i>
+                  Ingresa un email válido
+                </div>
+              }
+              @if (emailValid() === true) {
+                <div class="valid-feedback d-block">
+                  <i class="fas fa-check-circle me-1"></i>
+                  Email válido
+                </div>
+              }
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <label for="password" class="form-label">
+                <i class="fas fa-lock me-1"></i>
+                Contraseña
+              </label>
+              <div class="input-group">
+                <input
+                  [type]="showPassword() ? 'text' : 'password'"
+                  id="password"
+                  class="form-control form-control-lg"
+                  [class.is-valid]="passwordValid() === true"
+                  [class.is-invalid]="passwordValid() === false"
+                  [(ngModel)]="password"
+                  (ngModelChange)="onPasswordChange()"
+                  name="password"
+                  placeholder="••••••••"
+                  required
+                  autocomplete="current-password"
+                  [disabled]="loading()">
+                <button
+                  class="btn btn-outline-secondary"
+                  type="button"
+                  (click)="togglePassword()"
+                  [disabled]="loading()">
+                  <i [class]="showPassword() ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </button>
+              </div>
+              @if (passwordValid() === false) {
+                <div class="invalid-feedback d-block">
+                  <i class="fas fa-times-circle me-1"></i>
+                  Mínimo 6 caracteres
+                </div>
+              }
+              @if (passwordValid() === true) {
+                <div class="valid-feedback d-block">
+                  <i class="fas fa-check-circle me-1"></i>
+                  Contraseña válida
+                </div>
+              }
+            </div>
+
+            <!-- Remember Me -->
+            <div class="mb-3 form-check">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                id="rememberMe"
+                [(ngModel)]="rememberMe"
+                name="rememberMe"
+                [disabled]="loading()">
+              <label class="form-check-label" for="rememberMe">
+                Recordar sesión
+              </label>
+            </div>
+
+            <!-- Botón Submit -->
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg w-100"
+              [disabled]="loading() || !email() || !password()">
+              @if (loading()) {
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Iniciando sesión...
+              } @else {
+                <i class="fas fa-sign-in-alt me-2"></i>
+                Iniciar Sesión
+              }
+            </button>
+
+          </form>
+
+          <!-- Separador -->
+          <hr class="my-4">
+
+          <!-- Credenciales de prueba -->
+          <div class="text-center">
+            <button 
+              class="btn btn-link btn-sm text-decoration-none"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#demoCredentials">
+              <i class="fas fa-info-circle me-1"></i>
+              Ver credenciales de prueba
+            </button>
+            
+            <div class="collapse" id="demoCredentials">
+              <div class="demo-credentials mt-3 p-3 bg-light rounded">
+                <small>
+                  <strong>Credenciales de demostración:</strong><br>
+                  <span class="badge bg-primary me-1">
+                    <i class="fas fa-crown"></i>
+                  </span> 
+                  Admin: admin&#64;admin.com / admin123<br>
+                  
+                  <span class="badge bg-info me-1">
+                    <i class="fas fa-building"></i>
+                  </span> 
+                  Distribuidor Demo: distribuidor&#64;demo.com / distribuidor123<br>
+                  
+                  <span class="badge bg-success me-1">
+                    <i class="fas fa-building"></i>
+                  </span> 
+                  TechSolutions: distribuidor&#64;techsolutions.com / distribuidor456
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="login-footer text-center mt-4">
+            <small class="text-muted">
+              <i class="fas fa-shield-alt me-1"></i>
+              Conexión segura
+            </small>
+          </div>
+
+        </div>
+
+        <!-- Copyright -->
+        <div class="text-center mt-4">
+          <small class="text-muted">
+            © 2026 BEGROUP - Todos los derechos reservados
+          </small>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -4,10 +4,29 @@ import { ApiService } from '../../core/services/api.service';
 import { ConfigService } from '../../core/services/config.service';
 
 export interface DashboardStats {
-  total_clientes: number;
-  total_consentimientos: number;
-  total_verificados: number;
-  total_pendientes: number;
+  clientes?: {
+    total: number;
+    con_email: number;
+    con_telefono: number;
+  };
+  consentimientos?: {
+    total: number;
+    verificados: number;
+    pendientes: number;
+  };
+  formularios?: {
+    total: number;
+    activos: number;
+  };
+  actividad_reciente?: {
+    ultimos_7_dias: number;
+    ultimos_30_dias: number;
+  };
+  // Fallback for flat structure
+  total_clientes?: number;
+  total_consentimientos?: number;
+  total_verificados?: number;
+  total_pendientes?: number;
 }
 
 @Injectable({
