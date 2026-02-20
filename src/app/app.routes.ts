@@ -10,6 +10,13 @@ export const routes: Routes = [
       .then(m => m.LoginComponent)
   },
   {
+    // Ruta con query parameter: /formulario?token=xxx (como en la maqueta original)
+    path: 'formulario',
+    loadComponent: () => import('./features/formularios/formulario-publico/formulario-publico.component')
+      .then(m => m.FormularioPublicoComponent)
+  },
+  {
+    // Ruta con route parameter: /formulario/:token (alternativa)
     path: 'formulario/:token',
     loadComponent: () => import('./features/formularios/formulario-publico/formulario-publico.component')
       .then(m => m.FormularioPublicoComponent)

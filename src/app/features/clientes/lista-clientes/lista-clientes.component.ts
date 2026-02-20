@@ -30,6 +30,9 @@ export class ListaClientesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    console.log('👥 Lista de clientes inicializada');
+    console.log('📍 Endpoint:', this.clientesService['config'].endpoints.clientes);
+    
     this.loadClientes();
   }
 
@@ -38,13 +41,20 @@ export class ListaClientesComponent implements OnInit {
     
     this.clientesService.getClientes().subscribe({
       next: (response) => {
-        const clientes = response.clientes || [];
+        console.log('👥 Clientes received:', response);
+        
+        // El backend puede devolver { clientes: [...] } o directamente el array
+        const clientes = Array.isArray(response) ? response : (response.clientes || []);
+        
+        console.log(`✅ Total de clientes: ${clientes.length}`);
+        console.log('📋 Datos de clientes:', clientes);
+        
         this.clientes.set(clientes);
         this.clientesFiltrados.set(clientes);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error cargando clientes:', error);
+        console.error('❌ Error cargando clientes:', error);
         this.toastService.error('Error al cargar clientes');
         this.clientes.set([]);
         this.clientesFiltrados.set([]);

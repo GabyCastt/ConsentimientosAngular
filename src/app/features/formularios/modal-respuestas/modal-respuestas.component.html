@@ -1,0 +1,169 @@
+@if (isOpen()) {
+  <div class="modal show d-block" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-list me-2"></i>
+            Respuestas: {{ formulario()?.nombre }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Información del formulario -->
+          <div class="mb-3">
+            <span class="badge bg-info me-2">
+              <i class="fas fa-chart-bar me-1"></i>
+              Total: {{ respuestas().length }} respuesta(s)
+            </span>
+            <span class="badge" [class]="formulario()?.activo ? 'bg-success' : 'bg-secondary'">
+              <i [class]="formulario()?.activo ? 'fas fa-check-circle' : 'fas fa-pause-circle'" class="me-1"></i>
+              {{ formulario()?.activo ? 'Activo' : 'Inactivo' }}
+            </span>
+          </div>
+
+          <!-- Tabla de respuestas -->
+          @if (respuestas().length === 0) {
+            <div class="text-center py-5">
+              <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+              <h6>No hay respuestas</h6>
+              <p class="text-muted mb-0">Este formulario aún no tiene respuestas registradas</p>
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>Cliente</th>
+                    <th>Contacto</th>
+                    <th>Estado</th>
+                    <th>Consentimientos</th>
+                    <th>Fecha</th>
+                    <th>PDF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (respuesta of respuestas(); track respuesta.id) {
+                    <tr>
+                      <!-- Cliente -->
+                      <td>
+                        <strong>{{ respuesta.cliente_nombre || 'N/A' }}</strong>
+                        <br>
+                        <small class="text-muted">
+                          <i class="fas fa-id-card me-1"></i>
+                          {{ respuesta.cliente_cedula || 'N/A' }}
+                        </small>
+                      </td>
+
+                      <!-- Contacto -->
+                      <td>
+                        <small>
+                          @if (respuesta.cliente_email) {
+                            <div>
+                              <i class="fas fa-envelope me-1"></i>
+                              {{ respuesta.cliente_email }}
+                            </div>
+                          }
+                          @if (respuesta.cliente_telefono) {
+                            <div>
+                              <i class="fas fa-phone me-1"></i>
+                              {{ respuesta.cliente_telefono }}
+                            </div>
+                          }
+                          @if (!respuesta.cliente_email && !respuesta.cliente_telefono) {
+                            <span class="text-muted">Sin contacto</span>
+                          }
+                        </small>
+                      </td>
+
+                      <!-- Estado -->
+                      <td>
+                        <div class="mb-1">
+                          @if (respuesta.verificado) {
+                            <span class="badge bg-success">
+                              <i class="fas fa-check-circle me-1"></i>
+                              Verificado
+                            </span>
+                          } @else {
+                            <span class="badge bg-warning">
+                              <i class="fas fa-clock me-1"></i>
+                              Pendiente
+                            </span>
+                          }
+                        </div>
+                        <div>
+                          @if (respuesta.consentimientos_completados) {
+                            <span class="badge bg-info">
+                              <i class="fas fa-check me-1"></i>
+                              Completado
+                            </span>
+                          } @else {
+                            <span class="badge bg-secondary">
+                              <i class="fas fa-hourglass-half me-1"></i>
+                              Incompleto
+                            </span>
+                          }
+                        </div>
+                      </td>
+
+                      <!-- Consentimientos -->
+                      <td>
+                        @if (respuesta.tipos_aceptados && respuesta.tipos_aceptados.length > 0) {
+                          <div class="d-flex gap-1">
+                            @for (tipo of respuesta.tipos_aceptados; track tipo) {
+                              <i 
+                                [class]="'fas ' + getTipoConsentimientoIcon(tipo)"
+                                [title]="getTipoConsentimientoLabel(tipo)"></i>
+                            }
+                          </div>
+                        } @else {
+                          <span class="text-muted">Ninguno</span>
+                        }
+                      </td>
+
+                      <!-- Fecha -->
+                      <td>
+                        <small>
+                          {{ formatearFecha(respuesta.fecha_procesado || respuesta.created_at || '') }}
+                        </small>
+                      </td>
+
+                      <!-- PDF -->
+                      <td>
+                        @if (respuesta.pdf_url) {
+                          <button 
+                            class="btn btn-sm btn-outline-primary"
+                            (click)="descargarPDF(respuesta.pdf_url!)"
+                            title="Descargar PDF">
+                            <i class="fas fa-download"></i>
+                          </button>
+                        } @else {
+                          <span class="text-muted">N/A</span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer bg-light">
+          <div class="me-auto">
+            <small class="text-muted">
+              <i class="fas fa-info-circle me-1"></i>
+              Mostrando {{ respuestas().length }} respuesta(s)
+            </small>
+          </div>
+          <button type="button" class="btn btn-secondary" (click)="close()">
+            <i class="fas fa-times me-1"></i>
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop show"></div>
+}

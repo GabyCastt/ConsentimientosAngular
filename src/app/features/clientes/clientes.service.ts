@@ -13,8 +13,8 @@ export class ClientesService {
     private config: ConfigService
   ) {}
 
-  getClientes(): Observable<{ clientes: Cliente[] }> {
-    return this.api.get<{ clientes: Cliente[] }>(
+  getClientes(): Observable<any> {
+    return this.api.get<any>(
       this.config.endpoints.clientes
     );
   }

@@ -13,14 +13,22 @@ export interface FormularioPublico {
   id: number;
   nombre: string;
   descripcion?: string;
-  empresa: {
+  empresa?: {
     id: number;
     nombre: string;
     logo?: string;
     slogan?: string;
   };
-  consentimientos: Consentimiento[];
+  empresa_nombre?: string;
+  empresa_logo?: string;
+  empresa_slogan?: string;
+  tipos_consentimientos?: string[];
+  archivos_disponibles?: {
+    [key: string]: ArchivoConsentimiento[];
+  };
+  consentimientos?: Consentimiento[];
   tipo_validacion: 'sms_email' | 'biometria_free' | 'biometria_premium' | 'sms_didit';
+  token_publico?: string;
 }
 
 export interface Consentimiento {
@@ -31,10 +39,13 @@ export interface Consentimiento {
 }
 
 export interface ArchivoConsentimiento {
-  id: number;
+  id?: number;
   nombre: string;
-  ruta: string;
-  tipo: string;
+  ruta?: string;
+  url?: string;
+  tipo?: string;
+  descripcion?: string;
+  obligatorio?: boolean;
 }
 
 export interface DatosUsuario {

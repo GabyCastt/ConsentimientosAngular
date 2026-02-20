@@ -4,13 +4,14 @@
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">
-            <i class="fas fa-user me-2"></i>
+            <i class="fas fa-user-plus me-2"></i>
             {{ isEditMode() ? 'Editar Cliente' : 'Nuevo Cliente' }}
           </h5>
           <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
         </div>
 
-        <div class="modal-body">
+        <div class="modal-body p-4">
+          <!-- Resumen de errores -->
           @if (errors()['general']) {
             <div class="alert alert-danger">
               <i class="fas fa-exclamation-triangle me-2"></i>
@@ -26,69 +27,51 @@
           }
 
           <form>
-            <!-- Cédula -->
-            <div class="mb-3">
-              <label class="form-label">
-                Cédula <span class="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                class="form-control"
-                [(ngModel)]="cedula"
-                name="cedula"
-                maxlength="10"
-                [class.is-invalid]="errors()['cedula']"
-                [disabled]="isEditMode()">
-              @if (errors()['cedula']) {
-                <div class="invalid-feedback d-block">
-                  {{ errors()['cedula'] }}
-                </div>
-              }
-            </div>
-
-            <!-- Nombre y Apellido -->
             <div class="row">
+              <!-- Columna izquierda -->
               <div class="col-md-6">
+                <!-- Cédula -->
                 <div class="mb-3">
-                  <label class="form-label">
-                    Nombre <span class="text-danger">*</span>
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-id-card me-1 text-primary"></i>
+                    Cédula <span class="text-danger">*</span>
                   </label>
                   <input
                     type="text"
                     class="form-control"
-                    [(ngModel)]="nombre"
-                    name="nombre"
-                    [class.is-invalid]="errors()['nombre']">
-                  @if (errors()['nombre']) {
+                    [(ngModel)]="formData.cedula"
+                    name="cedula"
+                    maxlength="10"
+                    (input)="onCedulaInput()"
+                    [class.is-invalid]="errors()['cedula']"
+                    [class.is-valid]="formData.cedula.length === 10 && !errors()['cedula']"
+                    [disabled]="isEditMode()"
+                    placeholder="1234567890"
+                    autocomplete="off">
+                  @if (errors()['cedula']) {
                     <div class="invalid-feedback d-block">
-                      {{ errors()['nombre'] }}
+                      {{ errors()['cedula'] }}
                     </div>
                   }
+                  <small class="text-muted">{{ formData.cedula.length }}/10 dígitos</small>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <label class="form-label">Apellido</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    [(ngModel)]="apellido"
-                    name="apellido">
-                </div>
-              </div>
-            </div>
 
-            <!-- Email y Teléfono -->
-            <div class="row">
-              <div class="col-md-6">
+                <!-- Email -->
                 <div class="mb-3">
-                  <label class="form-label">Email</label>
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-envelope me-1 text-primary"></i>
+                    Email
+                  </label>
                   <input
                     type="email"
                     class="form-control"
-                    [(ngModel)]="email"
+                    [(ngModel)]="formData.email"
                     name="email"
-                    [class.is-invalid]="errors()['email']">
+                    maxlength="100"
+                    [class.is-invalid]="errors()['email']"
+                    [class.is-valid]="formData.email && !errors()['email']"
+                    placeholder="ejemplo@correo.com"
+                    autocomplete="email">
                   @if (errors()['email']) {
                     <div class="invalid-feedback d-block">
                       {{ errors()['email'] }}
@@ -96,15 +79,48 @@
                   }
                 </div>
               </div>
+
+              <!-- Columna derecha -->
               <div class="col-md-6">
+                <!-- Nombre -->
                 <div class="mb-3">
-                  <label class="form-label">Teléfono</label>
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-user me-1 text-primary"></i>
+                    Nombre <span class="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="formData.nombre"
+                    name="nombre"
+                    maxlength="100"
+                    [class.is-invalid]="errors()['nombre']"
+                    [class.is-valid]="formData.nombre.length >= 2 && !errors()['nombre']"
+                    placeholder="Nombre completo"
+                    autocomplete="name">
+                  @if (errors()['nombre']) {
+                    <div class="invalid-feedback d-block">
+                      {{ errors()['nombre'] }}
+                    </div>
+                  }
+                </div>
+
+                <!-- Teléfono -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">
+                    <i class="fas fa-phone me-1 text-primary"></i>
+                    Teléfono
+                  </label>
                   <input
                     type="tel"
                     class="form-control"
-                    [(ngModel)]="telefono"
+                    [(ngModel)]="formData.telefono"
                     name="telefono"
-                    [class.is-invalid]="errors()['telefono']">
+                    maxlength="15"
+                    [class.is-invalid]="errors()['telefono']"
+                    [class.is-valid]="formData.telefono && !errors()['telefono']"
+                    placeholder="0987654321"
+                    autocomplete="tel">
                   @if (errors()['telefono']) {
                     <div class="invalid-feedback d-block">
                       {{ errors()['telefono'] }}
@@ -113,12 +129,63 @@
                 </div>
               </div>
             </div>
+
+            <!-- Selector de Empresa (Solo para Admin) -->
+            @if (isAdmin()) {
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-building me-1 text-primary"></i>
+                  Empresa <span class="text-danger">*</span>
+                </label>
+                @if (loadingEmpresas()) {
+                  <div class="text-center py-2">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Cargando empresas...
+                  </div>
+                } @else {
+                  <select
+                    class="form-select"
+                    [(ngModel)]="formData.empresa_id"
+                    name="empresa_id"
+                    [class.is-invalid]="errors()['empresa']"
+                    [class.is-valid]="formData.empresa_id && !errors()['empresa']">
+                    <option [ngValue]="null">Seleccionar empresa...</option>
+                    @for (empresa of empresas(); track empresa.id) {
+                      <option [ngValue]="empresa.id">
+                        {{ empresa.nombre }}
+                        @if (empresa.total_usuarios !== undefined || empresa.total_clientes !== undefined) {
+                          ({{ empresa.total_usuarios || 0 }} usuarios, {{ empresa.total_clientes || 0 }} clientes)
+                        }
+                      </option>
+                    }
+                  </select>
+                  @if (errors()['empresa']) {
+                    <div class="invalid-feedback d-block">
+                      {{ errors()['empresa'] }}
+                    </div>
+                  }
+                  <div class="form-text">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Selecciona la empresa a la que pertenecerá este cliente
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Alerta de información de contacto -->
+            <div class="alert alert-info d-flex align-items-center">
+              <i class="fas fa-info-circle me-3 fs-5"></i>
+              <div>
+                <strong>Información de contacto:</strong><br>
+                <small>Debes proporcionar al menos un email o un teléfono para enviar notificaciones.</small>
+              </div>
+            </div>
           </form>
         </div>
 
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="close()">
-            Cancelar
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" (click)="close()">
+            <i class="fas fa-times me-1"></i>Cancelar
           </button>
           <button
             type="button"
@@ -128,7 +195,8 @@
             @if (loading()) {
               <span class="spinner-border spinner-border-sm me-2"></span>
             }
-            {{ isEditMode() ? 'Actualizar' : 'Guardar' }}
+            <i class="fas fa-save me-1"></i>
+            {{ isEditMode() ? 'Actualizar' : 'Guardar Cliente' }}
           </button>
         </div>
       </div>

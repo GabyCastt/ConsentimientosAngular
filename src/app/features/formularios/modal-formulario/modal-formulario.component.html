@@ -1,0 +1,238 @@
+@if (isOpen()) {
+  <div class="modal show d-block" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="fas fa-clipboard-list me-2"></i>
+            {{ isEditMode() ? 'Editar Formulario' : 'Nuevo Formulario' }}
+          </h5>
+          <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <!-- Error general -->
+          @if (errors()['general']) {
+            <div class="alert alert-danger">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{ errors()['general'] }}
+            </div>
+          }
+
+          <form>
+            <!-- Nombre del Formulario -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                <i class="fas fa-heading me-1 text-primary"></i>
+                Nombre del Formulario <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                class="form-control"
+                [(ngModel)]="formData.nombre"
+                name="nombre"
+                maxlength="200"
+                [class.is-invalid]="errors()['nombre']"
+                [class.is-valid]="formData.nombre.length >= 3 && !errors()['nombre']"
+                placeholder="Ej: Formulario de Consentimientos 2024">
+              @if (errors()['nombre']) {
+                <div class="invalid-feedback d-block">
+                  {{ errors()['nombre'] }}
+                </div>
+              }
+            </div>
+
+            <!-- Descripción -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                <i class="fas fa-align-left me-1 text-primary"></i>
+                Descripción
+              </label>
+              <textarea
+                class="form-control"
+                [(ngModel)]="formData.descripcion"
+                name="descripcion"
+                rows="3"
+                maxlength="500"
+                placeholder="Descripción opcional del formulario"></textarea>
+            </div>
+
+            <!-- Selector de Empresa (Solo Admin) -->
+            @if (isAdmin()) {
+              <div class="mb-3">
+                <label class="form-label fw-semibold">
+                  <i class="fas fa-building me-1 text-primary"></i>
+                  Empresa <span class="text-danger">*</span>
+                </label>
+                @if (loadingEmpresas()) {
+                  <div class="text-center py-2">
+                    <span class="spinner-border spinner-border-sm me-2"></span>
+                    Cargando empresas...
+                  </div>
+                } @else {
+                  <select
+                    class="form-select"
+                    [(ngModel)]="formData.empresa_id"
+                    name="empresa_id"
+                    [class.is-invalid]="errors()['empresa']"
+                    [class.is-valid]="formData.empresa_id && !errors()['empresa']">
+                    <option [ngValue]="null">Seleccionar empresa...</option>
+                    @for (empresa of empresas(); track empresa.id) {
+                      <option [ngValue]="empresa.id">
+                        {{ empresa.nombre }}
+                        @if (empresa.total_usuarios !== undefined) {
+                          ({{ empresa.total_usuarios || 0 }} usuarios, {{ empresa.total_clientes || 0 }} clientes)
+                        }
+                      </option>
+                    }
+                  </select>
+                  @if (errors()['empresa']) {
+                    <div class="invalid-feedback d-block">
+                      {{ errors()['empresa'] }}
+                    </div>
+                  }
+                  <div class="form-text">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Selecciona la empresa a la que pertenecerá este formulario
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Tipos de Consentimientos -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                <i class="fas fa-list-check me-1 text-primary"></i>
+                Tipos de Consentimientos <span class="text-danger">*</span>
+              </label>
+              <div class="row">
+                @for (tipo of tiposConsentimiento; track tipo.value) {
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [id]="'tipo-' + tipo.value"
+                        [checked]="isTipoConsentimientoSelected(tipo.value)"
+                        (change)="toggleTipoConsentimiento(tipo.value)">
+                      <label class="form-check-label" [for]="'tipo-' + tipo.value">
+                        <i [class]="'fas ' + tipo.icon + ' text-' + tipo.color + ' me-1'"></i>
+                        {{ tipo.label }}
+                      </label>
+                    </div>
+                  </div>
+                }
+              </div>
+              @if (errors()['tipos']) {
+                <div class="text-danger small mt-1">
+                  <i class="fas fa-exclamation-circle me-1"></i>
+                  {{ errors()['tipos'] }}
+                </div>
+              }
+            </div>
+
+            <!-- Tipo de Verificación -->
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                <i class="fas fa-shield-alt me-1 text-primary"></i>
+                Tipo de Verificación <span class="text-danger">*</span>
+              </label>
+              <select
+                class="form-select"
+                [(ngModel)]="formData.tipo_validacion"
+                name="tipo_validacion"
+                [class.is-invalid]="errors()['validacion']">
+                @for (tipo of tiposValidacion; track tipo.value) {
+                  <option [value]="tipo.value">
+                    {{ tipo.label }}
+                    @if (tipo.costo) {
+                      💰
+                    }
+                  </option>
+                }
+              </select>
+              @if (errors()['validacion']) {
+                <div class="invalid-feedback d-block">
+                  {{ errors()['validacion'] }}
+                </div>
+              }
+              <div class="form-text">
+                <i class="fas fa-info-circle me-1"></i>
+                Selecciona cómo los usuarios verificarán su identidad
+              </div>
+            </div>
+
+            <!-- Información sobre el tipo de verificación seleccionado -->
+            @if (getTipoValidacionSeleccionado(); as tipoSeleccionado) {
+              <div class="alert" [class]="'alert-' + (tipoSeleccionado.costo ? 'warning' : 'info')">
+                <h6>
+                  <i [class]="'fas ' + tipoSeleccionado.icon + ' me-2'"></i>
+                  {{ tipoSeleccionado.label }}
+                </h6>
+                <p class="mb-2">{{ tipoSeleccionado.descripcion }}</p>
+                
+                @if (tipoSeleccionado.value === 'biometria_free' || tipoSeleccionado.value === 'biometria_premium') {
+                  <ul class="mb-2">
+                    <li>📷 Foto de cédula de identidad</li>
+                    <li>🤳 Selfie con reconocimiento facial</li>
+                    <li>✅ Verificación automática en tiempo real</li>
+                    @if (tipoSeleccionado.value === 'biometria_premium') {
+                      <li>🏢 Con branding personalizado</li>
+                    } @else {
+                      <li>🔖 Con branding estándar de Didit</li>
+                    }
+                  </ul>
+                }
+                
+                @if (tipoSeleccionado.value === 'sms_didit') {
+                  <ul class="mb-2">
+                    <li>💰 Cada SMS tiene costo</li>
+                    <li>🔢 Máximo 3 intentos por persona</li>
+                    <li>⚡ Verificación más rápida que biometría</li>
+                    <li>📱 Ideal para usuarios sin smartphone avanzado</li>
+                    <li>🌍 Formato internacional obligatorio</li>
+                  </ul>
+                }
+                
+                @if (tipoSeleccionado.value === 'sms_email') {
+                  <ul class="mb-0">
+                    <li>📧 Email (si proporcionan email)</li>
+                    <li>📱 WhatsApp (si proporcionan teléfono)</li>
+                    <li>🆓 Sin costo adicional</li>
+                  </ul>
+                }
+                
+                @if (tipoSeleccionado.costo) {
+                  <div class="d-flex align-items-center mt-2">
+                    <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
+                    <small class="text-muted">
+                      <strong>Importante:</strong> Este método tiene costo por uso
+                    </small>
+                  </div>
+                }
+              </div>
+            }
+          </form>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" (click)="close()">
+            <i class="fas fa-times me-1"></i>Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="save()"
+            [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            <i class="fas fa-save me-1"></i>
+            {{ isEditMode() ? 'Actualizar' : 'Crear Formulario' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-backdrop show"></div>
+}

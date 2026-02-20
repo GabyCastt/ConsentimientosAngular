@@ -7,19 +7,19 @@
           <!-- Header de la empresa -->
           <div class="empresa-header">
             <div class="empresa-logo-container">
-              @if (formulario()?.empresa?.logo) {
+              @if (formulario()?.empresa?.logo || formulario()?.empresa_logo) {
                 <div class="empresa-logo-wrapper">
                   <img 
-                    [src]="getLogoUrl(formulario()?.empresa?.logo)" 
-                    [alt]="'Logo ' + formulario()?.empresa?.nombre"
+                    [src]="getLogoUrl(formulario()?.empresa?.logo || formulario()?.empresa_logo)" 
+                    [alt]="'Logo ' + (formulario()?.empresa?.nombre || formulario()?.empresa_nombre)"
                     class="empresa-logo">
                 </div>
               }
               <div class="escudo-container">
                 <i class="fas fa-shield-alt escudo-icon"></i>
                 <div class="empresa-info">
-                  <h2>{{ formulario()?.empresa?.nombre || 'Cargando...' }}</h2>
-                  <p class="mb-0">{{ formulario()?.empresa?.slogan || '' }}</p>
+                  <h2>{{ formulario()?.empresa?.nombre || formulario()?.empresa_nombre || 'Cargando...' }}</h2>
+                  <p class="mb-0">{{ formulario()?.empresa?.slogan || formulario()?.empresa_slogan || '' }}</p>
                 </div>
               </div>
             </div>
@@ -59,10 +59,11 @@
                   <input 
                     type="text" 
                     class="form-control form-control-lg cedula-input"
-                    [(ngModel)]="cedula"
+                    [value]="cedula()"
+                    (input)="onCedulaInput($event)"
                     placeholder="1234567890"
                     maxlength="10"
-                    (keypress)="$event.key === 'Enter' && buscarPorCedula()">
+                    (keypress)="onCedulaKeypress($event)">
                   <small class="text-muted">Solo números, exactamente 10 dígitos</small>
                 </div>
                 <div class="col-md-4">
@@ -108,9 +109,9 @@
                         <input 
                           type="text"
                           class="form-control"
-                          [(ngModel)]="nombre"
+                          [value]="nombre()"
+                          (input)="nombre.set($any($event.target).value); validarDatosPersonales()"
                           name="nombre"
-                          (ngModelChange)="validarDatosPersonales()"
                           required>
                       </div>
                     </div>
@@ -120,9 +121,9 @@
                         <input 
                           type="text"
                           class="form-control"
-                          [(ngModel)]="apellido"
+                          [value]="apellido()"
+                          (input)="apellido.set($any($event.target).value); validarDatosPersonales()"
                           name="apellido"
-                          (ngModelChange)="validarDatosPersonales()"
                           required>
                       </div>
                     </div>
@@ -137,9 +138,9 @@
                         <input 
                           type="email"
                           class="form-control"
-                          [(ngModel)]="email"
-                          name="email"
-                          (ngModelChange)="validarDatosPersonales()">
+                          [value]="email()"
+                          (input)="email.set($any($event.target).value); validarDatosPersonales()"
+                          name="email">
                         @if (estado().tipoValidacion === 'biometria_free' || estado().tipoValidacion === 'biometria_premium') {
                           <small class="text-danger">
                             <i class="fas fa-info-circle me-1"></i>
@@ -159,9 +160,9 @@
                         <input 
                           type="tel"
                           class="form-control"
-                          [(ngModel)]="telefono"
-                          name="telefono"
-                          (ngModelChange)="validarDatosPersonales()">
+                          [value]="telefono()"
+                          (input)="telefono.set($any($event.target).value); validarDatosPersonales()"
+                          name="telefono">
                         @if (estado().tipoValidacion === 'sms_didit') {
                           <small class="text-danger">
                             <i class="fas fa-info-circle me-1"></i>
@@ -192,7 +193,7 @@
                 </p>
 
                 <div class="consentimientos-lista">
-                  @for (consentimiento of formulario()?.consentimientos; track consentimiento.id) {
+                  @for (consentimiento of consentimientosFormateados(); track consentimiento.id) {
                     <div 
                       class="consentimiento-item"
                       [class.selected]="isConsentimientoSeleccionado(consentimiento.id.toString())"
@@ -219,11 +220,11 @@
                             <div class="archivos-relacionados">
                               <small class="text-muted d-block mb-1">
                                 <i class="fas fa-paperclip me-1"></i>
-                                Archivos relacionados:
+                                Documentos relacionados:
                               </small>
-                              @for (archivo of consentimiento.archivos; track archivo.id) {
+                              @for (archivo of consentimiento.archivos; track archivo.nombre) {
                                 <a 
-                                  [href]="getPdfUrl(archivo.ruta)"
+                                  [href]="getPdfUrl(archivo.url || archivo.ruta || '')"
                                   target="_blank"
                                   class="archivo-link d-block"
                                   (click)="$event.stopPropagation()">
@@ -295,7 +296,8 @@
                           <input 
                             type="text"
                             class="form-control form-control-lg codigo-input"
-                            [(ngModel)]="codigoVerificacion"
+                            [value]="codigoVerificacion()"
+                            (input)="codigoVerificacion.set($any($event.target).value)"
                             maxlength="6"
                             placeholder="123456">
                           <small class="text-muted">Revisa tu email y WhatsApp</small>
@@ -388,7 +390,8 @@
                           <input 
                             type="text"
                             class="form-control form-control-lg codigo-input"
-                            [(ngModel)]="codigoVerificacion"
+                            [value]="codigoVerificacion()"
+                            (input)="codigoVerificacion.set($any($event.target).value)"
                             maxlength="6"
                             placeholder="123456">
                           <small class="text-muted">Revisa tu teléfono</small>

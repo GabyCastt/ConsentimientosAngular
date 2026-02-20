@@ -24,6 +24,25 @@
   padding: 0.25rem 0.5rem;
 }
 
+// Estilos para iconos de consentimientos
+.consent-icon {
+  font-size: 1.2em;
+  margin-right: 5px;
+}
+
+.consent-accepted {
+  color: #28a745;
+}
+
+.consent-pending {
+  color: #ffc107;
+  opacity: 0.5;
+}
+
+.consent-rejected {
+  color: #dc3545;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

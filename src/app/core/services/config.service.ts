@@ -135,19 +135,28 @@ export class ConfigService {
   getLogoUrl(logoPath: string | null): string | null {
     if (!logoPath) return null;
     
+    console.log('🖼️ getLogoUrl input:', logoPath);
+    
     // Si ya es una URL completa
     if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
-      return logoPath;
+      // CORRECCIÓN: Remover /api-consentimientos si existe (problema del backend)
+      let cleanUrl = logoPath.replace('/api-consentimientos', '');
+      console.log('🖼️ URL limpia:', cleanUrl);
+      return cleanUrl;
     }
     
     // Si empieza con /, es una ruta absoluta desde el servidor
     if (logoPath.startsWith('/')) {
-      return `${this.apiUrl}${logoPath}`;
+      // Remover /api-consentimientos si existe
+      const cleanPath = logoPath.replace('/api-consentimientos', '');
+      return `${this.apiUrl}${cleanPath}`;
     }
     
     // Si ya contiene 'uploads/logos/', solo agregar el dominio
     if (logoPath.includes('uploads/logos/')) {
-      return `${this.apiUrl}/${logoPath}`;
+      // Remover /api-consentimientos si existe
+      const cleanPath = logoPath.replace('/api-consentimientos/', '');
+      return `${this.apiUrl}/${cleanPath}`;
     }
     
     // Si no, es solo el nombre del archivo
@@ -160,14 +169,21 @@ export class ConfigService {
   getPdfUrl(pdfPath: string | null): string | null {
     if (!pdfPath) return null;
     
+    console.log('📄 getPdfUrl input:', pdfPath);
+    
     // Si ya es una URL completa
     if (pdfPath.startsWith('http')) {
-      return pdfPath;
+      // CORRECCIÓN: Remover /api-consentimientos si existe (problema del backend)
+      let cleanUrl = pdfPath.replace('/api-consentimientos', '');
+      console.log('📄 URL limpia:', cleanUrl);
+      return cleanUrl;
     }
     
     // Si ya contiene 'uploads/'
     if (pdfPath.includes('uploads/')) {
-      return `${this.apiUrl}/${pdfPath}`;
+      // Remover /api-consentimientos si existe
+      const cleanPath = pdfPath.replace('/api-consentimientos/', '');
+      return `${this.apiUrl}/${cleanPath}`;
     }
     
     // Si no, agregar ruta completa

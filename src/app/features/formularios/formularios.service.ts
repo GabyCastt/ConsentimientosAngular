@@ -74,4 +74,8 @@ export class FormulariosService {
     );
     return this.api.put(endpoint, { activo });
   }
+
+  getRespuestasFormulario(id: number): Observable<any> {
+    return this.api.get(`${this.config.endpoints.formularios}/${id}/respuestas`);
+  }
 }

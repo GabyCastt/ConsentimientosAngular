@@ -51,11 +51,10 @@
           <table class="table table-hover">
             <thead>
               <tr>
-                <th>Cédula</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Fecha Registro</th>
+                <th>Cliente</th>
+                <th>Contacto</th>
+                <th>Consentimientos</th>
+                <th>Estado</th>
                 <th class="text-center">Acciones</th>
               </tr>
             </thead>
@@ -63,48 +62,73 @@
               @for (cliente of clientesFiltrados(); track cliente.id) {
                 <tr>
                   <td>
-                    <strong>{{ cliente.cedula }}</strong>
+                    <strong>{{ cliente.nombre }}</strong>
+                    <br>
+                    <small class="text-muted">CI: {{ cliente.cedula }}</small>
                   </td>
-                  <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
                   <td>
-                    @if (cliente.email) {
-                      <i class="fas fa-envelope text-primary me-1"></i>
-                      {{ cliente.email }}
+                    <div>
+                      @if (cliente.email) {
+                        <i class="fas fa-envelope text-primary me-1"></i>
+                        {{ cliente.email }}
+                      } @else {
+                        <span class="text-muted">Sin email</span>
+                      }
+                    </div>
+                    <div>
+                      <small>
+                        @if (cliente.telefono) {
+                          <i class="fas fa-phone text-success me-1"></i>
+                          {{ cliente.telefono }}
+                        } @else {
+                          <span class="text-muted">Sin teléfono</span>
+                        }
+                      </small>
+                    </div>
+                  </td>
+                  <td>
+                    @if (cliente.consentimientos && cliente.consentimientos.length > 0) {
+                      @for (tipo of cliente.consentimientos; track tipo) {
+                        @if (tipo === 'Datos Personales') {
+                          <i class="fas fa-shield-alt text-primary consent-icon" title="Datos Personales"></i>
+                        } @else if (tipo === 'Imagen') {
+                          <i class="fas fa-image text-info consent-icon" title="Imagen"></i>
+                        } @else if (tipo === 'Marketing') {
+                          <i class="fas fa-bullhorn text-warning consent-icon" title="Marketing"></i>
+                        }
+                      }
                     } @else {
-                      <span class="text-muted">-</span>
+                      <i class="fas fa-file-contract consent-icon consent-pending" title="Datos Personales"></i>
+                      <i class="fas fa-image consent-icon consent-pending" title="Imagen"></i>
+                      <i class="fas fa-bullhorn consent-icon consent-pending" title="Marketing"></i>
                     }
                   </td>
                   <td>
-                    @if (cliente.telefono) {
-                      <i class="fas fa-phone text-success me-1"></i>
-                      {{ cliente.telefono }}
+                    <div>
+                      @if (cliente.tiene_autorizaciones) {
+                        <span class="badge bg-success">Con autorizaciones</span>
+                      } @else {
+                        <span class="badge bg-secondary">Sin autorizaciones</span>
+                      }
+                    </div>
+                    @if (cliente.total_formularios) {
+                      <small class="text-muted">{{ cliente.total_formularios }} formulario(s)</small>
                     } @else {
-                      <span class="text-muted">-</span>
+                      <small class="text-muted">0 formularios</small>
                     }
-                  </td>
-                  <td>
-                    <small class="text-muted">
-                      {{ cliente.created_at | date:'dd/MM/yyyy HH:mm' }}
-                    </small>
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm">
                       <button
-                        class="btn btn-outline-info"
-                        (click)="verDetalle(cliente)"
-                        title="Ver detalle">
-                        <i class="fas fa-eye"></i>
-                      </button>
-                      <button
                         class="btn btn-outline-primary"
-                        (click)="openEditModal(cliente)"
-                        title="Editar">
-                        <i class="fas fa-edit"></i>
+                        (click)="verDetalle(cliente)"
+                        title="Ver Detalle">
+                        <i class="fas fa-eye"></i>
                       </button>
                       <button
                         class="btn btn-outline-danger"
                         (click)="deleteCliente(cliente)"
-                        title="Eliminar">
+                        title="Eliminar Cliente">
                         <i class="fas fa-trash"></i>
                       </button>
                     </div>

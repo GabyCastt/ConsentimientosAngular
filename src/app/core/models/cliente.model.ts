@@ -8,20 +8,33 @@ export interface Cliente {
   empresa_id: number;
   created_at: string;
   updated_at?: string;
+  
+  // Campos adicionales del backend
+  consentimientos?: string[]; // Array de tipos de consentimientos consolidados
+  total_formularios?: number;
+  tiene_autorizaciones?: boolean;
 }
 
 export interface ClienteDetalle extends Cliente {
-  formularios?: FormularioCliente[];
-  consentimientos?: ConsentimientoCliente[];
-  total_formularios?: number;
-  total_consentimientos?: number;
+  formularios_autorizados?: FormularioCliente[];
+  consentimientos_consolidados?: string[];
+  estadisticas?: {
+    total_formularios: number;
+    total_consentimientos_manuales: number;
+    total_consentimientos_unicos: number;
+    formularios_con_pdf: number;
+  };
 }
 
 export interface FormularioCliente {
   id: number;
-  nombre: string;
-  estado: 'activo' | 'inactivo';
-  fecha_respuesta?: string;
+  formulario_id: number;
+  formulario_nombre: string;
+  respuesta_id: number;
+  fecha_completado: string;
+  tipos_aceptados: string[];
+  tipos_aceptados_formateados: string[];
+  tiene_pdf: boolean;
   verificado: boolean;
 }
 
@@ -38,4 +51,5 @@ export interface CreateClienteDto {
   apellido?: string;
   email?: string;
   telefono?: string;
+  empresa_id?: number;
 }

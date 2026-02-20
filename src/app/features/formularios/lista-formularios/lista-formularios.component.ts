@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormulariosService } from '../formularios.service';
 import { DiditService } from '../../verificacion/didit/didit.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { ModalFormularioComponent } from '../modal-formulario/modal-formulario.component';
+import { ModalRespuestasComponent } from '../modal-respuestas/modal-respuestas.component';
 
 interface Formulario {
   id: number;
@@ -12,7 +14,10 @@ interface Formulario {
   tipos_consentimientos: string[];
   tipo_validacion: string;
   activo: boolean;
-  token: string;
+  token_publico: string;  // ← Este es el campo correcto del backend
+  token?: string;  // Puede ser opcional (alias)
+  enlace_publico?: string;  // Nombre alternativo
+  url_publica?: string;  // Otro nombre alternativo
   respuestas_count: number;
   created_at: string;
   clientes_didit_pendientes?: number;
@@ -33,11 +38,13 @@ interface ClienteDiditPendiente {
 @Component({
   selector: 'app-lista-formularios',
   standalone: true,
-  imports: [CommonModule, LoadingComponent],
+  imports: [CommonModule, LoadingComponent, ModalFormularioComponent, ModalRespuestasComponent],
   templateUrl: './lista-formularios.component.html',
   styleUrls: ['./lista-formularios.component.scss']
 })
 export class ListaFormulariosComponent implements OnInit, OnDestroy {
+  @ViewChild(ModalFormularioComponent) modalFormulario!: ModalFormularioComponent;
+  @ViewChild(ModalRespuestasComponent) modalRespuestas!: ModalRespuestasComponent;
   formularios = signal<Formulario[]>([]);
   loading = signal(true);
   mostrarInactivos = signal(false);
@@ -77,13 +84,20 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     
     this.formulariosService.getFormularios().subscribe({
       next: (response: any) => {
-        console.log('Formularios response:', response);
+        console.log('📋 Formularios response:', response);
         const formularios = response.formularios || response || [];
+        
+        // Log detallado del primer formulario para debug
+        if (formularios.length > 0) {
+          console.log('🔍 Primer formulario (estructura):', formularios[0]);
+          console.log('🔑 Token del primer formulario:', formularios[0].token_publico || 'NO ENCONTRADO');
+        }
+        
         this.formularios.set(formularios);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error cargando formularios:', error);
+        console.error('❌ Error cargando formularios:', error);
         this.toastService.error('Error al cargar formularios');
         this.formularios.set([]);
         this.loading.set(false);
@@ -130,9 +144,54 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
   }
 
   copiarUrl(token: string): void {
-    const url = `${window.location.origin}/formulario/${token}`;
-    navigator.clipboard.writeText(url);
-    this.toastService.success('URL copiada al portapapeles');
+    console.log('🔍 Intentando copiar URL con token:', token);
+    
+    // Verificar que el token existe y no es undefined
+    if (!token || token === 'undefined' || token === '') {
+      console.error('❌ Token inválido o undefined:', token);
+      console.log('💡 Tip: Revisa la consola para ver los campos disponibles del formulario');
+      this.toastService.error('Error: El formulario no tiene un token válido. Revisa la consola (F12).');
+      return;
+    }
+    
+    // Generar URL con query parameter (como en la maqueta original)
+    const url = `${window.location.origin}/formulario?token=${token}`;
+    console.log('✅ URL generada:', url);
+    
+    navigator.clipboard.writeText(url).then(() => {
+      this.toastService.success('URL copiada al portapapeles');
+      console.log('📋 URL copiada exitosamente');
+    }).catch(err => {
+      console.error('❌ Error copiando al portapapeles:', err);
+      this.toastService.error('Error al copiar URL');
+    });
+  }
+
+  /**
+   * Obtiene el token del formulario, manejando diferentes nombres de campo
+   */
+  getFormularioToken(formulario: Formulario): string {
+    // Intentar múltiples nombres de campo posibles
+    // PRIORIDAD: token_publico es el campo correcto del backend
+    const token = formulario.token_publico ||
+                  formulario.url_publica ||
+                  formulario.token || 
+                  formulario.enlace_publico || 
+                  (formulario as any).public_token ||
+                  (formulario as any).url_token ||
+                  (formulario as any).hash ||
+                  (formulario as any).uuid ||
+                  '';
+    
+    // Log para debug
+    if (!token) {
+      console.warn('⚠️ No se encontró token en formulario:', formulario);
+      console.log('📋 Campos disponibles:', Object.keys(formulario));
+    } else {
+      console.log('✅ Token encontrado:', token);
+    }
+    
+    return token;
   }
 
   toggleEstado(formulario: Formulario): void {
@@ -239,5 +298,44 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
   actualizarManual(): void {
     this.loadClientesDidit();
     this.toastService.success('Datos actualizados');
+  }
+
+  // ==================== FUNCIONES MODAL FORMULARIO ====================
+
+  openCreateModal(): void {
+    this.modalFormulario.open();
+  }
+
+  openEditModal(formulario: Formulario): void {
+    this.modalFormulario.open(formulario);
+  }
+
+  onFormularioSaved(): void {
+    this.loadFormularios();
+  }
+
+  // ==================== VER RESPUESTAS ====================
+
+  verRespuestas(formulario: Formulario): void {
+    this.formularioSeleccionado.set(formulario);
+    this.cargarRespuestasFormulario(formulario.id);
+  }
+
+  private cargarRespuestasFormulario(formularioId: number): void {
+    this.formulariosService.getRespuestasFormulario(formularioId).subscribe({
+      next: (response: any) => {
+        console.log('Respuestas del formulario:', response);
+        const formulario = response.formulario || this.formularioSeleccionado();
+        const respuestas = response.respuestas || [];
+        
+        if (this.modalRespuestas) {
+          this.modalRespuestas.open(formulario, respuestas);
+        }
+      },
+      error: (error) => {
+        console.error('Error cargando respuestas:', error);
+        this.toastService.error('Error al cargar respuestas del formulario');
+      }
+    });
   }
 }

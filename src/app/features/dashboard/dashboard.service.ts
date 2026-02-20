@@ -13,6 +13,12 @@ export interface DashboardStats {
     total: number;
     verificados: number;
     pendientes: number;
+    completadas?: number;
+  };
+  consentimientos_procesados?: {
+    total: number;
+    completadas: number;
+    pendientes: number;
   };
   formularios?: {
     total: number;
@@ -27,6 +33,11 @@ export interface DashboardStats {
   total_consentimientos?: number;
   total_verificados?: number;
   total_pendientes?: number;
+  total_formularios?: number;
+  formularios_activos?: number;
+  clientes_con_email?: number;
+  clientes_con_telefono?: number;
+  completadas?: number;
 }
 
 @Injectable({

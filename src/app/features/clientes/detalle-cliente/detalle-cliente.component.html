@@ -1,1 +1,187 @@
-<p>detalle-cliente works!</p>
+<app-loading [show]="loading()" message="Cargando detalle del cliente..."></app-loading>
+
+@if (!loading() && cliente()) {
+  <div class="detalle-cliente-container">
+    <!-- Header con botón volver -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3>
+        <i class="fas fa-user-circle me-2"></i>
+        Detalle del Cliente
+      </h3>
+      <button class="btn btn-outline-secondary" (click)="volver()">
+        <i class="fas fa-arrow-left me-2"></i>Volver
+      </button>
+    </div>
+
+    <!-- Información básica del cliente - Ultra Compacta -->
+    <div class="cliente-info-compact mb-3">
+      <div class="row align-items-center">
+        <div class="col-8">
+          <h5 class="mb-1">
+            <i class="fas fa-user me-1 text-primary"></i>
+            {{ cliente()!.nombre }}
+          </h5>
+          <div class="row">
+            <div class="col-6">
+              <small><strong>CI:</strong> {{ cliente()!.cedula }}</small>
+            </div>
+            <div class="col-6">
+              <small><strong>Tel:</strong> {{ cliente()!.telefono || '-' }}</small>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <small><strong>Email:</strong> {{ cliente()!.email || '-' }}</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="stats-compact">
+            <div class="row text-center">
+              <div class="col-6">
+                <div class="stat-mini">
+                  <div class="stat-number-mini">
+                    {{ cliente()!.estadisticas?.total_formularios || 0 }}
+                  </div>
+                  <div class="stat-label-mini">Formularios</div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="stat-mini">
+                  <div class="stat-number-mini">
+                    {{ cliente()!.estadisticas?.total_consentimientos_unicos || 0 }}
+                  </div>
+                  <div class="stat-label-mini">Consentimientos</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Consentimientos consolidados - Inline -->
+      <div class="mt-2">
+        <small class="text-muted">
+          <i class="fas fa-shield-alt me-1 text-success"></i>Consentimientos:
+        </small>
+        <div class="d-inline-block ms-1">
+          @if (cliente()!.consentimientos_consolidados && cliente()!.consentimientos_consolidados!.length > 0) {
+            @for (tipo of cliente()!.consentimientos_consolidados; track tipo) {
+              <span class="badge bg-success me-1 mb-1">
+                <i [class]="'fas ' + getTipoConsentimientoIcono(tipo)"></i>
+                {{ tipo }}
+              </span>
+            }
+          } @else {
+            <span class="text-muted">No hay consentimientos otorgados</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Formularios - Compactos -->
+    <div class="formularios-section mb-3">
+      <h6 class="mb-2">
+        <i class="fas fa-file-alt me-1"></i>Formularios Autorizados
+      </h6>
+      
+      @if (cliente()!.formularios_autorizados && cliente()!.formularios_autorizados!.length > 0) {
+        @for (formulario of cliente()!.formularios_autorizados; track formulario.respuesta_id) {
+          <div class="formulario-card mb-2">
+            <div class="card">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="flex-grow-1">
+                    <h6 class="card-title mb-1">
+                      <i class="fas fa-file-contract text-primary me-1"></i>
+                      {{ formulario.formulario_nombre }}
+                    </h6>
+                    <small class="text-muted d-block mb-1">
+                      <i class="fas fa-calendar me-1"></i>
+                      {{ formatearFecha(formulario.fecha_completado) }}
+                    </small>
+                    <div class="consentimientos-badges">
+                      @for (tipo of formulario.tipos_aceptados_formateados; track tipo) {
+                        <span class="badge bg-outline-primary me-1">{{ tipo }}</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="text-end">
+                    @if (formulario.tiene_pdf) {
+                      <span class="badge bg-success mb-1">
+                        <i class="fas fa-file-pdf me-1"></i>PDF
+                      </span>
+                    }
+                  </div>
+                </div>
+                
+                <div class="btn-group btn-group-sm mt-2 w-100">
+                  @if (formulario.tiene_pdf) {
+                    <button
+                      class="btn btn-outline-primary"
+                      (click)="descargarDocumento(formulario.respuesta_id)"
+                      title="Descargar PDF">
+                      <i class="fas fa-download me-1"></i>Descargar PDF
+                    </button>
+                  }
+                  <button
+                    class="btn btn-outline-success"
+                    (click)="reenviarCertificado(formulario.respuesta_id)"
+                    title="Reenviar Certificado">
+                    <i class="fas fa-paper-plane me-1"></i>Reenviar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="text-center text-muted py-3">
+          <i class="fas fa-clipboard-list fa-2x mb-2"></i>
+          <div>No hay formularios autorizados</div>
+        </div>
+      }
+    </div>
+
+    <!-- Estadísticas mini -->
+    <div class="estadisticas-mini">
+      <h6 class="mb-2">
+        <i class="fas fa-chart-bar me-1"></i>Estadísticas
+      </h6>
+      <div class="row">
+        <div class="col-3">
+          <div class="text-center">
+            <div class="stat-circle">
+              <span>{{ cliente()!.estadisticas?.total_formularios || 0 }}</span>
+            </div>
+            <small>Formularios</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="text-center">
+            <div class="stat-circle">
+              <span>{{ cliente()!.estadisticas?.total_consentimientos_manuales || 0 }}</span>
+            </div>
+            <small>Manual</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="text-center">
+            <div class="stat-circle">
+              <span>{{ cliente()!.estadisticas?.total_consentimientos_unicos || 0 }}</span>
+            </div>
+            <small>Únicos</small>
+          </div>
+        </div>
+        <div class="col-3">
+          <div class="text-center">
+            <div class="stat-circle">
+              <span>{{ cliente()!.estadisticas?.formularios_con_pdf || 0 }}</span>
+            </div>
+            <small>PDFs</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

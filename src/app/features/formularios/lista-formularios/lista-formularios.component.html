@@ -21,7 +21,7 @@
           </label>
         </div>
       </div>
-      <button class="btn btn-primary" disabled title="Próximamente">
+      <button class="btn btn-primary" (click)="openCreateModal()">
         <i class="fas fa-plus me-2"></i>Nuevo Formulario
       </button>
     </div>
@@ -97,13 +97,19 @@
                   <td>
                     <button 
                       class="btn btn-sm btn-outline-primary"
-                      (click)="copiarUrl(formulario.token)"
+                      (click)="copiarUrl(getFormularioToken(formulario))"
                       title="Copiar URL">
                       <i class="fas fa-copy"></i>
                     </button>
                   </td>
                   <td>
                     <div class="btn-group btn-group-sm">
+                      <button 
+                        class="btn btn-outline-primary"
+                        (click)="verRespuestas(formulario)"
+                        title="Ver Respuestas">
+                        <i class="fas fa-eye"></i>
+                      </button>
                       <button 
                         class="btn btn-outline-warning"
                         (click)="toggleEstado(formulario)"
@@ -121,6 +127,12 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Formulario -->
+<app-modal-formulario (formularioSaved)="onFormularioSaved()"></app-modal-formulario>
+
+<!-- Modal Respuestas -->
+<app-modal-respuestas></app-modal-respuestas>
 
 <!-- Modal DIDIT Pendientes -->
 @if (mostrarModalDidit()) {
