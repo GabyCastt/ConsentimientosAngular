@@ -182,19 +182,19 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       return;
     }
     
-    console.log('📡 Cargando formulario con token:', tokenValue);
+    console.log(' Cargando formulario con token:', tokenValue);
     this.loading.set(true);
     
     this.formulariosService.getFormularioPublico(tokenValue).subscribe({
       next: (response: any) => {
-        console.log('✅ Formulario cargado exitosamente:', response);
+        console.log(' Formulario cargado exitosamente:', response);
         
         // El backend devuelve { formulario: {...} }
         const data = response.formulario || response;
         
-        console.log('📋 Datos del formulario:', data);
-        console.log('📋 Tipos de consentimientos:', data.tipos_consentimientos);
-        console.log('📋 Archivos disponibles:', data.archivos_disponibles);
+        console.log(' Datos del formulario:', data);
+        console.log(' Tipos de consentimientos:', data.tipos_consentimientos);
+        console.log(' Archivos disponibles:', data.archivos_disponibles);
         
         this.formulario.set(data);
         
@@ -207,9 +207,9 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando formulario:', error);
-        console.error('❌ Status:', error.status);
-        console.error('❌ Error completo:', error.error);
+        console.error(' Error cargando formulario:', error);
+        console.error(' Status:', error.status);
+        console.error(' Error completo:', error.error);
         
         let mensajeError = 'Error al cargar el formulario';
         if (error.status === 404) {
@@ -263,6 +263,9 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // LIMPIAR DATOS ANTERIORES antes de buscar
+    this.limpiarDatosFormulario();
+
     this.loading.set(true);
     
     this.formulariosService.buscarClientePorCedula(
@@ -270,13 +273,13 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       cedulaValue
     ).subscribe({
       next: (response: any) => {
-        console.log('📋 Respuesta búsqueda cliente:', response);
+        console.log(' Respuesta búsqueda cliente:', response);
         const estadoActual = this.estado();
         
         // El backend devuelve { cliente_encontrado: boolean, cliente: {...}, mensaje: string }
         if (response.cliente_encontrado && response.cliente) {
           const cliente = response.cliente;
-          console.log('✅ Cliente encontrado:', cliente);
+          console.log(' Cliente encontrado:', cliente);
           
           this.clienteEncontrado.set(cliente);
           this.nombre.set(cliente.nombre || '');
@@ -293,7 +296,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
             this.validarDatosPersonales();
           }, 100);
         } else {
-          console.log('ℹ️ Cliente no encontrado');
+          console.log(' Cliente no encontrado');
           this.clienteEncontrado.set(null);
           estadoActual.clienteEncontrado = false;
           this.mostrarMensaje(response.mensaje || 'Cliente no encontrado. Ingresa tus datos.', 'info');
@@ -313,11 +316,76 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         }, 300);
       },
       error: (error) => {
-        console.error('❌ Error buscando cliente:', error);
+        console.error(' Error buscando cliente:', error);
         this.mostrarMensaje('Error al buscar cliente', 'error');
         this.loading.set(false);
       }
     });
+  }
+
+  limpiarDatosFormulario(): void {
+    console.log('🧹 Limpiando datos del formulario anterior');
+    
+    // Limpiar datos personales
+    this.nombre.set('');
+    this.apellido.set('');
+    this.email.set('');
+    this.telefono.set('');
+    this.clienteEncontrado.set(null);
+    
+    // Limpiar consentimientos
+    this.consentimientosSeleccionados.set([]);
+    
+    // Limpiar verificación
+    this.codigoVerificacion.set('');
+    this.mensajeVerificacion.set('');
+    this.sessionId.set(null);
+    this.smsAttempts.set(0);
+    this.smsPasoActual.set('telefono');
+    
+    // Resetear estado
+    this.estado.set({
+      paso: 'inicial',
+      cedula: this.cedula(), // Mantener la cédula actual
+      clienteEncontrado: false,
+      datosCliente: {},
+      datosPersonalesCompletos: false,
+      consentimientosSeleccionados: false,
+      tokenVerificacion: '',
+      codigoEnviado: false,
+      codigoVerificado: false,
+      consentimientosCompletados: false,
+      documentosDisponibles: [],
+      yaCompletado: false,
+      tipoValidacion: this.estado().tipoValidacion, // Mantener tipo de validación
+      sesionDidit: null,
+      verificacionBiometrica: false
+    });
+    
+    // Detener polling si existe
+    this.stopPolling();
+  }
+
+  buscarOtraCedula(): void {
+    console.log('🔄 Iniciando búsqueda de otra cédula');
+    
+    // Limpiar completamente incluyendo la cédula
+    this.cedula.set('');
+    this.limpiarDatosFormulario();
+    
+    // Hacer scroll a la sección de búsqueda
+    setTimeout(() => {
+      const seccionBusqueda = document.getElementById('seccion-busqueda');
+      if (seccionBusqueda) {
+        seccionBusqueda.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      
+      // Enfocar el input de cédula
+      const inputCedula = document.querySelector('.cedula-input') as HTMLInputElement;
+      if (inputCedula) {
+        inputCedula.focus();
+      }
+    }, 300);
   }
 
   // ==================== VALIDACIÓN DE DATOS ====================
@@ -329,7 +397,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     const telefonoVal = this.telefono();
     const tipoVerif = this.estado().tipoValidacion;
     
-    console.log('🔍 Validando datos personales:');
+    console.log(' Validando datos personales:');
     console.log('- Nombre:', nombreVal);
     console.log('- Apellido:', apellidoVal);
     console.log('- Email:', emailVal);
@@ -351,7 +419,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       console.log('- Validación tradicional:', datosCompletos);
     }
     
-    console.log('✅ Datos completos:', datosCompletos);
+    console.log(' Datos completos:', datosCompletos);
     
     // IMPORTANTE: Crear un nuevo objeto para que Angular detecte el cambio
     const estadoActual = this.estado();
@@ -363,23 +431,23 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       datosPersonalesCompletos: datosCompletos
     });
     
-    console.log('📊 Estado anterior datosPersonalesCompletos:', datosCompletosAntes);
-    console.log('📊 Estado nuevo datosPersonalesCompletos:', datosCompletos);
-    console.log('📊 Estado completo actualizado:', this.estado());
+    console.log(' Estado anterior datosPersonalesCompletos:', datosCompletosAntes);
+    console.log(' Estado nuevo datosPersonalesCompletos:', datosCompletos);
+    console.log(' Estado completo actualizado:', this.estado());
     
     // Si los datos acaban de completarse, mostrar consentimientos
     if (datosCompletos && !datosCompletosAntes) {
-      console.log('✅ Datos personales completos, mostrando consentimientos...');
+      console.log(' Datos personales completos, mostrando consentimientos...');
       setTimeout(() => {
         this.displayConsentimientos();
         // Scroll a consentimientos
         const seccionConsentimientos = document.getElementById('seccion-consentimientos');
         if (seccionConsentimientos) {
-          console.log('📜 Haciendo scroll a consentimientos');
+          console.log(' Haciendo scroll a consentimientos');
           seccionConsentimientos.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else {
-          console.error('❌ No se encontró la sección de consentimientos en el DOM');
-          console.log('📋 Elementos disponibles:', document.querySelectorAll('[id^="seccion-"]'));
+          console.error(' No se encontró la sección de consentimientos en el DOM');
+          console.log(' Elementos disponibles:', document.querySelectorAll('[id^="seccion-"]'));
         }
       }, 300);
     }
@@ -401,20 +469,20 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   // ==================== CONSENTIMIENTOS ====================
   
   displayConsentimientos(): void {
-    console.log('📋 Mostrando consentimientos del formulario');
-    console.log('📋 Consentimientos formateados:', this.consentimientosFormateados());
-    console.log('📋 Estado actual:', this.estado());
-    console.log('📋 datosPersonalesCompletos:', this.estado().datosPersonalesCompletos);
+    console.log(' Mostrando consentimientos del formulario');
+    console.log(' Consentimientos formateados:', this.consentimientosFormateados());
+    console.log(' Estado actual:', this.estado());
+    console.log(' datosPersonalesCompletos:', this.estado().datosPersonalesCompletos);
     
     // Verificar si el elemento existe en el DOM
     setTimeout(() => {
       const seccionConsentimientos = document.getElementById('seccion-consentimientos');
-      console.log('🔍 Elemento seccion-consentimientos encontrado:', seccionConsentimientos);
+      console.log(' Elemento seccion-consentimientos encontrado:', seccionConsentimientos);
       
       if (!seccionConsentimientos) {
-        console.error('❌ No se encontró la sección de consentimientos en el DOM');
-        console.log('📋 Elementos disponibles:', Array.from(document.querySelectorAll('[id^="seccion-"]')).map(el => el.id));
-        console.log('📋 Todos los elementos con clase seccion:', document.querySelectorAll('.seccion'));
+        console.error(' No se encontró la sección de consentimientos en el DOM');
+        console.log(' Elementos disponibles:', Array.from(document.querySelectorAll('[id^="seccion-"]')).map(el => el.id));
+        console.log(' Todos los elementos con clase seccion:', document.querySelectorAll('.seccion'));
       }
     }, 100);
     
@@ -466,18 +534,21 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     };
 
     console.log('📤 Solicitando código/registro:', datos);
+    console.log('🎭 Tipo de validación:', this.estado().tipoValidacion);
 
     this.formulariosService.registrarConsentimientos(
       this.token(),
       datos
     ).subscribe({
       next: (response: any) => {
-        console.log('✅ Respuesta registro:', response);
+        console.log('📥 Respuesta registro completa:', response);
+        console.log('🔍 Tipo de verificación:', response.tipo_verificacion);
         
         const estadoActual = this.estado();
         
         // Guardar token de verificación
         if (response.token_verificacion) {
+          console.log('🔑 Token de verificación recibido:', response.token_verificacion);
           this.estado.set({
             ...estadoActual,
             tokenVerificacion: response.token_verificacion
@@ -488,6 +559,11 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         if (response.tipo_verificacion === 'biometria' || 
             estadoActual.tipoValidacion === 'biometria_free' || 
             estadoActual.tipoValidacion === 'biometria_premium') {
+          
+          console.log('🔬 Iniciando flujo de verificación biométrica');
+          console.log('🔗 verification_url:', response.verification_url);
+          console.log('🆔 session_id:', response.session_id);
+          
           // Verificación biométrica
           this.estado.set({
             ...estadoActual,
@@ -502,19 +578,28 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
           
           // Iniciar verificación biométrica si hay URL
           if (response.verification_url && response.session_id) {
+            console.log('✅ Datos completos para DIDIT, iniciando redirección...');
             this.sessionId.set(response.session_id);
             this.startPolling();
             
             setTimeout(() => {
+              console.log('🚀 Redirigiendo a DIDIT:', response.verification_url);
               window.location.href = response.verification_url;
             }, 2000);
+          } else {
+            console.error('❌ Faltan datos para iniciar DIDIT');
+            console.error('   verification_url:', response.verification_url);
+            console.error('   session_id:', response.session_id);
+            this.mostrarMensaje('Error: No se pudo iniciar verificación biométrica', 'error');
           }
         } else if (response.requiere_envio_manual || estadoActual.tipoValidacion === 'sms_didit') {
           // SMS DIDIT
+          console.log('📱 Flujo SMS DIDIT');
           this.smsPasoActual.set('codigo');
           this.mostrarMensaje('Haz clic en "Enviar código SMS"', 'info');
         } else {
           // Verificación tradicional (WhatsApp/Email)
+          console.log('📧 Flujo tradicional WhatsApp/Email');
           this.estado.set({
             ...estadoActual,
             codigoEnviado: true,
@@ -532,6 +617,8 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('❌ Error registrando:', error);
+        console.error('📊 Status:', error.status);
+        console.error('📝 Error completo:', error.error);
         this.mostrarMensaje(error.error?.message || 'Error al registrar', 'error');
         this.loading.set(false);
       }
@@ -553,7 +640,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       codigo
     ).subscribe({
       next: (response) => {
-        console.log('📋 Respuesta verificación código:', response);
+        console.log(' Respuesta verificación código:', response);
         
         if (response.success) {
           const estadoActual = this.estado();
@@ -577,7 +664,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('❌ Error verificando código:', error);
+        console.error(' Error verificando código:', error);
         this.mostrarMensaje(error.error?.message || 'Código inválido', 'error');
         this.loading.set(false);
       }
@@ -623,14 +710,14 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       consentimientos_seleccionados: this.consentimientosSeleccionados().map(id => parseInt(id))
     };
     
-    console.log('📝 Completando consentimientos:', datosEnvio);
+    console.log(' Completando consentimientos:', datosEnvio);
     
     this.formulariosService.registrarConsentimientos(
       this.token(),
       datosEnvio
     ).subscribe({
       next: (response: any) => {
-        console.log('✅ Respuesta completar consentimientos:', response);
+        console.log(' Respuesta completar consentimientos:', response);
         
         // Actualizar estado
         this.estado.set({
@@ -653,7 +740,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         }, 500);
       },
       error: (error) => {
-        console.error('❌ Error completando consentimientos:', error);
+        console.error(' Error completando consentimientos:', error);
         this.mostrarMensaje(error.error?.message || 'Error al completar', 'error');
         this.loading.set(false);
       }
@@ -677,31 +764,53 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   }
 
   checkDiditCallback(): void {
+    console.log('🔍 Verificando callback de DIDIT');
+    console.log('📍 URL actual:', window.location.href);
+    
     const urlParams = new URLSearchParams(window.location.search);
     const diditReturn = urlParams.get('didit_return');
     const verificationToken = urlParams.get('verification_token');
     const status = urlParams.get('status');
     const verified = urlParams.get('verified');
     
+    console.log('📋 Parámetros detectados:', {
+      diditReturn,
+      verificationToken,
+      status,
+      verified
+    });
+    
     if (diditReturn === 'true' && verificationToken) {
+      console.log('✅ Callback de DIDIT detectado, procesando...');
       this.manejarRegresoDeDidit(verificationToken, status, verified);
+    } else {
+      console.log('ℹ️ No es un callback de DIDIT');
     }
   }
 
   manejarRegresoDeDidit(verificationToken: string | null, status: string | null, verified: string | null): void {
+    console.log('🎯 Procesando regreso de DIDIT');
+    console.log('📊 Datos recibidos:', { verificationToken, status, verified });
+    
     // Implementar lógica de regreso de DIDIT
     const estadoActual = this.estado();
     estadoActual.tokenVerificacion = verificationToken || '';
     
     const esExitoso = (status === 'success' || status === 'approved') && verified === 'true';
+    console.log('✅ Verificación exitosa:', esExitoso);
     
     if (esExitoso) {
       estadoActual.verificacionBiometrica = true;
       estadoActual.codigoVerificado = true;
-      this.mostrarMensaje('Verificación biométrica completada', 'success');
+      this.mostrarMensaje('Verificación biométrica completada exitosamente', 'success');
+      
+      console.log('🎉 Completando consentimientos automáticamente...');
       this.completarConsentimientos();
     } else {
-      this.mostrarMensaje('Verificación biométrica fallida', 'error');
+      console.error('❌ Verificación biométrica fallida');
+      console.error('   Status:', status);
+      console.error('   Verified:', verified);
+      this.mostrarMensaje('Verificación biométrica fallida. Por favor, intenta nuevamente.', 'error');
     }
     
     this.estado.set(estadoActual);

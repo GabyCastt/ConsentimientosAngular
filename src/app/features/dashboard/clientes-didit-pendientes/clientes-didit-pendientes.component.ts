@@ -122,9 +122,9 @@ export class ClientesDiditPendientesComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response.success) {
           alert(
-            `✅ Proceso completado para ${cliente.nombre} ${cliente.apellido}\n\n` +
-            `📧 Email: ${response.documentos?.email_enviado ? 'Enviado' : 'Error'}\n` +
-            `📱 SMS: ${response.documentos?.sms_enviado ? 'Enviado' : 'Error'}`
+            ` Proceso completado para ${cliente.nombre} ${cliente.apellido}\n\n` +
+            ` Email: ${response.documentos?.email_enviado ? 'Enviado' : 'Error'}\n` +
+            ` SMS: ${response.documentos?.sms_enviado ? 'Enviado' : 'Error'}`
           );
           
           // Recargar lista después de 1 segundo
@@ -137,7 +137,7 @@ export class ClientesDiditPendientesComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error culminando proceso:', error);
-        alert(`❌ Error: ${error.error?.message || error.message || 'Error desconocido'}`);
+        alert(` Error: ${error.error?.message || error.message || 'Error desconocido'}`);
         this.loading.set(false);
       }
     });

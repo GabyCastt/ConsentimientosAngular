@@ -173,32 +173,32 @@
                 
                 @if (tipoSeleccionado.value === 'biometria_free' || tipoSeleccionado.value === 'biometria_premium') {
                   <ul class="mb-2">
-                    <li>📷 Foto de cédula de identidad</li>
-                    <li>🤳 Selfie con reconocimiento facial</li>
-                    <li>✅ Verificación automática en tiempo real</li>
+                    <li> Foto de cédula de identidad</li>
+                    <li> Selfie con reconocimiento facial</li>
+                    <li> Verificación automática en tiempo real</li>
                     @if (tipoSeleccionado.value === 'biometria_premium') {
-                      <li>🏢 Con branding personalizado</li>
+                      <li> Con branding personalizado</li>
                     } @else {
-                      <li>🔖 Con branding estándar de Didit</li>
+                      <li> Con branding estándar de Didit</li>
                     }
                   </ul>
                 }
                 
                 @if (tipoSeleccionado.value === 'sms_didit') {
                   <ul class="mb-2">
-                    <li>💰 Cada SMS tiene costo</li>
-                    <li>🔢 Máximo 3 intentos por persona</li>
-                    <li>⚡ Verificación más rápida que biometría</li>
-                    <li>📱 Ideal para usuarios sin smartphone avanzado</li>
-                    <li>🌍 Formato internacional obligatorio</li>
+                    <li> Cada SMS tiene costo</li>
+                    <li> Máximo 3 intentos por persona</li>
+                    <li> Verificación más rápida que biometría</li>
+                    <li> Ideal para usuarios sin smartphone avanzado</li>
+                    <li> Formato internacional obligatorio</li>
                   </ul>
                 }
                 
                 @if (tipoSeleccionado.value === 'sms_email') {
                   <ul class="mb-0">
-                    <li>📧 Email (si proporcionan email)</li>
-                    <li>📱 WhatsApp (si proporcionan teléfono)</li>
-                    <li>🆓 Sin costo adicional</li>
+                    <li> Email (si proporcionan email)</li>
+                    <li> WhatsApp (si proporcionan teléfono)</li>
+                    <li> Sin costo adicional</li>
                   </ul>
                 }
                 

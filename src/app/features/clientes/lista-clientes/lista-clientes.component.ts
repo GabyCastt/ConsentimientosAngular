@@ -7,6 +7,7 @@ import { LoadingComponent } from '../../../shared/components/loading/loading.com
 import { ToastService } from '../../../shared/services/toast.service';
 import { ModalClienteComponent } from '../modal-cliente/modal-cliente.component';
 import { Router } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-lista-clientes',
@@ -26,12 +27,18 @@ export class ListaClientesComponent implements OnInit {
   constructor(
     private clientesService: ClientesService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    const currentUser = this.authService.currentUser();
     console.log('👥 Lista de clientes inicializada');
+    console.log('� Usuario actual:', currentUser);
+    console.log('🏢 Empresa ID:', currentUser?.empresa_id);
+    console.log('🎭 Rol:', currentUser?.rol);
     console.log('📍 Endpoint:', this.clientesService['config'].endpoints.clientes);
+    console.log('🔑 Token presente:', !!this.authService.getToken());
     
     this.loadClientes();
   }
@@ -39,22 +46,36 @@ export class ListaClientesComponent implements OnInit {
   loadClientes(): void {
     this.loading.set(true);
     
+    const currentUser = this.authService.currentUser();
+    console.log('🔄 Cargando clientes para usuario:', currentUser?.email, 'Rol:', currentUser?.rol);
+    
     this.clientesService.getClientes().subscribe({
       next: (response) => {
-        console.log('👥 Clientes received:', response);
+        console.log(' Clientes received:', response);
+        console.log('📦 Tipo de respuesta:', typeof response, Array.isArray(response) ? 'Array' : 'Object');
         
         // El backend puede devolver { clientes: [...] } o directamente el array
         const clientes = Array.isArray(response) ? response : (response.clientes || []);
         
-        console.log(`✅ Total de clientes: ${clientes.length}`);
-        console.log('📋 Datos de clientes:', clientes);
+        console.log(` Total de clientes: ${clientes.length}`);
+        console.log(' Datos de clientes:', clientes);
+        
+        if (clientes.length === 0 && currentUser?.rol !== 'admin') {
+          console.warn(' No hay clientes para esta empresa. Verifica que:');
+          console.warn('   1. La empresa_id del usuario es correcta:', currentUser?.empresa_id);
+          console.warn('   2. Existen clientes asociados a esta empresa en la BD');
+          console.warn('   3. El backend está filtrando correctamente por empresa_id');
+        }
         
         this.clientes.set(clientes);
         this.clientesFiltrados.set(clientes);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando clientes:', error);
+        console.error(' Error cargando clientes:', error);
+        console.error(' Status:', error.status);
+        console.error(' Mensaje:', error.message);
+        console.error(' Error completo:', error);
         this.toastService.error('Error al cargar clientes');
         this.clientes.set([]);
         this.clientesFiltrados.set([]);

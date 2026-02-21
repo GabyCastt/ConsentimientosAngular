@@ -13,7 +13,7 @@
 
     h5 {
       font-weight: 700;
-      color: #042396;
+      color: #000000;
       margin: 0;
     }
   }
@@ -27,7 +27,7 @@
 
     th {
       font-weight: 600;
-      color: #042396;
+      color: #000000;
       border-bottom: 2px solid #dee2e6;
       padding: 1rem 0.75rem;
       font-size: 0.9rem;
@@ -59,6 +59,111 @@
   font-weight: 600;
   padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
+}
+
+// Badges de tipos de consentimientos
+.tipos-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
+  }
+
+  i {
+    font-size: 0.85rem;
+  }
+
+  &[data-tipo="datos_personales"] {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
+  }
+
+  &[data-tipo="imagen"] {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
+  }
+
+  &[data-tipo="marketing"] {
+    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
+    box-shadow: 0 2px 4px rgba(253, 126, 20, 0.3);
+  }
+
+  &[data-tipo="terceros"] {
+    background: linear-gradient(135deg, #20c997 0%, #17a589 100%);
+    box-shadow: 0 2px 4px rgba(32, 201, 151, 0.3);
+  }
+}
+
+// Badges de verificación
+.verificacion-badge {
+  display: inline-block;
+}
+
+.badge-verificacion {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  }
+
+  i {
+    font-size: 1rem;
+  }
+
+  &.whatsapp-email {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+
+    .fa-whatsapp {
+      color: white;
+    }
+
+    .fa-envelope {
+      color: white;
+    }
+  }
+
+  &.biometria-free {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+  }
+
+  &.biometria-premium {
+    background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+    color: white;
+  }
+
+  &.sms-didit {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #212529;
+  }
 }
 
 .btn-group-sm {
@@ -164,6 +269,25 @@
   .card-header {
     h5 {
       font-size: 1rem;
+    }
+  }
+
+  .tipos-badges {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .badge-tipo {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .badge-verificacion {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.75rem;
+
+    i {
+      font-size: 0.9rem;
     }
   }
 

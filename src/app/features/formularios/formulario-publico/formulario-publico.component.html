@@ -77,6 +77,18 @@
                   </button>
                 </div>
               </div>
+
+              @if (estado().cedula && estado().cedula.length === 10) {
+                <div class="mt-3 text-center">
+                  <button 
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    (click)="buscarOtraCedula()">
+                    <i class="fas fa-redo me-1"></i>
+                    Buscar otra cédula
+                  </button>
+                </div>
+              }
             </div>
 
             <!-- Sección 2: Datos Personales -->
@@ -438,53 +450,64 @@
                   <h3 class="text-success">¡Consentimientos autorizados exitosamente!</h3>
                   <p class="text-muted mb-4">El proceso se ha completado correctamente.</p>
 
-                  <div class="documentos-section">
-                    <h5>
-                      <i class="fas fa-download text-primary me-2"></i>
-                      DOCUMENTOS DISPONIBLES
-                    </h5>
-                    
-                    <div class="row mt-3">
-                      <div class="col-md-6 mb-3">
-                        <div class="card border-primary h-100">
-                          <div class="card-body text-center">
-                            <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
-                            <h6>Certificado de Consentimientos</h6>
-                            <p class="text-muted small">Documento oficial con todos tus consentimientos</p>
-                            <a 
-                              [href]="getCertificadoUrl()"
-                              target="_blank"
-                              class="btn btn-primary">
-                              <i class="fas fa-download me-1"></i>
-                              Descargar PDF
-                            </a>
-                          </div>
-                        </div>
-                      </div>
+                  <!-- Validar que tenga email o teléfono antes de mostrar documentos -->
+                  @if (email() || telefono()) {
+                    <div class="documentos-section">
+                      <h5>
+                        <i class="fas fa-download text-primary me-2"></i>
+                        DOCUMENTOS DISPONIBLES
+                      </h5>
                       
-                      <div class="col-md-6 mb-3">
-                        <div class="card border-info h-100">
-                          <div class="card-body text-center">
-                            <i class="fas fa-file-contract fa-3x text-info mb-3"></i>
-                            <h6>Términos y Condiciones</h6>
-                            <p class="text-muted small">Términos completos que has aceptado</p>
-                            <a 
-                              [href]="getTerminosUrl()"
-                              target="_blank"
-                              class="btn btn-info">
-                              <i class="fas fa-download me-1"></i>
-                              Descargar PDF
-                            </a>
+                      <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                          <div class="card border-primary h-100">
+                            <div class="card-body text-center">
+                              <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
+                              <h6>Certificado de Consentimientos</h6>
+                              <p class="text-muted small">Documento oficial con todos tus consentimientos</p>
+                              <a 
+                                [href]="getCertificadoUrl()"
+                                target="_blank"
+                                class="btn btn-primary">
+                                <i class="fas fa-download me-1"></i>
+                                Descargar PDF
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                          <div class="card border-info h-100">
+                            <div class="card-body text-center">
+                              <i class="fas fa-file-contract fa-3x text-info mb-3"></i>
+                              <h6>Términos y Condiciones</h6>
+                              <p class="text-muted small">Términos completos que has aceptado</p>
+                              <a 
+                                [href]="getTerminosUrl()"
+                                target="_blank"
+                                class="btn btn-info">
+                                <i class="fas fa-download me-1"></i>
+                                Descargar PDF
+                              </a>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div class="alert alert-info mt-4">
-                    <i class="fas fa-envelope me-2"></i>
-                    Los documentos también fueron enviados a tu email
-                  </div>
+                      @if (email()) {
+                        <div class="alert alert-info mt-4">
+                          <i class="fas fa-envelope me-2"></i>
+                          Los documentos también fueron enviados a: <strong>{{ email() }}</strong>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <div class="alert alert-warning">
+                      <i class="fas fa-exclamation-triangle me-2"></i>
+                      <strong>Atención:</strong> No se proporcionó email ni teléfono. 
+                      Los documentos no pudieron ser enviados automáticamente.
+                    </div>
+                  }
                 </div>
               </div>
             }

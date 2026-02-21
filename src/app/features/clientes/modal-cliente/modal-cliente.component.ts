@@ -177,7 +177,7 @@ export class ModalClienteComponent implements OnInit {
       empresa_id: this.formData.empresa_id || undefined
     };
 
-    console.log('💾 Guardando cliente:', clienteData);
+    console.log(' Guardando cliente:', clienteData);
 
     const request = this.isEditMode()
       ? this.clientesService.updateCliente(this.clienteId()!, clienteData)
@@ -185,13 +185,13 @@ export class ModalClienteComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        console.log('✅ Cliente guardado exitosamente');
+        console.log(' Cliente guardado exitosamente');
         this.clienteSaved.emit();
         this.close();
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error guardando cliente:', error);
+        console.error(' Error guardando cliente:', error);
         const errorMsg = error.error?.error || error.error?.message || 'Error al guardar cliente';
         this.errors.set({ general: errorMsg });
         this.loading.set(false);

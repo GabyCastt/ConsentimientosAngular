@@ -42,12 +42,12 @@ export class DetalleClienteComponent implements OnInit {
     
     this.clientesService.getClienteDetalle(id).subscribe({
       next: (response) => {
-        console.log('📋 Detalle del cliente recibido:', response);
+        console.log(' Detalle del cliente recibido:', response);
         this.cliente.set(response);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando detalle del cliente:', error);
+        console.error(' Error cargando detalle del cliente:', error);
         this.toastService.error('Error al cargar detalle del cliente');
         this.loading.set(false);
         this.router.navigate(['/clientes']);
@@ -63,7 +63,7 @@ export class DetalleClienteComponent implements OnInit {
     const clienteId = this.clienteId();
     if (!clienteId) return;
 
-    console.log(`📥 Descargando documento del cliente ${clienteId}, respuesta ${respuestaId}...`);
+    console.log(` Descargando documento del cliente ${clienteId}, respuesta ${respuestaId}...`);
     
     const url = this.config.getApiUrlWithParams(
       this.config.endpoints.clientesDocumento,
@@ -83,7 +83,7 @@ export class DetalleClienteComponent implements OnInit {
       return;
     }
 
-    console.log(`📧 Reenviando certificado del cliente ${clienteId}, respuesta ${respuestaId}...`);
+    console.log(` Reenviando certificado del cliente ${clienteId}, respuesta ${respuestaId}...`);
     
     this.loading.set(true);
 
@@ -94,15 +94,15 @@ export class DetalleClienteComponent implements OnInit {
 
     this.clientesService['api'].post(url, {}).subscribe({
       next: (response: any) => {
-        console.log('✅ Certificado reenviado:', response);
+        console.log(' Certificado reenviado:', response);
         
         if (response.detalles) {
           const detalles = response.detalles;
           let mensaje = 'Certificado reenviado:\n\n';
-          mensaje += `📧 Email: ${detalles.email_enviado ? 'Enviado ✓' : 'Error ✗'}\n`;
-          mensaje += `📱 WhatsApp: ${detalles.sms_enviado ? 'Enviado ✓' : 'Error ✗'}\n`;
-          mensaje += `📎 Archivos: ${detalles.archivos_adjuntos || 0}\n`;
-          mensaje += `📄 Certificado: ${detalles.certificado_generado ? 'Generado ✓' : 'Error ✗'}`;
+          mensaje += ` Email: ${detalles.email_enviado ? 'Enviado ✓' : 'Error ✗'}\n`;
+          mensaje += ` WhatsApp: ${detalles.sms_enviado ? 'Enviado ✓' : 'Error ✗'}\n`;
+          mensaje += ` Archivos: ${detalles.archivos_adjuntos || 0}\n`;
+          mensaje += ` Certificado: ${detalles.certificado_generado ? 'Generado ✓' : 'Error ✗'}`;
           
           if (detalles.email_enviado) {
             this.toastService.success('Certificado reenviado exitosamente');
@@ -118,7 +118,7 @@ export class DetalleClienteComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error reenviando certificado:', error);
+        console.error(' Error reenviando certificado:', error);
         this.toastService.error('Error reenviando certificado: ' + error.message);
         this.loading.set(false);
       }

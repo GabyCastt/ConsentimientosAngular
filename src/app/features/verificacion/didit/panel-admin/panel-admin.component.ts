@@ -103,10 +103,10 @@ export class PanelAdminComponent implements OnInit, OnDestroy {
       next: (resultado: any) => {
         if (resultado.success) {
           const mensaje = 
-            `✅ Proceso completado para ${cliente.nombre} ${cliente.apellido}\n` +
-            `📧 Email: ${resultado.documentos?.email_enviado ? 'Enviado' : 'Error'}\n` +
-            `📱 SMS: ${resultado.documentos?.sms_enviado ? 'Enviado' : 'Error'}\n` +
-            `📎 Archivos: ${resultado.documentos?.archivos_adjuntos || 0}`;
+            ` Proceso completado para ${cliente.nombre} ${cliente.apellido}\n` +
+            ` Email: ${resultado.documentos?.email_enviado ? 'Enviado' : 'Error'}\n` +
+            ` SMS: ${resultado.documentos?.sms_enviado ? 'Enviado' : 'Error'}\n` +
+            ` Archivos: ${resultado.documentos?.archivos_adjuntos || 0}`;
           
           this.toastService.success(mensaje);
           
@@ -128,7 +128,7 @@ export class PanelAdminComponent implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Error culminando proceso:', error);
         this.toastService.error(
-          `❌ Error de conexión al culminar proceso de ${cliente.nombre} ${cliente.apellido}`
+          ` Error de conexión al culminar proceso de ${cliente.nombre} ${cliente.apellido}`
         );
         this.procesando.set(false);
         this.clienteProcesando.set(null);

@@ -127,7 +127,7 @@ export class ModalFormularioComponent implements OnInit {
         this.loadingEmpresas.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando empresas:', error);
+        console.error(' Error cargando empresas:', error);
         this.empresas.set([]);
         this.loadingEmpresas.set(false);
       }
@@ -233,7 +233,7 @@ export class ModalFormularioComponent implements OnInit {
       empresa_id: this.formData.empresa_id || undefined
     };
 
-    console.log('💾 Guardando formulario:', formularioData);
+    console.log(' Guardando formulario:', formularioData);
 
     const request = this.isEditMode()
       ? this.api.put(`${this.config.endpoints.formularios}/${this.formularioId()}`, formularioData)
@@ -241,8 +241,8 @@ export class ModalFormularioComponent implements OnInit {
 
     request.subscribe({
       next: (response: any) => {
-        console.log('✅ Formulario guardado:', response);
-        
+        console.log(' Formulario guardado:', response);
+      
         // Mostrar URL generada si es nuevo
         if (!this.isEditMode() && response.formulario) {
           const urlPublica = this.config.isDevelopment()
@@ -271,7 +271,7 @@ export class ModalFormularioComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error guardando formulario:', error);
+        console.error(' Error guardando formulario:', error);
         const errorMsg = error.error?.error || error.error?.message || 'Error al guardar formulario';
         this.errors.set({ general: errorMsg });
         this.loading.set(false);

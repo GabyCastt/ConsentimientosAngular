@@ -27,7 +27,7 @@ export class DiagnosticoService {
   async ejecutarDiagnosticoCompleto(): Promise<DiagnosticoResult[]> {
     const resultados: DiagnosticoResult[] = [];
 
-    console.log('🔍 Iniciando diagnóstico del sistema...');
+    console.log(' Iniciando diagnóstico del sistema...');
     console.log('='.repeat(60));
 
     // 1. Verificar configuración del entorno
@@ -64,7 +64,7 @@ export class DiagnosticoService {
   private verificarEntorno(): DiagnosticoResult {
     const env = this.config.getEnvironmentInfo();
     
-    console.log('🌍 Verificando entorno...');
+    console.log(' Verificando entorno...');
     console.log('  - Hostname:', env['hostname']);
     console.log('  - Desarrollo:', env['development']);
     console.log('  - Producción:', env['production']);
@@ -85,7 +85,7 @@ export class DiagnosticoService {
     const token = this.auth.getToken();
     const user = this.auth.currentUser();
 
-    console.log('🔐 Verificando autenticación...');
+    console.log(' Verificando autenticación...');
     console.log('  - Token presente:', !!token);
     console.log('  - Usuario:', user?.nombre || 'No autenticado');
     console.log('  - Rol:', user?.rol || 'N/A');
@@ -110,7 +110,7 @@ export class DiagnosticoService {
    * Verifica conexión con el backend
    */
   private async verificarBackend(): Promise<DiagnosticoResult> {
-    console.log('📡 Verificando conexión con backend...');
+    console.log(' Verificando conexión con backend...');
     
     try {
       const url = this.config.getApiUrl('/api/health');
@@ -146,7 +146,7 @@ export class DiagnosticoService {
    * Verifica endpoint de clientes
    */
   private async verificarEndpointClientes(): Promise<DiagnosticoResult> {
-    console.log('👥 Verificando endpoint de clientes...');
+    console.log(' Verificando endpoint de clientes...');
     
     try {
       const url = this.config.getApiUrl(this.config.endpoints.clientes);
@@ -192,7 +192,7 @@ export class DiagnosticoService {
    * Verifica endpoint de estadísticas
    */
   private async verificarEndpointEstadisticas(): Promise<DiagnosticoResult> {
-    console.log('📊 Verificando endpoint de estadísticas...');
+    console.log(' Verificando endpoint de estadísticas...');
     
     try {
       const url = this.config.getApiUrl(this.config.endpoints.estadisticasDashboard);
@@ -239,7 +239,7 @@ export class DiagnosticoService {
    */
   private mostrarResumen(resultados: DiagnosticoResult[]): void {
     console.log('='.repeat(60));
-    console.log('📋 RESUMEN DEL DIAGNÓSTICO');
+    console.log(' RESUMEN DEL DIAGNÓSTICO');
     console.log('='.repeat(60));
 
     const exitosos = resultados.filter(r => r.status === 'success').length;
@@ -254,14 +254,14 @@ export class DiagnosticoService {
 
     console.log('='.repeat(60));
     console.log(`Total: ${resultados.length} pruebas`);
-    console.log(`✅ Exitosas: ${exitosos}`);
-    console.log(`❌ Errores: ${errores}`);
-    console.log(`⚠️ Advertencias: ${advertencias}`);
+    console.log(` Exitosas: ${exitosos}`);
+    console.log(` Errores: ${errores}`);
+    console.log(` Advertencias: ${advertencias}`);
     console.log('='.repeat(60));
 
     if (errores > 0) {
       console.log('');
-      console.log('💡 RECOMENDACIONES:');
+      console.log(' RECOMENDACIONES:');
       resultados
         .filter(r => r.status === 'error')
         .forEach(r => {
@@ -290,22 +290,22 @@ export class DiagnosticoService {
    * Ejecuta diagnóstico rápido (solo logs)
    */
   diagnosticoRapido(): void {
-    console.log('🔍 DIAGNÓSTICO RÁPIDO');
+    console.log(' DIAGNÓSTICO RÁPIDO');
     console.log('='.repeat(60));
     
     // Entorno
     const env = this.config.getEnvironmentInfo();
-    console.log('🌍 Entorno:', env['development'] ? 'Desarrollo' : 'Producción');
-    console.log('📡 API URL:', env['apiUrl'] || '(usando proxy)');
-    console.log('🌐 Hostname:', env['hostname']);
+    console.log(' Entorno:', env['development'] ? 'Desarrollo' : 'Producción');
+    console.log(' API URL:', env['apiUrl'] || '(usando proxy)');
+    console.log(' Hostname:', env['hostname']);
     
     // Autenticación
     const user = this.auth.currentUser();
-    console.log('👤 Usuario:', user?.nombre || 'No autenticado');
-    console.log('🔑 Token:', this.auth.getToken() ? 'Presente' : 'Ausente');
+    console.log(' Usuario:', user?.nombre || 'No autenticado');
+    console.log(' Token:', this.auth.getToken() ? 'Presente' : 'Ausente');
     
     // Endpoints
-    console.log('📍 Endpoints:');
+    console.log(' Endpoints:');
     console.log('  - Clientes:', this.config.endpoints.clientes);
     console.log('  - Dashboard:', this.config.endpoints.estadisticasDashboard);
     

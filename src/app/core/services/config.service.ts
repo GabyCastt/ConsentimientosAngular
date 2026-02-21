@@ -209,9 +209,9 @@ export class ConfigService {
    */
   private logEnvironmentInfo(): void {
     if (this.isDevelopment()) {
-      console.log('🌍 Entorno:', environment.production ? 'PRODUCCIÓN' : 'DESARROLLO');
-      console.log('📡 API Base URL:', this.apiUrl);
-      console.log('📦 App Version:', this.version);
+      console.log(' Entorno:', environment.production ? 'PRODUCCIÓN' : 'DESARROLLO');
+      console.log(' API Base URL:', this.apiUrl);
+      console.log(' App Version:', this.version);
     }
   }
 

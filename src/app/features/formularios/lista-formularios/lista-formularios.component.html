@@ -58,14 +58,55 @@
                     <small class="text-muted">{{ formulario.descripcion || '-' }}</small>
                   </td>
                   <td>
-                    @for (tipo of formulario.tipos_consentimientos; track tipo) {
-                      <span class="badge bg-info me-1">{{ tipo }}</span>
-                    }
+                    <div class="tipos-badges">
+                      @for (tipo of formulario.tipos_consentimientos; track tipo) {
+                        <span class="badge badge-tipo" [attr.data-tipo]="tipo">
+                          @if (tipo === 'datos_personales') {
+                            <i class="fas fa-user-shield me-1"></i>
+                          } @else if (tipo === 'imagen') {
+                            <i class="fas fa-camera me-1"></i>
+                          } @else if (tipo === 'marketing') {
+                            <i class="fas fa-bullhorn me-1"></i>
+                          } @else if (tipo === 'terceros') {
+                            <i class="fas fa-share-alt me-1"></i>
+                          } @else {
+                            <i class="fas fa-file-alt me-1"></i>
+                          }
+                          {{ getTipoConsentimientoLabel(tipo) }}
+                        </span>
+                      }
+                    </div>
                   </td>
                   <td>
-                    <span class="badge bg-primary">
-                      {{ getTipoValidacionLabel(formulario.tipo_validacion) }}
-                    </span>
+                    <div class="verificacion-badge">
+                      @if (formulario.tipo_validacion === 'sms_email') {
+                        <span class="badge badge-verificacion whatsapp-email">
+                          <i class="fab fa-whatsapp me-1"></i>
+                          <i class="fas fa-envelope"></i>
+                          <span class="ms-1">WhatsApp/Email</span>
+                        </span>
+                      } @else if (formulario.tipo_validacion === 'biometria_free') {
+                        <span class="badge badge-verificacion biometria-free">
+                          <i class="fas fa-fingerprint me-1"></i>
+                          <span>Biometría Gratuita</span>
+                        </span>
+                      } @else if (formulario.tipo_validacion === 'biometria_premium') {
+                        <span class="badge badge-verificacion biometria-premium">
+                          <i class="fas fa-fingerprint me-1"></i>
+                          <span>Biometría Premium</span>
+                        </span>
+                      } @else if (formulario.tipo_validacion === 'sms_didit') {
+                        <span class="badge badge-verificacion sms-didit">
+                          <i class="fas fa-sms me-1"></i>
+                          <span>SMS DIDIT</span>
+                        </span>
+                      } @else {
+                        <span class="badge badge-verificacion">
+                          <i class="fas fa-shield-alt me-1"></i>
+                          <span>{{ getTipoValidacionLabel(formulario.tipo_validacion) }}</span>
+                        </span>
+                      }
+                    </div>
                   </td>
                   <td class="text-center">
                     <span class="badge bg-success">{{ formulario.respuestas_count }}</span>

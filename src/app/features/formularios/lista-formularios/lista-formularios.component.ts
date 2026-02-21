@@ -144,25 +144,25 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
   }
 
   copiarUrl(token: string): void {
-    console.log('🔍 Intentando copiar URL con token:', token);
+    console.log(' Intentando copiar URL con token:', token);
     
     // Verificar que el token existe y no es undefined
     if (!token || token === 'undefined' || token === '') {
-      console.error('❌ Token inválido o undefined:', token);
-      console.log('💡 Tip: Revisa la consola para ver los campos disponibles del formulario');
+      console.error(' Token inválido o undefined:', token);
+      console.log(' Tip: Revisa la consola para ver los campos disponibles del formulario');
       this.toastService.error('Error: El formulario no tiene un token válido. Revisa la consola (F12).');
       return;
     }
     
     // Generar URL con query parameter (como en la maqueta original)
     const url = `${window.location.origin}/formulario?token=${token}`;
-    console.log('✅ URL generada:', url);
+    console.log(' URL generada:', url);
     
     navigator.clipboard.writeText(url).then(() => {
       this.toastService.success('URL copiada al portapapeles');
-      console.log('📋 URL copiada exitosamente');
+      console.log(' URL copiada exitosamente');
     }).catch(err => {
-      console.error('❌ Error copiando al portapapeles:', err);
+      console.error(' Error copiando al portapapeles:', err);
       this.toastService.error('Error al copiar URL');
     });
   }
@@ -185,10 +185,10 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     
     // Log para debug
     if (!token) {
-      console.warn('⚠️ No se encontró token en formulario:', formulario);
-      console.log('📋 Campos disponibles:', Object.keys(formulario));
+      console.warn(' No se encontró token en formulario:', formulario);
+      console.log(' Campos disponibles:', Object.keys(formulario));
     } else {
-      console.log('✅ Token encontrado:', token);
+      console.log(' Token encontrado:', token);
     }
     
     return token;
@@ -217,6 +217,16 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
       'biometria_free': 'Biometría Gratuita',
       'biometria_premium': 'Biometría Premium',
       'sms_didit': 'SMS DIDIT'
+    };
+    return labels[tipo] || tipo;
+  }
+
+  getTipoConsentimientoLabel(tipo: string): string {
+    const labels: Record<string, string> = {
+      'datos_personales': 'Datos Personales',
+      'imagen': 'Imagen',
+      'marketing': 'Marketing',
+      'terceros': 'Terceros'
     };
     return labels[tipo] || tipo;
   }
@@ -273,9 +283,9 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response.success) {
           this.toastService.success(
-            `✅ Proceso completado para ${cliente.nombre} ${cliente.apellido}\n\n` +
-            `📧 Email: ${response.documentos?.email_enviado ? 'Enviado' : 'Error'}\n` +
-            `📱 SMS: ${response.documentos?.sms_enviado ? 'Enviado' : 'Error'}`
+            ` Proceso completado para ${cliente.nombre} ${cliente.apellido}\n\n` +
+            ` Email: ${response.documentos?.email_enviado ? 'Enviado' : 'Error'}\n` +
+            ` SMS: ${response.documentos?.sms_enviado ? 'Enviado' : 'Error'}`
           );
           
           // Recargar datos

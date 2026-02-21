@@ -19,7 +19,6 @@
   background: linear-gradient(135deg, #042396 0%, #0a3bb5 100%);
   color: white;
   padding: 2rem 1.5rem;
-  text-align: center;
   position: relative;
   overflow: hidden;
 
@@ -44,22 +43,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: 20px;
   position: relative;
   z-index: 1;
 }
 
 .empresa-logo-wrapper {
   background: white;
-  padding: 8px;
-  border-radius: 8px;
+  padding: 10px;
+  border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  flex-shrink: 0;
 }
 
 .empresa-logo {
-  max-height: 60px;
-  max-width: 180px;
+  max-height: 70px;
+  max-width: 200px;
   object-fit: contain;
   display: block;
 }
@@ -67,17 +66,20 @@
 .escudo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
+  flex: 1;
 }
 
 .escudo-icon {
   font-size: 2.5rem;
   color: rgba(255,255,255,0.9);
   filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  flex-shrink: 0;
 }
 
 .empresa-info {
   text-align: left;
+  flex: 1;
 
   h2 {
     margin: 0;
@@ -375,7 +377,7 @@
       display: inline-flex;
       align-items: center;
       padding: 8px 16px;
-      background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+      background: linear-gradient(135deg, #016dff 0%, #01439c 100%);
       color: white;
       border-radius: 25px;
       font-weight: 600;
@@ -454,10 +456,10 @@
 }
 
 .btn-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #084b96 0%, #084b96 100%);
   
   &:hover:not(:disabled) {
-    background: linear-gradient(135deg, #218838 0%, #1aa179 100%);
+    background: linear-gradient(135deg, #016dff 0%, #016dff 100%);
   }
 }
 
@@ -539,6 +541,27 @@
 }
 
 // Responsive
+@media (max-width: 992px) {
+  .empresa-logo-container {
+    gap: 15px;
+  }
+
+  .empresa-logo {
+    max-height: 60px;
+    max-width: 160px;
+  }
+
+  .empresa-info {
+    h2 {
+      font-size: 1.4rem;
+    }
+
+    p {
+      font-size: 0.9rem;
+    }
+  }
+}
+
 @media (max-width: 768px) {
   .formulario-publico-wrapper {
     padding: 1rem 0;
@@ -554,24 +577,38 @@
   }
 
   .empresa-logo-container {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .empresa-logo-wrapper {
+    padding: 8px;
+  }
+
+  .empresa-logo {
+    max-height: 50px;
+    max-width: 120px;
   }
 
   .escudo-container {
-    flex-direction: column;
-    text-align: center;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .escudo-icon {
+    font-size: 2rem;
   }
 
   .empresa-info {
-    text-align: center;
+    text-align: left;
 
     h2 {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
 
     p {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
   }
 
@@ -626,13 +663,34 @@
 }
 
 @media (max-width: 576px) {
+  .empresa-logo-container {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .empresa-logo-wrapper {
+    padding: 6px;
+  }
+
   .empresa-logo {
-    max-height: 45px;
-    max-width: 130px;
+    max-height: 40px;
+    max-width: 100px;
   }
 
   .escudo-icon {
-    font-size: 2rem;
+    font-size: 1.5rem;
+  }
+
+  .empresa-info {
+    h2 {
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    p {
+      font-size: 0.75rem;
+      display: none; // Ocultar slogan en pantallas muy pequeñas
+    }
   }
 
   .cedula-input {
@@ -646,5 +704,10 @@
     label {
       font-size: 1rem;
     }
+  }
+
+  .btn-lg {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
   }
 }

@@ -56,11 +56,11 @@ export class DashboardComponent implements OnInit {
     
     this.dashboardService.getStats().subscribe({
       next: (response: any) => {
-        console.log('📊 Dashboard stats received:', response);
+        console.log(' Dashboard stats received:', response);
         
         // El backend puede devolver { success: true, data: {...} } o directamente los datos
         const rawData = response.success ? response.data : response;
-        console.log('📈 Raw data:', rawData);
+        console.log('Raw data:', rawData);
         
         // Manejar estructura anidada y plana
         const data: DashboardStats = {
@@ -82,13 +82,13 @@ export class DashboardComponent implements OnInit {
           actividad_reciente: rawData.actividad_reciente
         };
         
-        console.log('✅ Processed data:', data);
+        console.log(' Processed data:', data);
         this.stats.set(data);
         this.updateStatCards(data);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando estadísticas:', error);
+        console.error(' Error cargando estadísticas:', error);
         
         // Intentar cargar datos básicos como fallback
         this.loadFallbackStats();
@@ -97,7 +97,7 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadFallbackStats(): void {
-    console.log('🔄 Intentando cargar datos básicos como fallback...');
+    console.log(' Intentando cargar datos básicos como fallback...');
     
     // Cargar clientes directamente para obtener al menos el conteo
     this.api.get<any>(this.config.endpoints.clientes).subscribe({
@@ -122,13 +122,13 @@ export class DashboardComponent implements OnInit {
           }
         };
         
-        console.log('✅ Fallback stats loaded:', fallbackStats);
+        console.log(' Fallback stats loaded:', fallbackStats);
         this.stats.set(fallbackStats);
         this.updateStatCards(fallbackStats);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error en fallback:', error);
+        console.error(' Error en fallback:', error);
         
         // Último recurso: mostrar ceros
         const emptyStats: DashboardStats = {
