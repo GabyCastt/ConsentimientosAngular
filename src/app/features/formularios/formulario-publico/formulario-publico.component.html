@@ -150,9 +150,17 @@
                         <input 
                           type="email"
                           class="form-control"
+                          [class.is-invalid]="email() && !validarEmail(email())"
+                          [class.is-valid]="email() && validarEmail(email())"
                           [value]="email()"
-                          (input)="email.set($any($event.target).value); validarDatosPersonales()"
-                          name="email">
+                          (input)="onEmailInput($event)"
+                          name="email"
+                          placeholder="ejemplo@correo.com">
+                        @if (email() && !validarEmail(email())) {
+                          <div class="invalid-feedback">
+                            El email debe tener formato válido
+                          </div>
+                        }
                         @if (estado().tipoValidacion === 'biometria_free' || estado().tipoValidacion === 'biometria_premium') {
                           <small class="text-danger">
                             <i class="fas fa-info-circle me-1"></i>
@@ -172,9 +180,17 @@
                         <input 
                           type="tel"
                           class="form-control"
+                          [class.is-invalid]="telefono() && !validarTelefono(telefono())"
+                          [class.is-valid]="telefono() && validarTelefono(telefono())"
                           [value]="telefono()"
-                          (input)="telefono.set($any($event.target).value); validarDatosPersonales()"
-                          name="telefono">
+                          (input)="onTelefonoInput($event)"
+                          name="telefono"
+                          placeholder="0987654321">
+                        @if (telefono() && !validarTelefono(telefono())) {
+                          <div class="invalid-feedback">
+                            El teléfono debe contener solo números (mínimo 7 dígitos)
+                          </div>
+                        }
                         @if (estado().tipoValidacion === 'sms_didit') {
                           <small class="text-danger">
                             <i class="fas fa-info-circle me-1"></i>

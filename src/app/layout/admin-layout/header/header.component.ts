@@ -47,6 +47,6 @@ export class HeaderComponent {
 
   pageTitle = computed(() => {
     // Puedes hacer esto más dinámico con el Router
-    return 'Dashboard';
+    return 'Gestión de formularios';
   });
 }

@@ -49,15 +49,25 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     const form = this.formulario();
     if (!form) return [];
     
+    console.log('📋 Formateando consentimientos...');
+    console.log('📋 Formulario completo:', form);
+    
     // Si ya vienen consentimientos formateados, usarlos
     if (form.consentimientos && form.consentimientos.length > 0) {
+      console.log('✅ Usando consentimientos pre-formateados:', form.consentimientos);
       return form.consentimientos;
     }
     
     // Si no, construirlos desde tipos_consentimientos y archivos_disponibles
     if (form.tipos_consentimientos && form.archivos_disponibles) {
+      console.log('🔨 Construyendo consentimientos desde tipos y archivos');
+      console.log('📝 Tipos:', form.tipos_consentimientos);
+      console.log('📁 Archivos disponibles:', form.archivos_disponibles);
+      
       return form.tipos_consentimientos.map((tipo, index) => {
         const archivos = form.archivos_disponibles?.[tipo] || [];
+        
+        console.log(`📄 Tipo "${tipo}" tiene ${archivos.length} archivos:`, archivos);
         
         // Mapear nombres de tipos a descripciones legibles
         const nombresTipos: { [key: string]: string } = {
@@ -83,6 +93,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       });
     }
     
+    console.log('⚠️ No hay consentimientos disponibles');
     return [];
   });
   
@@ -390,6 +401,34 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
 
   // ==================== VALIDACIÓN DE DATOS ====================
   
+  onTelefonoInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    // Permitir solo números
+    let value = input.value.replace(/\D/g, '');
+    this.telefono.set(value);
+    input.value = value;
+    this.validarDatosPersonales();
+  }
+
+  onEmailInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.email.set(input.value.trim());
+    this.validarDatosPersonales();
+  }
+
+  validarEmail(email: string): boolean {
+    if (!email) return false;
+    // Validar formato: debe tener @ y al menos un punto después del @
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  }
+
+  validarTelefono(telefono: string): boolean {
+    if (!telefono) return false;
+    // Validar que solo contenga números y tenga al menos 7 dígitos
+    return /^\d{7,}$/.test(telefono);
+  }
+
   validarDatosPersonales(): boolean {
     const nombreVal = this.nombre();
     const apellidoVal = this.apellido();
@@ -407,15 +446,24 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     let datosCompletos = false;
     
     if (tipoVerif === 'biometria_free' || tipoVerif === 'biometria_premium') {
-      const emailValido = !!(emailVal && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal));
+      // Para biometría: nombre + apellido + email VÁLIDO
+      const emailValido = this.validarEmail(emailVal);
       datosCompletos = !!nombreVal && !!apellidoVal && emailValido;
+      console.log('- Email válido:', emailValido);
       console.log('- Validación biometría:', datosCompletos);
     } else if (tipoVerif === 'sms_didit') {
-      datosCompletos = !!nombreVal && !!apellidoVal && !!telefonoVal;
+      // Para SMS: nombre + apellido + teléfono VÁLIDO
+      const telefonoValido = this.validarTelefono(telefonoVal);
+      datosCompletos = !!nombreVal && !!apellidoVal && telefonoValido;
+      console.log('- Teléfono válido:', telefonoValido);
       console.log('- Validación SMS DIDIT:', datosCompletos);
     } else {
-      // Para verificación tradicional: nombre + apellido + (email O teléfono)
-      datosCompletos = !!nombreVal && !!apellidoVal && (!!emailVal || !!telefonoVal);
+      // Para verificación tradicional: nombre + apellido + (email VÁLIDO O teléfono VÁLIDO)
+      const emailValido = this.validarEmail(emailVal);
+      const telefonoValido = this.validarTelefono(telefonoVal);
+      datosCompletos = !!nombreVal && !!apellidoVal && (emailValido || telefonoValido);
+      console.log('- Email válido:', emailValido);
+      console.log('- Teléfono válido:', telefonoValido);
       console.log('- Validación tradicional:', datosCompletos);
     }
     

@@ -29,21 +29,21 @@ export class ListaDocumentosComponent implements OnInit {
         descripcion: 'Documento principal de términos y condiciones',
         icono: 'fas fa-shield-alt',
         color: 'primary',
-        url: this.config.getPdfUrl('terminos.pdf') || '#'
+        url: `${this.config.apiUrl}/api-consentimientos/archivos/Terminos_Y_Condiciones.pdf`
       },
       {
         titulo: 'Términos BeContactos',
         descripcion: 'Términos específicos para BeContactos',
         icono: 'fas fa-image',
         color: 'info',
-        url: this.config.getPdfUrl('becontactos.pdf') || '#'
+        url: `${this.config.apiUrl}/api-consentimientos/archivos/TerminosYCondiciones_BeContactos.pdf`
       },
       {
         titulo: 'Ejemplo Contrato Final',
         descripcion: 'Plantilla del contrato que reciben los clientes',
         icono: 'fas fa-file-contract',
         color: 'success',
-        url: this.config.getPdfUrl('contrato.pdf') || '#'
+        url: `${this.config.apiUrl}/api-consentimientos/archivos/ejemplo_contratoFinal.pdf`
       }
     ];
   }
