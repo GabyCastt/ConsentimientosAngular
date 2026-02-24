@@ -13,6 +13,7 @@ export interface FormularioPublico {
   id: number;
   nombre: string;
   descripcion?: string;
+  empresa_id?: number; // ID de la empresa dueña del formulario
   empresa?: {
     id: number;
     nombre: string;

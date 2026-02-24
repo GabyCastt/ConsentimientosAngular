@@ -15,7 +15,7 @@
   <!-- Buscador -->
   <div class="card mb-4">
     <div class="card-body">
-      <div class="row">
+      <div class="row align-items-center">
         <div class="col-md-6">
           <div class="input-group">
             <span class="input-group-text">
@@ -26,12 +26,23 @@
               class="form-control"
               placeholder="Buscar por cédula, nombre, email o teléfono..."
               [(ngModel)]="searchTerm"
-              (input)="onSearch()">
+              (keyup.enter)="onSearch()">
+            <button class="btn btn-primary" (click)="onSearch()">
+              Buscar
+            </button>
           </div>
         </div>
-        <div class="col-md-6 text-end">
+        <div class="col-md-3">
+          <select class="form-select" [(ngModel)]="pageSize" (change)="changePageSize($any($event.target).value)">
+            <option [value]="10">10 por página</option>
+            <option [value]="20">20 por página</option>
+            <option [value]="50">50 por página</option>
+            <option [value]="100">100 por página</option>
+          </select>
+        </div>
+        <div class="col-md-3 text-end">
           <span class="text-muted">
-            {{ clientesFiltrados().length }} de {{ clientes().length }} clientes
+            Total: {{ totalItems() }} clientes
           </span>
         </div>
       </div>
@@ -140,6 +151,88 @@
         </div>
       }
     </div>
+    
+    <!-- Paginación -->
+    @if (totalPages() > 1) {
+      <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <span class="text-muted">
+              Página {{ currentPage() }} de {{ totalPages() }}
+            </span>
+          </div>
+          
+          <nav>
+            <ul class="pagination pagination-sm mb-0">
+              <!-- Botón Anterior -->
+              <li class="page-item" [class.disabled]="!hasPrevPage()">
+                <button class="page-link" (click)="prevPage()" [disabled]="!hasPrevPage()">
+                  <i class="fas fa-chevron-left"></i>
+                  Anterior
+                </button>
+              </li>
+              
+              <!-- Primera página -->
+              @if (currentPage() > 2) {
+                <li class="page-item">
+                  <button class="page-link" (click)="goToPage(1)">1</button>
+                </li>
+                @if (currentPage() > 3) {
+                  <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                  </li>
+                }
+              }
+              
+              <!-- Página anterior -->
+              @if (hasPrevPage()) {
+                <li class="page-item">
+                  <button class="page-link" (click)="goToPage(currentPage() - 1)">
+                    {{ currentPage() - 1 }}
+                  </button>
+                </li>
+              }
+              
+              <!-- Página actual -->
+              <li class="page-item active">
+                <span class="page-link">{{ currentPage() }}</span>
+              </li>
+              
+              <!-- Página siguiente -->
+              @if (hasNextPage()) {
+                <li class="page-item">
+                  <button class="page-link" (click)="goToPage(currentPage() + 1)">
+                    {{ currentPage() + 1 }}
+                  </button>
+                </li>
+              }
+              
+              <!-- Última página -->
+              @if (currentPage() < totalPages() - 1) {
+                @if (currentPage() < totalPages() - 2) {
+                  <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                  </li>
+                }
+                <li class="page-item">
+                  <button class="page-link" (click)="goToPage(totalPages())">
+                    {{ totalPages() }}
+                  </button>
+                </li>
+              }
+              
+              <!-- Botón Siguiente -->
+              <li class="page-item" [class.disabled]="!hasNextPage()">
+                <button class="page-link" (click)="nextPage()" [disabled]="!hasNextPage()">
+                  Siguiente
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    }
   </div>
 </div>
 

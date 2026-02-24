@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormulariosService } from '../formularios.service';
 import { DiditService } from '../../verificacion/didit/didit.service';
 import { ConfigService } from '../../../core/services/config.service';
+import { ClientesService } from '../../clientes/clientes.service';
 import { 
   FormularioPublico, 
   DatosUsuario 
@@ -18,6 +19,7 @@ interface Estado {
   paso: string;
   cedula: string;
   clienteEncontrado: boolean;
+  clienteExisteEnBD?: boolean; // Indica si el cliente ya existe en la BD
   datosCliente: any;
   datosPersonalesCompletos: boolean;
   consentimientosSeleccionados: boolean;
@@ -152,6 +154,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     private formulariosService: FormulariosService,
     private diditService: DiditService,
     private smsDiditService: SmsDiditService,
+    private clientesService: ClientesService,
     public config: ConfigService
   ) {}
 
@@ -271,41 +274,113 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   buscarPorCedula(): void {
     const cedulaValue = this.cedula();
     
-    if (!this.config.isValidCedula(cedulaValue)) {
-      this.mostrarMensaje('Cédula debe tener 10 dígitos', 'error');
+    // Validar longitud
+    if (!cedulaValue || cedulaValue.length !== 10) {
+      this.mostrarMensaje('Cédula debe tener exactamente 10 dígitos', 'error');
       return;
+    }
+
+    // Validar que solo contenga números
+    if (!/^\d{10}$/.test(cedulaValue)) {
+      this.mostrarMensaje('Cédula debe contener solo números', 'error');
+      return;
+    }
+
+    // Validar formato completo (pero permitir continuar si falla)
+    if (!this.config.isValidCedula(cedulaValue)) {
+      console.log('[INFO] Cédula no pasa validación completa, pero continuando...');
+      this.mostrarMensaje('Advertencia: La cédula ingresada podría no ser válida', 'info');
+      // Continuar de todas formas
     }
 
     this.limpiarDatosFormulario();
     this.loading.set(true);
     
-    // [OK] CORREGIDO: Usar endpoint correcto
-    this.formulariosService.consultarCedulaExterna(cedulaValue).subscribe({
+    // Primero verificar si el cliente ya completó este formulario
+    this.formulariosService.buscarClientePorCedula(this.token(), cedulaValue).subscribe({
       next: (response: any) => {
-        console.log('[OK] Respuesta consulta cédula:', response);
+        console.log('[OK] Respuesta buscar cliente en formulario:', response);
+        
+        // Verificar ambas variantes del campo (con guion bajo y camelCase)
+        const yaCompleto = response.ya_completado || response.yaCompletado || response.ya_completo;
+        
+        if (response.cliente_encontrado && yaCompleto) {
+          // Cliente ya completó este formulario - BLOQUEAR COMPLETAMENTE
+          console.log('[ERROR] Cliente ya completó este formulario - BLOQUEANDO FLUJO');
+          
+          this.loading.set(false);
+          
+          // Mostrar mensaje de error principal
+          this.mostrarMensaje(
+            response.mensaje || 'Ya has completado este formulario anteriormente. No puedes registrar respuestas duplicadas.',
+            'error'
+          );
+          
+          // Opcional: Mostrar información adicional después de 3 segundos
+          if (response.fecha_registro) {
+            setTimeout(() => {
+              this.mostrarMensaje(
+                `Registro anterior: ${new Date(response.fecha_registro).toLocaleString('es-ES')}`,
+                'info'
+              );
+            }, 3000);
+          }
+          
+          // IMPORTANTE: Marcar el estado como ya completado para bloquear la UI
+          const estadoActual = this.estado();
+          estadoActual.yaCompletado = true;
+          estadoActual.cedula = cedulaValue;
+          estadoActual.paso = 'ya_completado'; // Estado especial para bloquear
+          this.estado.set(estadoActual);
+          
+          // NO continuar con el flujo
+          return;
+        }
+        
+        // Cliente no ha completado el formulario, continuar con la búsqueda normal
+        console.log('[INFO] Cliente no ha completado el formulario, continuando...');
+        this.buscarClienteEnBD(cedulaValue);
+      },
+      error: (error) => {
+        console.error('[ERROR] Error verificando cliente en formulario:', error);
+        // Si falla la verificación, continuar con el flujo normal
+        this.buscarClienteEnBD(cedulaValue);
+      }
+    });
+  }
+
+  private buscarClienteEnBD(cedula: string): void {
+    // Buscar en la base de datos local
+    this.clientesService.consultarCedula(cedula).subscribe({
+      next: (response: any) => {
+        console.log('[OK] Respuesta consulta cédula BD local:', response);
         const estadoActual = this.estado();
         
         if (response.encontrado && response.nombre) {
-          // Datos encontrados en API externa
-          console.log('[OK] Datos encontrados en API externa');
+          // Cliente encontrado en BD local
+          console.log('[OK] Cliente encontrado en BD local');
           
           this.nombre.set(response.nombre || '');
           this.apellido.set(response.apellido || '');
+          this.email.set(response.email || '');
+          this.telefono.set(response.telefono || '');
           
           estadoActual.clienteEncontrado = true;
+          estadoActual.clienteExisteEnBD = true;
           estadoActual.datosCliente = response;
-          this.mostrarMensaje('Datos encontrados: ' + response.nombre_completo, 'success');
+          this.mostrarMensaje('¡Bienvenido de nuevo! Tus datos han sido cargados', 'success');
           
           setTimeout(() => {
             this.validarDatosPersonales();
           }, 100);
         } else {
-          console.log('ℹ️ Datos no encontrados, usuario debe ingresar manualmente');
-          estadoActual.clienteEncontrado = false;
-          this.mostrarMensaje('Cédula no encontrada. Ingresa tus datos manualmente.', 'info');
+          // No encontrado en BD local, buscar en API externa (Registro Civil)
+          console.log('[INFO] Cliente no encontrado en BD, consultando Registro Civil...');
+          this.consultarRegistroCivil(cedula);
+          return;
         }
         
-        estadoActual.cedula = cedulaValue;
+        estadoActual.cedula = cedula;
         estadoActual.paso = 'datos_encontrados';
         this.estado.set(estadoActual);
         this.loading.set(false);
@@ -318,15 +393,83 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         }, 300);
       },
       error: (error) => {
-        console.error('[ERROR] Error consultando cédula:', error);
-        this.mostrarMensaje('Error al consultar cédula. Ingresa tus datos manualmente.', 'info');
-        
+        // 404 es normal cuando el cliente no existe
+        if (error.status === 404) {
+          console.log('[INFO] Cliente no encontrado en BD (404), consultando Registro Civil...');
+        } else {
+          console.error('[ERROR] Error consultando BD local:', error);
+        }
+        // Intentar con Registro Civil
+        this.consultarRegistroCivil(cedula);
+      }
+    });
+  }
+
+  private consultarRegistroCivil(cedula: string): void {
+    this.formulariosService.consultarCedulaExterna(cedula).subscribe({
+      next: (response: any) => {
+        console.log('[OK] Respuesta Registro Civil:', response);
         const estadoActual = this.estado();
-        estadoActual.cedula = cedulaValue;
-        estadoActual.clienteEncontrado = false;
+        
+        if (response.encontrado && response.nombre) {
+          // Datos encontrados en Registro Civil
+          console.log('[OK] Datos encontrados en Registro Civil');
+          
+          this.nombre.set(response.nombre || '');
+          this.apellido.set(response.apellido || '');
+          
+          estadoActual.clienteEncontrado = true;
+          estadoActual.clienteExisteEnBD = false; // No existe en BD, se creará después
+          estadoActual.datosCliente = response;
+          this.mostrarMensaje('¡Bienvenido! Hemos encontrado tus datos', 'success');
+          
+          setTimeout(() => {
+            this.validarDatosPersonales();
+          }, 100);
+        } else {
+          console.log('[INFO] Datos no encontrados en Registro Civil');
+          estadoActual.clienteEncontrado = false;
+          estadoActual.clienteExisteEnBD = false;
+          this.mostrarMensaje('¡Bienvenido! Por favor completa tus datos para continuar', 'info');
+        }
+        
+        estadoActual.cedula = cedula;
         estadoActual.paso = 'datos_encontrados';
         this.estado.set(estadoActual);
         this.loading.set(false);
+        
+        setTimeout(() => {
+          const seccionDatos = document.getElementById('seccion-datos');
+          if (seccionDatos) {
+            seccionDatos.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      },
+      error: (error) => {
+        // 404 es normal cuando no existe en Registro Civil
+        if (error.status === 404) {
+          console.log('[INFO] Cliente no encontrado en Registro Civil (404), permitiendo ingreso manual');
+        } else {
+          console.error('[ERROR] Error consultando Registro Civil:', error);
+        }
+        
+        // Permitir ingreso manual con mensaje amigable
+        this.mostrarMensaje('¡Bienvenido! Por favor completa tus datos para continuar', 'info');
+        
+        const estadoActual = this.estado();
+        estadoActual.cedula = cedula;
+        estadoActual.clienteEncontrado = false;
+        estadoActual.clienteExisteEnBD = false;
+        estadoActual.paso = 'datos_encontrados';
+        this.estado.set(estadoActual);
+        this.loading.set(false);
+        
+        setTimeout(() => {
+          const seccionDatos = document.getElementById('seccion-datos');
+          if (seccionDatos) {
+            seccionDatos.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
       }
     });
   }
@@ -573,6 +716,10 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   async solicitarCodigo(): Promise<void> {
     this.loading.set(true);
 
+    const estadoActual = this.estado();
+
+    // Preparar datos para el registro
+    // El backend automáticamente crea/actualiza el cliente
     const datos: DatosUsuario = {
       cedula: this.cedula(),
       nombre: this.nombre(),
@@ -583,7 +730,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     };
 
     console.log('[SEND] Solicitando código/registro:', datos);
-    console.log('[TYPE] Tipo de validación:', this.estado().tipoValidacion);
+    console.log('[TYPE] Tipo de validación:', estadoActual.tipoValidacion);
 
     this.formulariosService.registrarRespuesta(
       this.token(),

@@ -91,8 +91,31 @@
               }
             </div>
 
+            <!-- Mensaje cuando ya completó el formulario -->
+            @if (estado().yaCompletado) {
+              <div class="seccion seccion-activa" id="seccion-ya-completado">
+                <div class="alert alert-warning text-center py-5">
+                  <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                  <h4 class="mb-3">Formulario Ya Completado</h4>
+                  <p class="mb-4">
+                    Ya has completado este formulario anteriormente con la cédula <strong>{{ estado().cedula }}</strong>.
+                  </p>
+                  <p class="text-muted">
+                    No puedes registrar respuestas duplicadas en el mismo formulario.
+                  </p>
+                  <hr class="my-4">
+                  <button 
+                    class="btn btn-primary"
+                    (click)="buscarOtraCedula()">
+                    <i class="fas fa-redo me-2"></i>
+                    Intentar con otra cédula
+                  </button>
+                </div>
+              </div>
+            }
+
             <!-- Sección 2: Datos Personales -->
-            @if (estado().cedula && estado().cedula.length === 10) {
+            @if (estado().cedula && estado().cedula.length === 10 && !estado().yaCompletado) {
               <div class="seccion seccion-activa" id="seccion-datos">
                 <h4>
                   <i class="fas fa-user text-primary me-2"></i>
@@ -210,7 +233,7 @@
             }
 
             <!-- Sección 3: Consentimientos -->
-            @if (estado().datosPersonalesCompletos) {
+            @if (estado().datosPersonalesCompletos && !estado().yaCompletado) {
               <div class="seccion seccion-activa" id="seccion-consentimientos">
                 <h4>
                   <i class="fas fa-file-contract text-primary me-2"></i>
