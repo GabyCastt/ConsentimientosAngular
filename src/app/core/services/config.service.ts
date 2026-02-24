@@ -33,67 +33,95 @@ export class ConfigService {
   readonly maxLoginAttempts = 5;
   
   // Endpoints del API
-  readonly endpoints = {
-    // Autenticación
-    login: '/api/login',
-    
-    // Clientes
-    clientes: '/api/clientes',
-    clientesImport: '/api/clientes/import',
-    clientesDetalle: '/api/clientes/{id}/detalle',
-    clientesDocumento: '/api/clientes/{clienteId}/documento/{respuestaId}',
-    clientesReenviar: '/api/clientes/{clienteId}/reenviar-certificado/{respuestaId}',
-    
-    // Formularios
-    formularios: '/api/formularios',
-    formulariosPublico: '/api/formularios/publico',
-    formulariosEstado: '/api/formularios/{id}/estado',
-    buscarCliente: '/api/formularios/publico/{token}/buscar-cliente/{cedula}',
-    verificarCodigo: '/api/formularios/publico/verificar-codigo',
-    completarConsentimientos: '/api/formularios/publico/completar-consentimientos',
-    
-    // Consentimientos
-    consentimientos: '/api/consentimientos-procesados',
-    generarEnlace: '/api/generar-enlace',
-    
-    // Estadísticas
-    estadisticasDashboard: '/api/estadisticas/dashboard',
-    estadisticasFormularios: '/api/estadisticas/formularios',
-    estadisticasConsentimientos: '/api/estadisticas/consentimientos',
-    estadisticasPeriodo: '/api/estadisticas/periodo',
-    
-    // Empresas
-    empresas: '/api/empresas',
-    empresasPerfil: '/api/empresas/perfil',
-    
-    // Certificados
-    certificadosEnviar: '/api/certificados/enviar-confirmacion',
-    certificadosDescargar: '/api/certificados/descargar',
-    certificadosTerminos: '/api/certificados/terminos-autorizados',
-    certificadosCliente: '/api/certificados/cliente',
-    
-    // Verificación de autorización
-    verificarAutorizacion: '/api/verificar-autorizacion',
-    verificarCedula: '/api/verificar-cedula',
-    estadisticasVerificacion: '/api/estadisticas-verificacion',
-    
-    // DIDIT - Verificación Biométrica
-    didit: {
-      createSession: '/api/didit/create-session',
-      sessionStatus: '/api/didit/session-status',
-      status: '/api/didit/status',
-      config: '/api/didit/config',
-      callback: '/api/didit/callback',
-      webhook: '/api/didit/webhook',
-      formInfo: '/api/didit/form-info',
-      resendDocuments: '/api/didit/resend-documents',
-      completeProcess: '/api/didit/complete-process',
-      pendingClients: '/api/didit/pending-clients'
-    },
-    
-    // Health check
-    health: '/api/health'
-  };
+readonly endpoints = {
+  // Autenticación
+  login: '/api/login',
+  verify: '/api/verify',
+  health: '/api/health',
+  
+  // Clientes
+  clientes: '/api/clientes',
+  clientesDetalle: '/api/clientes/{id}/detalle',
+  clientesDocumento: '/api/clientes/{clienteId}/documento/{respuestaId}',
+  clientesReenviar: '/api/clientes/{clienteId}/reenviar-certificado/{respuestaId}',
+  clientesConsultarCedula: '/api/clientes/consultar-cedula/{cedula}',  
+  
+  // Formularios
+  formularios: '/api/formularios',
+  formulariosPublico: '/api/formularios/publico',
+  formulariosEstado: '/api/formularios/{id}/estado',
+  formulariosRespuestas: '/api/formularios/{id}/respuestas',
+  
+  // Formularios públicos - Endpoints correctos
+  formulariosPublicoRegistrar: '/api/formularios/publico/{token}/registrar',
+  formulariosPublicoVerificarCodigo: '/api/formularios/publico/verificar-codigo',
+  formulariosPublicoGuardarConsentimientos: '/api/formularios/publico/guardar-consentimientos',
+  formulariosPublicoCompletarConsentimientos: '/api/formularios/publico/completar-consentimientos',
+  formulariosPublicoBuscarCliente: '/api/formularios/publico/{token}/buscar-cliente/{cedula}',
+  formulariosPublicoVerificarEstado: '/api/formularios/publico/verificar-estado',
+  
+  // Consentimientos
+  consentimientos: '/api/consentimientos-procesados',
+  generarEnlace: '/api/generar-enlace',
+  reenviarCodigo: '/api/reenviar-codigo',
+  
+  // Estadísticas
+  estadisticasDashboard: '/api/estadisticas/dashboard',
+  estadisticasFormularios: '/api/estadisticas/formularios',
+  estadisticasPeriodo: '/api/estadisticas/periodo',
+  
+  // Empresas
+  empresas: '/api/empresas',
+  empresasPerfil: '/api/empresas/perfil',
+  
+  // Certificados
+  certificadosEnviar: '/api/certificados/enviar-confirmacion',
+  certificadosDescargar: '/api/certificados/descargar/{cliente_id}/{formulario_id}',
+  certificadosTerminos: '/api/certificados/terminos-autorizados/{cliente_id}/{formulario_id}/{tipo_archivo}',
+  certificadosCliente: '/api/certificados/cliente/{cliente_id}',
+  
+  // Verificación de autorización
+  verificarAutorizacion: '/api/verificar-autorizacion/{hash}',
+  verificarCedula: '/api/verificar-cedula/{cedula}',
+  estadisticasVerificacion: '/api/estadisticas-verificacion',
+  
+  // DIDIT - Verificación Biométrica (CORREGIDOS)
+  didit: {
+    createSession: '/api/didit/create-session',
+    sessionStatus: '/api/didit/session-status/{session_id}',
+    status: '/api/didit/status/{token}',  
+    formInfo: '/api/didit/form-info/{token}',  
+    config: '/api/didit/config',
+    callback: '/api/didit/callback',
+    webhook: '/api/didit/webhook',
+    markVerified: '/api/didit/mark-verified',
+    simulateVerification: '/api/didit/simulate-verification',
+    resendDocuments: '/api/didit/resend-documents',
+    completeProcess: '/api/didit/complete-process',
+    pendingClients: '/api/didit/pending-clients'
+  },
+  
+  // SMS DIDIT (NUEVOS)
+  smsDidit: {
+    enviarCodigo: '/api/sms-didit/enviar-codigo', 
+    verificarCodigo: '/api/sms-didit/verificar-codigo',  
+    consultarEstado: '/api/sms-didit/estado/{token}',  
+    configuracion: '/api/sms-didit/config',  
+    estadisticas: '/api/sms-didit/estadisticas',  
+    modoPrueba: '/api/sms-didit/modo-prueba'  
+  },
+  
+  // Polling (NUEVOS)
+  polling: {
+    status: '/api/polling/status',
+    start: '/api/polling/start',
+    stop: '/api/polling/stop',
+    interval: '/api/polling/interval',
+    checkNow: '/api/polling/check-now',
+    autoVerify: '/api/polling/auto-verify/{session_id}',  
+    checkToken: '/api/polling/check-token'  
+  }
+};
 
   constructor() {
     this.logEnvironmentInfo();
@@ -135,13 +163,10 @@ export class ConfigService {
   getLogoUrl(logoPath: string | null): string | null {
     if (!logoPath) return null;
     
-    console.log('🖼️ getLogoUrl input:', logoPath);
-    
     // Si ya es una URL completa
     if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
       // CORRECCIÓN: Remover /api-consentimientos si existe (problema del backend)
       let cleanUrl = logoPath.replace('/api-consentimientos', '');
-      console.log('🖼️ URL limpia:', cleanUrl);
       return cleanUrl;
     }
     
@@ -149,18 +174,21 @@ export class ConfigService {
     if (logoPath.startsWith('/')) {
       // Remover /api-consentimientos si existe
       const cleanPath = logoPath.replace('/api-consentimientos', '');
-      return `${this.apiUrl}${cleanPath}`;
+      const finalUrl = this.apiUrl ? `${this.apiUrl}${cleanPath}` : cleanPath;
+      return finalUrl;
     }
     
     // Si ya contiene 'uploads/logos/', solo agregar el dominio
     if (logoPath.includes('uploads/logos/')) {
       // Remover /api-consentimientos si existe
       const cleanPath = logoPath.replace('/api-consentimientos/', '');
-      return `${this.apiUrl}/${cleanPath}`;
+      const finalUrl = this.apiUrl ? `${this.apiUrl}/${cleanPath}` : `/${cleanPath}`;
+      return finalUrl;
     }
     
     // Si no, es solo el nombre del archivo
-    return `${this.apiUrl}/uploads/logos/${logoPath}`;
+    const finalUrl = this.apiUrl ? `${this.apiUrl}/uploads/logos/${logoPath}` : `/uploads/logos/${logoPath}`;
+    return finalUrl;
   }
 
   /**
@@ -169,13 +197,10 @@ export class ConfigService {
   getPdfUrl(pdfPath: string | null): string | null {
     if (!pdfPath) return null;
     
-    console.log('📄 getPdfUrl input:', pdfPath);
-    
     // Si ya es una URL completa
     if (pdfPath.startsWith('http')) {
       // CORRECCIÓN: Remover /api-consentimientos si existe (problema del backend)
       let cleanUrl = pdfPath.replace('/api-consentimientos', '');
-      console.log('📄 URL limpia:', cleanUrl);
       return cleanUrl;
     }
     
@@ -263,7 +288,35 @@ export class ConfigService {
    * Valida formato de cédula ecuatoriana (10 dígitos)
    */
   isValidCedula(cedula: string): boolean {
-    return /^\d{10}$/.test(cedula);
+    if (!cedula || cedula.length !== 10) return false;
+    
+    // Validar que solo contenga números
+    if (!/^\d{10}$/.test(cedula)) return false;
+    
+    // Validar provincia (01-24)
+    const provincia = parseInt(cedula.substring(0, 2));
+    if (provincia < 1 || provincia > 24) return false;
+    
+    // Validar tercer dígito (debe ser menor a 6 para personas naturales)
+    const tercerDigito = parseInt(cedula[2]);
+    if (tercerDigito >= 6) return false;
+    
+    // Algoritmo de validación del dígito verificador
+    const coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+    let suma = 0;
+    
+    for (let i = 0; i < 9; i++) {
+      let valor = parseInt(cedula[i]) * coeficientes[i];
+      if (valor >= 10) {
+        valor -= 9;
+      }
+      suma += valor;
+    }
+    
+    const digitoVerificador = suma % 10 === 0 ? 0 : 10 - (suma % 10);
+    const ultimoDigito = parseInt(cedula[9]);
+    
+    return digitoVerificador === ultimoDigito;
   }
 
   /**
@@ -290,7 +343,7 @@ export class ConfigService {
       console.log('📡 Usando proxy para evitar CORS');
       console.log('🌐 Backend esperado en: http://localhost:3811');
     } else {
-      console.log('🚀 Modo producción activado');
+      console.log('[START] Modo producción activado');
       console.log('📡 API URL:', this.apiUrl);
     }
   }

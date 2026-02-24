@@ -1,0 +1,131 @@
+<div class="perfil-empresa-container">
+  <div class="header">
+    <h1>Perfil de Empresa</h1>
+    <button 
+      class="btn-editar"
+      (click)="toggleEdicion()"
+      [disabled]="loading()">
+      {{ editando() ? 'Cancelar' : 'Editar Perfil' }}
+    </button>
+  </div>
+
+  @if (mensaje()) {
+    <div class="mensaje" [class]="'mensaje-' + tipoMensaje()">
+      {{ mensaje() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Cargando...</p>
+    </div>
+  } @else if (empresa()) {
+    <div class="perfil-content">
+      <div class="logo-section">
+        <div class="logo-container">
+          @if (getLogoUrl()) {
+            <img [src]="getLogoUrl()" alt="Logo de la empresa">
+          } @else {
+            <div class="logo-placeholder">
+              <span>Sin logo</span>
+            </div>
+          }
+        </div>
+        
+        @if (editando()) {
+          <div class="logo-upload">
+            <label for="logo-input" class="btn-upload">
+              Cambiar Logo
+            </label>
+            <input 
+              id="logo-input"
+              type="file" 
+              accept="image/*"
+              (change)="onLogoChange($event)"
+              style="display: none;">
+            <small>Máximo 5MB - JPG, PNG, GIF, SVG</small>
+          </div>
+        }
+      </div>
+
+      <div class="info-section">
+        <div class="form-group">
+          <label>Nombre de la Empresa</label>
+          @if (editando()) {
+            <input 
+              type="text" 
+              [(ngModel)]="nombre"
+              class="form-control"
+              placeholder="Nombre de la empresa"
+              [disabled]="loading()">
+          } @else {
+            <p class="info-value">{{ empresa()?.nombre }}</p>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Slogan</label>
+          @if (editando()) {
+            <textarea 
+              [(ngModel)]="slogan"
+              class="form-control"
+              placeholder="Slogan de la empresa (opcional)"
+              rows="3"
+              [disabled]="loading()"></textarea>
+          } @else {
+            <p class="info-value">{{ empresa()?.slogan || 'Sin slogan' }}</p>
+          }
+        </div>
+
+        @if (editando()) {
+          <div class="form-actions">
+            <button 
+              class="btn-guardar"
+              (click)="guardarCambios()"
+              [disabled]="loading()">
+              Guardar Cambios
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="estadisticas-section">
+        <h2>Estadísticas</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ empresa()?.total_usuarios || 0 }}</span>
+              <span class="stat-label">Usuarios</span>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ empresa()?.total_clientes || 0 }}</span>
+              <span class="stat-label">Clientes</span>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ empresa()?.total_formularios || 0 }}</span>
+              <span class="stat-label">Formularios</span>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+              <span class="stat-value">{{ empresa()?.total_consentimientos || 0 }}</span>
+              <span class="stat-label">Consentimientos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

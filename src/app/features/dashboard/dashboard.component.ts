@@ -41,8 +41,8 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('🚀 Dashboard inicializado');
-    console.log('📍 Environment:', {
+    console.log('[START] Dashboard inicializado');
+    console.log('[ENDPOINT] Environment:', {
       apiUrl: this.config.apiUrl,
       isDevelopment: this.config.isDevelopment(),
       hostname: window.location.hostname

@@ -33,12 +33,12 @@ export class ListaClientesComponent implements OnInit {
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
-    console.log('👥 Lista de clientes inicializada');
+    console.log('[USERS] Lista de clientes inicializada');
     console.log('� Usuario actual:', currentUser);
-    console.log('🏢 Empresa ID:', currentUser?.empresa_id);
-    console.log('🎭 Rol:', currentUser?.rol);
-    console.log('📍 Endpoint:', this.clientesService['config'].endpoints.clientes);
-    console.log('🔑 Token presente:', !!this.authService.getToken());
+    console.log('[COMPANY] Empresa ID:', currentUser?.empresa_id);
+    console.log('[TYPE] Rol:', currentUser?.rol);
+    console.log('[ENDPOINT] Endpoint:', this.clientesService['config'].endpoints.clientes);
+    console.log('[TOKEN] Token presente:', !!this.authService.getToken());
     
     this.loadClientes();
   }
@@ -47,15 +47,15 @@ export class ListaClientesComponent implements OnInit {
     this.loading.set(true);
     
     const currentUser = this.authService.currentUser();
-    console.log('🔄 Cargando clientes para usuario:', currentUser?.email, 'Rol:', currentUser?.rol);
+    console.log('[RELOAD] Cargando clientes para usuario:', currentUser?.email, 'Rol:', currentUser?.rol);
     
     this.clientesService.getClientes().subscribe({
       next: (response) => {
         console.log(' Clientes received:', response);
-        console.log('📦 Tipo de respuesta:', typeof response, Array.isArray(response) ? 'Array' : 'Object');
+        console.log('[RESPONSE] Tipo de respuesta:', typeof response, Array.isArray(response) ? 'Array' : 'Object');
         
-        // El backend puede devolver { clientes: [...] } o directamente el array
-        const clientes = Array.isArray(response) ? response : (response.clientes || []);
+        // El backend devuelve PaginatedResponse con { data: [...] }
+        const clientes = Array.isArray(response) ? response : (response.data || []);
         
         console.log(` Total de clientes: ${clientes.length}`);
         console.log(' Datos de clientes:', clientes);

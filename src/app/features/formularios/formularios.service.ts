@@ -2,12 +2,70 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from '../../core/services/api.service';
 import { ConfigService } from '../../core/services/config.service';
-import { 
-  FormularioPublico, 
-  DatosUsuario, 
-  RespuestaVerificacion 
-} from '../../core/models/formulario.model';
-import { Cliente } from '../../core/models/cliente.model';
+
+export interface Formulario {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  tipos_consentimientos: string[];
+  tipo_validacion: string;
+  token_publico: string;
+  activo: boolean;
+  empresa_id: number;
+  usuario_id: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface FormularioPublicoResponse {
+  formulario: Formulario;
+  empresa: {
+    nombre: string;
+    logo: string;
+  };
+  archivos: Record<string, any>;
+}
+
+export interface RegistrarRespuestaRequest {
+  cedula: string;
+  nombre: string;
+  apellido: string;
+  email?: string;
+  telefono?: string;
+}
+
+export interface VerificarCodigoRequest {
+  token_verificacion: string;
+  codigo: string;
+}
+
+export interface VerificarCodigoResponse {
+  success?: boolean;
+  message: string;
+  respuesta?: any;
+}
+
+export interface GuardarConsentimientosRequest {
+  token_verificacion: string;
+  tipos_aceptados: string[];
+}
+
+export interface CompletarConsentimientosRequest {
+  token_verificacion: string;
+  tipos_aceptados: string[];
+  firma_base64?: string;
+}
+
+export interface BuscarClienteResponse {
+  encontrado: boolean;
+  cliente?: any;
+}
+
+export interface AutoVerifyResponse {
+  verificado: boolean;
+  completado: boolean;
+  mensaje: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -18,55 +76,14 @@ export class FormulariosService {
     private config: ConfigService
   ) {}
 
-  getFormularioPublico(token: string): Observable<FormularioPublico> {
-    return this.api.get<FormularioPublico>(
-      `${this.config.endpoints.formulariosPublico}/${token}`
-    );
+  // ==================== GESTIÓN DE FORMULARIOS (Admin/Distribuidor) ====================
+  
+  // Listar formularios
+  getFormularios(): Observable<{ formularios: Formulario[] }> {
+    return this.api.get<{ formularios: Formulario[] }>(this.config.endpoints.formularios);
   }
 
-  buscarClientePorCedula(token: string, cedula: string): Observable<Cliente | null> {
-    const endpoint = this.config.buildEndpoint(
-      this.config.endpoints.buscarCliente,
-      { token, cedula }
-    );
-    return this.api.get<Cliente | null>(endpoint);
-  }
-
-
-  registrarConsentimientos(
-    token: string, 
-    datos: DatosUsuario
-  ): Observable<RespuestaVerificacion> {
-    return this.api.post<RespuestaVerificacion>(
-      `${this.config.endpoints.formulariosPublico}/${token}/registrar`,
-      datos
-    );
-  }
-
-  verificarCodigo(
-    token: string,
-    codigo: string
-  ): Observable<{ success: boolean; message: string }> {
-    return this.api.post(
-      this.config.endpoints.verificarCodigo,
-      { token, codigo }
-    );
-  }
-
-  solicitarCodigo(
-    token: string
-  ): Observable<{ success: boolean; message: string }> {
-    return this.api.post(
-      `${this.config.endpoints.formulariosPublico}/${token}/solicitar-codigo`,
-      {}
-    );
-  }
-
-  // Métodos para gestión interna de formularios
-  getFormularios(): Observable<any> {
-    return this.api.get(this.config.endpoints.formularios);
-  }
-
+  // Cambiar estado del formulario
   toggleEstado(id: number, activo: boolean): Observable<any> {
     const endpoint = this.config.buildEndpoint(
       this.config.endpoints.formulariosEstado,
@@ -75,7 +92,84 @@ export class FormulariosService {
     return this.api.put(endpoint, { activo });
   }
 
+  // Obtener respuestas del formulario
   getRespuestasFormulario(id: number): Observable<any> {
-    return this.api.get(`${this.config.endpoints.formularios}/${id}/respuestas`);
+    const endpoint = this.config.buildEndpoint(
+      this.config.endpoints.formulariosRespuestas,
+      { id }
+    );
+    return this.api.get(endpoint);
+  }
+
+  // ==================== FORMULARIOS PÚBLICOS ====================
+  
+  // 1. Obtener formulario público por token
+  getFormularioPublico(token: string): Observable<FormularioPublicoResponse> {
+    return this.api.get<FormularioPublicoResponse>(
+      `${this.config.endpoints.formulariosPublico}/${token}`
+    );
+  }
+
+  // 2. Registrar respuesta en formulario público
+  registrarRespuesta(token: string, datos: RegistrarRespuestaRequest): Observable<any> {
+    console.log('[SEND] Registrando respuesta:', datos);
+    return this.api.post(
+      `${this.config.endpoints.formulariosPublico}/${token}/registrar`,
+      datos
+    );
+  }
+
+  // 3. Verificar código de validación
+  verificarCodigo(request: VerificarCodigoRequest): Observable<VerificarCodigoResponse> {
+    console.log('[SEND] Verificando código:', request);
+    console.log('[ENDPOINT] Endpoint:', this.config.endpoints.formulariosPublicoVerificarCodigo);
+    
+    return this.api.post<VerificarCodigoResponse>(
+      this.config.endpoints.formulariosPublicoVerificarCodigo,
+      request
+    );
+  }
+
+  // 4. Guardar consentimientos seleccionados
+  guardarConsentimientos(request: GuardarConsentimientosRequest): Observable<{ success: boolean; message: string }> {
+    console.log('[SEND] Guardando consentimientos:', request);
+    return this.api.post<{ success: boolean; message: string }>(
+      this.config.endpoints.formulariosPublicoGuardarConsentimientos,
+      request
+    );
+  }
+
+  // 5. Completar proceso de consentimientos
+  completarConsentimientos(request: CompletarConsentimientosRequest): Observable<{ success: boolean; message: string }> {
+    console.log('[SEND] Completando consentimientos:', request);
+    return this.api.post<{ success: boolean; message: string }>(
+      this.config.endpoints.formulariosPublicoCompletarConsentimientos,
+      request
+    );
+  }
+
+  // 6. Buscar cliente por cédula
+  buscarClientePorCedula(token: string, cedula: string): Observable<BuscarClienteResponse> {
+    return this.api.get<BuscarClienteResponse>(
+      `${this.config.endpoints.formulariosPublico}/${token}/buscar-cliente/${cedula}`
+    );
+  }
+
+  // 7. Auto-verificación y completado (Polling)
+  autoVerify(tokenVerificacion: string): Observable<AutoVerifyResponse> {
+    return this.api.get<AutoVerifyResponse>(
+      `${this.config.endpoints.formulariosPublico}/auto-verify/${tokenVerificacion}`
+    );
+  }
+
+  // ==================== UTILIDADES ====================
+  
+  // Consultar cédula externa (Registro Civil)
+  consultarCedulaExterna(cedula: string): Observable<any> {
+    const endpoint = this.config.buildEndpoint(
+      this.config.endpoints.clientesConsultarCedula,
+      { cedula }
+    );
+    return this.api.get<any>(endpoint);
   }
 }

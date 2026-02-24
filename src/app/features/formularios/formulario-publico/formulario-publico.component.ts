@@ -9,6 +9,7 @@ import {
   DatosUsuario 
 } from '../../../core/models/formulario.model';
 import { Cliente } from '../../../core/models/cliente.model';
+import { SmsDiditService } from '../../verificacion/sms-didit/sms-didit.service';
 
 type Seccion = 'busqueda' | 'datos' | 'consentimientos' | 'verificacion' | 'completado';
 type TipoVerificacion = 'sms_email' | 'biometria_free' | 'biometria_premium' | 'sms_didit';
@@ -49,25 +50,25 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     const form = this.formulario();
     if (!form) return [];
     
-    console.log('📋 Formateando consentimientos...');
-    console.log('📋 Formulario completo:', form);
+    console.log('[INFO] Formateando consentimientos...');
+    console.log('[INFO] Formulario completo:', form);
     
     // Si ya vienen consentimientos formateados, usarlos
     if (form.consentimientos && form.consentimientos.length > 0) {
-      console.log('✅ Usando consentimientos pre-formateados:', form.consentimientos);
+      console.log('[OK] Usando consentimientos pre-formateados:', form.consentimientos);
       return form.consentimientos;
     }
     
     // Si no, construirlos desde tipos_consentimientos y archivos_disponibles
     if (form.tipos_consentimientos && form.archivos_disponibles) {
-      console.log('🔨 Construyendo consentimientos desde tipos y archivos');
-      console.log('📝 Tipos:', form.tipos_consentimientos);
-      console.log('📁 Archivos disponibles:', form.archivos_disponibles);
+      console.log('[BUILD] Construyendo consentimientos desde tipos y archivos');
+      console.log('[NOTE] Tipos:', form.tipos_consentimientos);
+      console.log('[FOLDER] Archivos disponibles:', form.archivos_disponibles);
       
-      return form.tipos_consentimientos.map((tipo, index) => {
-        const archivos = form.archivos_disponibles?.[tipo] || [];
+      return form.tipos_consentimientos.map((tipoKey, index) => {
+        const archivos = form.archivos_disponibles?.[tipoKey] || [];
         
-        console.log(`📄 Tipo "${tipo}" tiene ${archivos.length} archivos:`, archivos);
+        console.log(`[FILE] Tipo "${tipoKey}" tiene ${archivos.length} archivos:`, archivos);
         
         // Mapear nombres de tipos a descripciones legibles
         const nombresTipos: { [key: string]: string } = {
@@ -85,9 +86,9 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         };
         
         return {
-          id: index + 1,
-          tipo: nombresTipos[tipo] || tipo,
-          descripcion: descripcionesTipos[tipo] || '',
+          id: tipoKey, // CORREGIDO: Usar el tipo como ID (datos_personales, imagen, etc)
+          tipo: nombresTipos[tipoKey] || tipoKey,
+          descripcion: descripcionesTipos[tipoKey] || '',
           archivos: archivos
         };
       });
@@ -150,6 +151,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private formulariosService: FormulariosService,
     private diditService: DiditService,
+    private smsDiditService: SmsDiditService,
     public config: ConfigService
   ) {}
 
@@ -160,12 +162,12 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     
     const tokenValue = tokenFromQuery || tokenFromRoute;
     
-    console.log('🔑 Token desde query params:', tokenFromQuery);
-    console.log('🔑 Token desde route params:', tokenFromRoute);
-    console.log('🔑 Token final:', tokenValue);
+    console.log('[TOKEN] Token desde query params:', tokenFromQuery);
+    console.log('[TOKEN] Token desde route params:', tokenFromRoute);
+    console.log('[TOKEN] Token final:', tokenValue);
     
     if (!tokenValue) {
-      console.error('❌ No se encontró token en la URL');
+      console.error('[ERROR] No se encontró token en la URL');
       this.mostrarMensaje('Token no encontrado en la URL', 'error');
       return;
     }
@@ -187,7 +189,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     const tokenValue = this.token();
     
     if (!tokenValue) {
-      console.error('❌ No hay token para cargar el formulario');
+      console.error('[ERROR] No hay token para cargar el formulario');
       this.mostrarMensaje('Error: No se encontró el token del formulario', 'error');
       this.loading.set(false);
       return;
@@ -274,43 +276,33 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // LIMPIAR DATOS ANTERIORES antes de buscar
     this.limpiarDatosFormulario();
-
     this.loading.set(true);
     
-    this.formulariosService.buscarClientePorCedula(
-      this.token(), 
-      cedulaValue
-    ).subscribe({
+    // [OK] CORREGIDO: Usar endpoint correcto
+    this.formulariosService.consultarCedulaExterna(cedulaValue).subscribe({
       next: (response: any) => {
-        console.log(' Respuesta búsqueda cliente:', response);
+        console.log('[OK] Respuesta consulta cédula:', response);
         const estadoActual = this.estado();
         
-        // El backend devuelve { cliente_encontrado: boolean, cliente: {...}, mensaje: string }
-        if (response.cliente_encontrado && response.cliente) {
-          const cliente = response.cliente;
-          console.log(' Cliente encontrado:', cliente);
+        if (response.encontrado && response.nombre) {
+          // Datos encontrados en API externa
+          console.log('[OK] Datos encontrados en API externa');
           
-          this.clienteEncontrado.set(cliente);
-          this.nombre.set(cliente.nombre || '');
-          this.apellido.set(cliente.apellido || '');
-          this.email.set(cliente.email || '');
-          this.telefono.set(cliente.telefono || '');
+          this.nombre.set(response.nombre || '');
+          this.apellido.set(response.apellido || '');
           
           estadoActual.clienteEncontrado = true;
-          estadoActual.datosCliente = cliente;
-          this.mostrarMensaje(response.mensaje || 'Cliente encontrado: ' + cliente.nombre, 'success');
+          estadoActual.datosCliente = response;
+          this.mostrarMensaje('Datos encontrados: ' + response.nombre_completo, 'success');
           
-          // Validar datos automáticamente después de cargarlos
           setTimeout(() => {
             this.validarDatosPersonales();
           }, 100);
         } else {
-          console.log(' Cliente no encontrado');
-          this.clienteEncontrado.set(null);
+          console.log('ℹ️ Datos no encontrados, usuario debe ingresar manualmente');
           estadoActual.clienteEncontrado = false;
-          this.mostrarMensaje(response.mensaje || 'Cliente no encontrado. Ingresa tus datos.', 'info');
+          this.mostrarMensaje('Cédula no encontrada. Ingresa tus datos manualmente.', 'info');
         }
         
         estadoActual.cedula = cedulaValue;
@@ -318,7 +310,6 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         this.estado.set(estadoActual);
         this.loading.set(false);
         
-        // Hacer scroll a la sección de datos después de un momento
         setTimeout(() => {
           const seccionDatos = document.getElementById('seccion-datos');
           if (seccionDatos) {
@@ -327,15 +318,21 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         }, 300);
       },
       error: (error) => {
-        console.error(' Error buscando cliente:', error);
-        this.mostrarMensaje('Error al buscar cliente', 'error');
+        console.error('[ERROR] Error consultando cédula:', error);
+        this.mostrarMensaje('Error al consultar cédula. Ingresa tus datos manualmente.', 'info');
+        
+        const estadoActual = this.estado();
+        estadoActual.cedula = cedulaValue;
+        estadoActual.clienteEncontrado = false;
+        estadoActual.paso = 'datos_encontrados';
+        this.estado.set(estadoActual);
         this.loading.set(false);
       }
     });
   }
 
   limpiarDatosFormulario(): void {
-    console.log('🧹 Limpiando datos del formulario anterior');
+    console.log('[CLEAN] Limpiando datos del formulario anterior');
     
     // Limpiar datos personales
     this.nombre.set('');
@@ -378,7 +375,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   }
 
   buscarOtraCedula(): void {
-    console.log('🔄 Iniciando búsqueda de otra cédula');
+    console.log('[RELOAD] Iniciando búsqueda de otra cédula');
     
     // Limpiar completamente incluyendo la cédula
     this.cedula.set('');
@@ -542,6 +539,8 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     const selected = this.consentimientosSeleccionados();
     const index = selected.indexOf(tipo);
     
+    console.log('[RELOAD] Toggle consentimiento:', tipo, 'Seleccionados actuales:', selected);
+    
     if (index > -1) {
       this.consentimientosSeleccionados.set(
         selected.filter(t => t !== tipo)
@@ -549,6 +548,8 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     } else {
       this.consentimientosSeleccionados.set([...selected, tipo]);
     }
+    
+    console.log('[OK] Consentimientos después del toggle:', this.consentimientosSeleccionados());
   }
 
   isConsentimientoSeleccionado(tipo: string): boolean {
@@ -581,43 +582,38 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       consentimientos_seleccionados: this.consentimientosSeleccionados().map(id => parseInt(id))
     };
 
-    console.log('📤 Solicitando código/registro:', datos);
-    console.log('🎭 Tipo de validación:', this.estado().tipoValidacion);
+    console.log('[SEND] Solicitando código/registro:', datos);
+    console.log('[TYPE] Tipo de validación:', this.estado().tipoValidacion);
 
-    this.formulariosService.registrarConsentimientos(
+    this.formulariosService.registrarRespuesta(
       this.token(),
-      datos
+      datos as any
     ).subscribe({
       next: (response: any) => {
-        console.log('📥 Respuesta registro completa:', response);
-        console.log('🔍 Tipo de verificación:', response.tipo_verificacion);
+        console.log('[RECEIVE] Respuesta registro completa:', response);
+        console.log('[SEARCH] Tipo de verificación:', response.tipo_verificacion);
+        console.log('[TOKEN] Token de verificación recibido:', response.token_verificacion);
         
         const estadoActual = this.estado();
         
-        // Guardar token de verificación
-        if (response.token_verificacion) {
-          console.log('🔑 Token de verificación recibido:', response.token_verificacion);
-          this.estado.set({
-            ...estadoActual,
-            tokenVerificacion: response.token_verificacion
-          });
-        }
+        // IMPORTANTE: Guardar token de verificación SIEMPRE
+        const nuevoEstado = {
+          ...estadoActual,
+          tokenVerificacion: response.token_verificacion || estadoActual.tokenVerificacion
+        };
         
         // Manejar según el tipo de verificación
         if (response.tipo_verificacion === 'biometria' || 
             estadoActual.tipoValidacion === 'biometria_free' || 
             estadoActual.tipoValidacion === 'biometria_premium') {
           
-          console.log('🔬 Iniciando flujo de verificación biométrica');
-          console.log('🔗 verification_url:', response.verification_url);
-          console.log('🆔 session_id:', response.session_id);
+          console.log('[VERIFY] Iniciando flujo de verificación biométrica');
+          console.log('[LINK] verification_url:', response.verification_url);
+          console.log('[ID] session_id:', response.session_id);
           
           // Verificación biométrica
-          this.estado.set({
-            ...estadoActual,
-            verificacionBiometrica: true,
-            tokenVerificacion: response.token_verificacion
-          });
+          nuevoEstado.verificacionBiometrica = true;
+          this.estado.set(nuevoEstado);
           
           this.mostrarMensaje(
             'Email enviado con enlace de verificación biométrica. Revisa tu correo.',
@@ -626,33 +622,36 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
           
           // Iniciar verificación biométrica si hay URL
           if (response.verification_url && response.session_id) {
-            console.log('✅ Datos completos para DIDIT, iniciando redirección...');
+            console.log('[OK] Datos completos para DIDIT, iniciando redirección...');
             this.sessionId.set(response.session_id);
             this.startPolling();
             
             setTimeout(() => {
-              console.log('🚀 Redirigiendo a DIDIT:', response.verification_url);
+              console.log('[START] Redirigiendo a DIDIT:', response.verification_url);
               window.location.href = response.verification_url;
             }, 2000);
           } else {
-            console.error('❌ Faltan datos para iniciar DIDIT');
+            console.error('[ERROR] Faltan datos para iniciar DIDIT');
             console.error('   verification_url:', response.verification_url);
             console.error('   session_id:', response.session_id);
             this.mostrarMensaje('Error: No se pudo iniciar verificación biométrica', 'error');
           }
         } else if (response.requiere_envio_manual || estadoActual.tipoValidacion === 'sms_didit') {
-          // SMS DIDIT
-          console.log('📱 Flujo SMS DIDIT');
-          this.smsPasoActual.set('codigo');
-          this.mostrarMensaje('Haz clic en "Enviar código SMS"', 'info');
+          // SMS DIDIT - Enviar automáticamente
+          console.log('[SMS] Flujo SMS DIDIT - Enviando código automáticamente');
+          console.log('[SMS] Token guardado:', nuevoEstado.tokenVerificacion);
+          this.estado.set(nuevoEstado);
+          
+          // Enviar código SMS automáticamente
+          this.enviarCodigoSms();
         } else {
           // Verificación tradicional (WhatsApp/Email)
-          console.log('📧 Flujo tradicional WhatsApp/Email');
-          this.estado.set({
-            ...estadoActual,
-            codigoEnviado: true,
-            paso: 'codigo_enviado'
-          });
+          console.log('[EMAIL] Flujo tradicional WhatsApp/Email');
+          console.log('[EMAIL] Token guardado:', nuevoEstado.tokenVerificacion);
+          
+          nuevoEstado.codigoEnviado = true;
+          nuevoEstado.paso = 'codigo_enviado';
+          this.estado.set(nuevoEstado);
           
           let mensaje = 'Código enviado';
           if (response.email?.success) mensaje += ' por Email';
@@ -663,10 +662,10 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         
         this.loading.set(false);
       },
-      error: (error) => {
-        console.error('❌ Error registrando:', error);
-        console.error('📊 Status:', error.status);
-        console.error('📝 Error completo:', error.error);
+      error: (error: any) => {
+        console.error('[ERROR] Error registrando:', error);
+        console.error('[DATA] Status:', error.status);
+        console.error('[NOTE] Error completo:', error.error);
         this.mostrarMensaje(error.error?.message || 'Error al registrar', 'error');
         this.loading.set(false);
       }
@@ -681,39 +680,90 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const tokenVerificacion = this.estado().tokenVerificacion;
+    
+    console.log('[SEARCH] Verificando código:', {
+      token_verificacion: tokenVerificacion,
+      codigo: codigo
+    });
+
+    if (!tokenVerificacion) {
+      this.mostrarMensaje('Token de verificación no encontrado. Solicita el código primero.', 'error');
+      return;
+    }
+
     this.loading.set(true);
     
-    this.formulariosService.verificarCodigo(
-      this.token(),
-      codigo
-    ).subscribe({
+    // PASO 1: Verificar código (igual que la maqueta)
+    this.formulariosService.verificarCodigo({
+      token_verificacion: tokenVerificacion,
+      codigo: codigo
+    }).subscribe({
       next: (response) => {
-        console.log(' Respuesta verificación código:', response);
+        console.log('[OK] Código verificado correctamente:', response);
         
-        if (response.success) {
+        // CORREGIDO: El backend responde con message, no con success
+        if (response.message || response.respuesta) {
+          // Actualizar estado
           const estadoActual = this.estado();
-          
-          // Actualizar estado según el tipo de verificación
-          if (estadoActual.tipoValidacion === 'sms_didit') {
-            this.smsPasoActual.set('exitoso');
-          }
-          
-          // Marcar como verificado
           this.estado.set({
             ...estadoActual,
             codigoVerificado: true
           });
           
-          // Completar consentimientos automáticamente
-          this.completarConsentimientos();
+          if (estadoActual.tipoValidacion === 'sms_didit') {
+            this.smsPasoActual.set('exitoso');
+          }
+          
+          this.mostrarMensaje('Código verificado correctamente', 'success');
+          
+          // PASO 2: Completar consentimientos inmediatamente (igual que la maqueta)
+          console.log('[OK] Completando consentimientos automáticamente...');
+          setTimeout(() => {
+            this.completarConsentimientos();
+          }, 300);
         } else {
-          this.mostrarMensaje(response.message || 'Código inválido', 'error');
+          this.mostrarMensaje('Código inválido', 'error');
           this.loading.set(false);
         }
       },
       error: (error) => {
-        console.error(' Error verificando código:', error);
-        this.mostrarMensaje(error.error?.message || 'Código inválido', 'error');
+        console.error('[ERROR] Error verificando código:', error);
+        
+        let mensaje = 'Código inválido';
+        
+        if (error.error?.error) {
+          const errorMsg = error.error.error;
+          
+          // Si el código ya fue verificado, completar el proceso
+          if (errorMsg.includes('ya ha sido verificado') || errorMsg.includes('ya fue verificado')) {
+            console.log('⚠️ Código ya verificado anteriormente, completando proceso...');
+            
+            const estadoActual = this.estado();
+            this.estado.set({
+              ...estadoActual,
+              codigoVerificado: true
+            });
+            
+            this.mostrarMensaje('Código ya verificado, completando proceso...', 'success');
+            
+            setTimeout(() => {
+              this.completarConsentimientos();
+            }, 300);
+            return;
+          } else if (errorMsg.includes('expirado')) {
+            mensaje = 'El código ha expirado. Solicita un nuevo código.';
+            this.codigoVerificacion.set('');
+          } else if (errorMsg.includes('inválido') || errorMsg.includes('incorrecto')) {
+            mensaje = 'Código incorrecto. Verifica e intenta nuevamente.';
+          } else {
+            mensaje = errorMsg;
+          }
+        } else if (error.error?.message) {
+          mensaje = error.error.message;
+        }
+        
+        this.mostrarMensaje(mensaje, 'error');
         this.loading.set(false);
       }
     });
@@ -725,16 +775,38 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const estadoActual = this.estado();
+    
+    if (!estadoActual.tokenVerificacion) {
+      this.mostrarMensaje('Error: No hay token de verificación', 'error');
+      return;
+    }
+    
+    if (!this.telefono()) {
+      this.mostrarMensaje('Ingresa tu número de teléfono', 'error');
+      return;
+    }
+
     this.loading.set(true);
     this.smsAttempts.set(this.smsAttempts() + 1);
 
-    this.formulariosService.solicitarCodigo(this.token()).subscribe({
+    const datos = {
+      telefono: this.telefono(),
+      token_verificacion: estadoActual.tokenVerificacion,
+      nombre: this.nombre(),
+      apellido: this.apellido(),
+      cedula: this.cedula()
+    };
+
+    console.log('[SMS] Reenviando código SMS:', datos);
+
+    this.smsDiditService.enviarCodigo(datos).subscribe({
       next: (response) => {
         if (response.success) {
           this.mostrarMensaje('Código reenviado exitosamente', 'success');
           this.codigoVerificacion.set('');
         } else {
-          this.mostrarMensaje(response.message, 'error');
+          this.mostrarMensaje(response.message || 'Error al reenviar código', 'error');
         }
         this.loading.set(false);
       },
@@ -748,48 +820,78 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   completarConsentimientos(): void {
     const estadoActual = this.estado();
     
-    // Preparar datos para enviar
-    const datosEnvio = {
-      cedula: this.cedula(),
-      nombre: this.nombre(),
-      apellido: this.apellido(),
-      email: this.email() || undefined,
-      telefono: this.telefono() || undefined,
-      consentimientos_seleccionados: this.consentimientosSeleccionados().map(id => parseInt(id))
+    console.log('[OK] Completando consentimientos con token:', estadoActual.tokenVerificacion);
+    
+    if (!estadoActual.tokenVerificacion) {
+      console.error('[ERROR] No hay token de verificación');
+      this.mostrarMensaje('Error: No hay token de verificación', 'error');
+      this.loading.set(false);
+      return;
+    }
+    
+    // Obtener tipos de consentimientos seleccionados (igual que la maqueta)
+    const tiposAceptados = this.consentimientosSeleccionados();
+    
+    if (tiposAceptados.length === 0) {
+      console.error('[ERROR] No hay consentimientos seleccionados');
+      this.mostrarMensaje('Error: Debes seleccionar al menos un consentimiento', 'error');
+      this.loading.set(false);
+      return;
+    }
+    
+    // Preparar datos igual que la maqueta
+    const datosCompletar = {
+      token_verificacion: estadoActual.tokenVerificacion,
+      tipos_aceptados: tiposAceptados
     };
     
-    console.log(' Completando consentimientos:', datosEnvio);
+    console.log('[SEND] Enviando solicitud de completar consentimientos:', datosCompletar);
     
-    this.formulariosService.registrarConsentimientos(
-      this.token(),
-      datosEnvio
-    ).subscribe({
+    this.formulariosService.completarConsentimientos(datosCompletar).subscribe({
       next: (response: any) => {
-        console.log(' Respuesta completar consentimientos:', response);
+        console.log('[OK] Respuesta completar consentimientos:', response);
         
-        // Actualizar estado
-        this.estado.set({
-          ...estadoActual,
-          consentimientosCompletados: true,
-          paso: 'finalizado',
-          documentosDisponibles: response.documentos || [],
-          tokenVerificacion: response.token_verificacion || estadoActual.tokenVerificacion
-        });
-        
-        this.mostrarMensaje('Consentimientos autorizados exitosamente', 'success');
-        this.loading.set(false);
-        
-        // Scroll a finalización
-        setTimeout(() => {
-          const seccionFinal = document.getElementById('seccion-finalizacion');
-          if (seccionFinal) {
-            seccionFinal.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 500);
+        // CORREGIDO: El backend responde con message y pdf_url, no con success
+        if (response.message && response.pdf_url) {
+          // Actualizar estado
+          this.estado.set({
+            ...estadoActual,
+            consentimientosCompletados: true,
+            paso: 'finalizado',
+            documentosDisponibles: response.documentos || []
+          });
+          
+          this.mostrarMensaje('¡Consentimientos autorizados exitosamente!', 'success');
+          this.loading.set(false);
+          
+          // Scroll a finalización
+          setTimeout(() => {
+            const seccionFinal = document.getElementById('seccion-finalizacion');
+            if (seccionFinal) {
+              seccionFinal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              console.error('[ERROR] No se encontró seccion-finalizacion');
+            }
+          }, 500);
+        } else {
+          console.error('[ERROR] Respuesta sin datos esperados:', response);
+          this.mostrarMensaje(response.message || 'Error al completar consentimientos', 'error');
+          this.loading.set(false);
+        }
       },
-      error: (error) => {
-        console.error(' Error completando consentimientos:', error);
-        this.mostrarMensaje(error.error?.message || 'Error al completar', 'error');
+      error: (error: any) => {
+        console.error('[ERROR] Error completando consentimientos:', error);
+        console.error('[DATA] Status:', error.status);
+        console.error('[NOTE] Error completo:', error.error);
+        
+        let mensaje = 'Error al completar consentimientos';
+        if (error.error?.message) {
+          mensaje = error.error.message;
+        } else if (error.error?.error) {
+          mensaje = error.error.error;
+        }
+        
+        this.mostrarMensaje(mensaje, 'error');
         this.loading.set(false);
       }
     });
@@ -812,58 +914,68 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   }
 
   checkDiditCallback(): void {
-    console.log('🔍 Verificando callback de DIDIT');
-    console.log('📍 URL actual:', window.location.href);
+    console.log('[SEARCH] Verificando callback de DIDIT');
+    console.log('[ENDPOINT] URL actual:', window.location.href);
     
     const urlParams = new URLSearchParams(window.location.search);
-    const diditReturn = urlParams.get('didit_return');
-    const verificationToken = urlParams.get('verification_token');
-    const status = urlParams.get('status');
-    const verified = urlParams.get('verified');
     
-    console.log('📋 Parámetros detectados:', {
-      diditReturn,
-      verificationToken,
-      status,
-      verified
-    });
+    // [OK] CORREGIDO: Buscar parámetros correctos
+    const token = urlParams.get('token');
+    const from = urlParams.get('from');
     
-    if (diditReturn === 'true' && verificationToken) {
-      console.log('✅ Callback de DIDIT detectado, procesando...');
-      this.manejarRegresoDeDidit(verificationToken, status, verified);
+    console.log('[INFO] Parámetros detectados:', { token, from });
+    
+    if (from === 'didit' && token) {
+      console.log('[OK] Callback de DIDIT detectado, procesando...');
+      this.manejarRegresoDeDidit(token);
     } else {
       console.log('ℹ️ No es un callback de DIDIT');
     }
   }
 
-  manejarRegresoDeDidit(verificationToken: string | null, status: string | null, verified: string | null): void {
-    console.log('🎯 Procesando regreso de DIDIT');
-    console.log('📊 Datos recibidos:', { verificationToken, status, verified });
+  manejarRegresoDeDidit(token: string): void {
+    console.log('[TARGET] Procesando regreso de DIDIT con token:', token);
     
-    // Implementar lógica de regreso de DIDIT
-    const estadoActual = this.estado();
-    estadoActual.tokenVerificacion = verificationToken || '';
+    this.loading.set(true);
     
-    const esExitoso = (status === 'success' || status === 'approved') && verified === 'true';
-    console.log('✅ Verificación exitosa:', esExitoso);
+    // Verificar estado en el backend
+    const endpoint = this.config.buildEndpoint(
+      this.config.endpoints.didit.status,
+      { token }
+    );
     
-    if (esExitoso) {
-      estadoActual.verificacionBiometrica = true;
-      estadoActual.codigoVerificado = true;
-      this.mostrarMensaje('Verificación biométrica completada exitosamente', 'success');
-      
-      console.log('🎉 Completando consentimientos automáticamente...');
-      this.completarConsentimientos();
-    } else {
-      console.error('❌ Verificación biométrica fallida');
-      console.error('   Status:', status);
-      console.error('   Verified:', verified);
-      this.mostrarMensaje('Verificación biométrica fallida. Por favor, intenta nuevamente.', 'error');
-    }
-    
-    this.estado.set(estadoActual);
+    this.diditService['api'].get(endpoint).subscribe({
+      next: (response: any) => {
+        console.log('[DATA] Estado de verificación:', response);
+        
+        if (response.verificado || response.verified) {
+          console.log('[OK] Verificación biométrica exitosa');
+          
+          const estadoActual = this.estado();
+          estadoActual.tokenVerificacion = token;
+          estadoActual.verificacionBiometrica = true;
+          estadoActual.codigoVerificado = true;
+          this.estado.set(estadoActual);
+          
+          this.mostrarMensaje('Verificación biométrica completada exitosamente', 'success');
+          
+          // Completar consentimientos automáticamente
+          setTimeout(() => {
+            this.completarConsentimientos();
+          }, 1000);
+        } else {
+          console.error('[ERROR] Verificación biométrica fallida');
+          this.mostrarMensaje('Verificación biométrica fallida. Por favor, intenta nuevamente.', 'error');
+          this.loading.set(false);
+        }
+      },
+      error: (error) => {
+        console.error('[ERROR] Error verificando estado DIDIT:', error);
+        this.mostrarMensaje('Error al verificar estado. Por favor, intenta nuevamente.', 'error');
+        this.loading.set(false);
+      }
+    });
   }
-
   startPolling(): void {
     this.stopPolling();
     this.pollingAttempts = 0;
@@ -976,5 +1088,103 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
 
   getCurrentYear(): number {
     return new Date().getFullYear();
+  }
+  enviarCodigoSms(): void {
+  const estadoActual = this.estado();
+  
+  if (!estadoActual.tokenVerificacion) {
+    this.mostrarMensaje('Error: No hay token de verificación', 'error');
+    return;
+  }
+  
+  if (!this.telefono()) {
+    this.mostrarMensaje('Ingresa tu número de teléfono', 'error');
+    return;
+  }
+  
+  this.loading.set(true);
+  
+  const datos = {
+    telefono: this.telefono(),
+    token_verificacion: estadoActual.tokenVerificacion,
+    nombre: this.nombre(),
+    apellido: this.apellido(),
+    cedula: this.cedula()
+  };
+  
+  console.log('[SMS] Enviando código SMS:', datos);
+  
+  this.smsDiditService.enviarCodigo(datos).subscribe({
+    next: (response) => {
+      console.log('[OK] Código SMS enviado:', response);
+      
+      if (response.success) {
+        this.smsPasoActual.set('codigo');
+        this.mostrarMensaje(response.message || 'Código enviado por SMS', 'success');
+      } else {
+        this.mostrarMensaje(response.message || 'Error al enviar código', 'error');
+      }
+      
+      this.loading.set(false);
+    },
+    error: (error) => {
+      console.error('[ERROR] Error enviando código SMS:', error);
+      this.mostrarMensaje(error.error?.message || 'Error al enviar código SMS', 'error');
+      this.loading.set(false);
+    }
+  });
+  }
+  verificarCodigoSms(): void {
+  const codigo = this.codigoVerificacion();
+  const estadoActual = this.estado();
+  
+  if (codigo.length !== 6) {
+    this.mostrarMensaje('Código debe tener 6 dígitos', 'error');
+    return;
+  }
+  
+  if (!estadoActual.tokenVerificacion) {
+    this.mostrarMensaje('Error: No hay token de verificación', 'error');
+    return;
+  }
+  
+  this.loading.set(true);
+  
+  const datos = {
+    telefono: this.telefono(),
+    codigo: codigo,
+    token_verificacion: estadoActual.tokenVerificacion
+  };
+  
+  console.log('[SEARCH] Verificando código SMS:', datos);
+  
+  this.smsDiditService.verificarCodigo(datos).subscribe({
+    next: (response) => {
+      console.log('[OK] Respuesta verificación SMS:', response);
+      
+      if (response.success) {
+        this.smsPasoActual.set('exitoso');
+        this.estado.set({
+          ...estadoActual,
+          codigoVerificado: true
+        });
+        
+        this.mostrarMensaje('Código verificado exitosamente', 'success');
+        
+        // Completar consentimientos automáticamente
+        setTimeout(() => {
+          this.completarConsentimientos();
+        }, 1000);
+      } else {
+        this.mostrarMensaje(response.message || 'Código inválido', 'error');
+        this.loading.set(false);
+      }
+    },
+    error: (error) => {
+      console.error('[ERROR] Error verificando código SMS:', error);
+      this.mostrarMensaje(error.error?.message || 'Código inválido', 'error');
+      this.loading.set(false);
+    }
+  });
   }
 }

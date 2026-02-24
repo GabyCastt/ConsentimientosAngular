@@ -95,9 +95,15 @@ export class SidebarComponent {
       roles: ['admin', 'super_admin']
     },
     { 
-      label: 'Empresas', 
+      label: 'Mi Empresa', 
       icon: 'fas fa-building', 
-      route: '/empresas',
+      route: '/empresas/perfil',
+      roles: ['empresa', 'usuario']
+    },
+    { 
+      label: 'Gestión Empresas', 
+      icon: 'fas fa-building', 
+      route: '/empresas/lista',
       roles: ['admin', 'super_admin']
     }
   ];

@@ -1,23 +1,293 @@
 <div class="empresas-container">
-  <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-      <div>
-        <h5>
-          <i class="fas fa-building me-2"></i>
-          Gestión de Empresas
-        </h5>
-        <small class="text-muted">Administrar todas las empresas del sistema</small>
+  <!-- Header -->
+  <div class="header-section">
+    <div class="header-content">
+      <div class="header-info">
+        <h1>
+          <i class="fas fa-building"></i>
+          {{ isAdmin() ? 'Gestión de Empresas' : 'Mi Empresa' }}
+        </h1>
+        <p class="subtitle">
+          {{ isAdmin() ? 'Administrar todas las empresas del sistema' : 'Información de tu empresa' }}
+        </p>
       </div>
-      <button class="btn btn-primary" disabled title="Próximamente">
-        <i class="fas fa-plus me-2"></i>Nueva Empresa
-      </button>
+      
+      @if (isAdmin()) {
+        <div class="header-actions">
+          <button 
+            class="btn btn-secondary"
+            (click)="limpiarHuerfanas()"
+            [disabled]="loading()">
+            <i class="fas fa-broom"></i>
+            Limpiar Huérfanas
+          </button>
+          <button 
+            class="btn btn-primary"
+            (click)="abrirModalCrear()">
+            <i class="fas fa-plus"></i>
+            Nueva Empresa
+          </button>
+        </div>
+      }
     </div>
+  </div>
 
-    <div class="card-body">
-      <div class="alert alert-info">
-        <i class="fas fa-info-circle me-2"></i>
-        <strong>Módulo en desarrollo:</strong> La gestión de empresas estará disponible próximamente.
+  <!-- Loading -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p>Cargando empresas...</p>
+    </div>
+  }
+
+  <!-- Lista de Empresas -->
+  @if (!loading() && empresas().length > 0) {
+    <div class="empresas-grid">
+      @for (empresa of empresas(); track empresa.id) {
+        <div class="empresa-card">
+          <!-- Logo -->
+          <div class="empresa-logo">
+            @if (empresa.logo) {
+              <img 
+                [src]="getLogoUrl(empresa.logo)" 
+                [alt]="empresa.nombre"
+                (error)="onImageError($event, empresa)">
+              <div class="logo-placeholder">
+                <i class="fas fa-building"></i>
+              </div>
+            } @else {
+              <div class="logo-placeholder">
+                <i class="fas fa-building"></i>
+              </div>
+            }
+          </div>
+
+          <!-- Info -->
+          <div class="empresa-info">
+            <h3>{{ empresa.nombre }}</h3>
+            
+            @if (empresa.slogan) {
+              <p class="slogan">{{ empresa.slogan }}</p>
+            }
+
+            <div class="empresa-details">
+              @if (empresa.ruc) {
+                <div class="detail-item">
+                  <i class="fas fa-id-card"></i>
+                  <span>{{ empresa.ruc }}</span>
+                </div>
+              }
+              
+              @if (empresa.email) {
+                <div class="detail-item">
+                  <i class="fas fa-envelope"></i>
+                  <span>{{ empresa.email }}</span>
+                </div>
+              }
+              
+              @if (empresa.telefono) {
+                <div class="detail-item">
+                  <i class="fas fa-phone"></i>
+                  <span>{{ empresa.telefono }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="empresa-stats">
+              <div class="stat">
+                <i class="fas fa-users"></i>
+                <span>{{ empresa.total_usuarios || 0 }} usuarios</span>
+              </div>
+              <div class="stat">
+                <i class="fas fa-user-friends"></i>
+                <span>{{ empresa.total_clientes || 0 }} clientes</span>
+              </div>
+              <div class="stat">
+                <i class="fas fa-file-alt"></i>
+                <span>{{ empresa.total_formularios || 0 }} formularios</span>
+              </div>
+            </div>
+
+            <!-- Fechas -->
+            @if (empresa.created_at) {
+              <div class="empresa-dates">
+                <small>
+                  <i class="fas fa-calendar-plus"></i>
+                  Creada: {{ formatDate(empresa.created_at) }}
+                </small>
+              </div>
+            }
+          </div>
+
+          <!-- Acciones -->
+          @if (isAdmin()) {
+            <div class="empresa-actions">
+              <button 
+                class="btn-icon btn-edit"
+                (click)="editarEmpresa(empresa)"
+                title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="btn-icon btn-delete"
+                (click)="deleteEmpresa(empresa)"
+                title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Sin empresas -->
+  @if (!loading() && empresas().length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-building"></i>
+      <h3>No hay empresas registradas</h3>
+      <p>Comienza creando tu primera empresa</p>
+      @if (isAdmin()) {
+        <button class="btn btn-primary" (click)="abrirModalCrear()">
+          <i class="fas fa-plus"></i>
+          Crear Primera Empresa
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal Crear/Editar -->
+@if (mostrarModal()) {
+  <div class="modal-overlay" (click)="cerrarModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <i class="fas fa-building"></i>
+          {{ empresaEditando() ? 'Editar Empresa' : 'Nueva Empresa' }}
+        </h2>
+        <button class="btn-close" (click)="cerrarModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="guardarEmpresa()">
+          <!-- Logo Preview -->
+          <div class="form-group logo-preview-group">
+            <label>Logo</label>
+            <div class="logo-upload-area">
+              @if (logoPreview()) {
+                <img [src]="logoPreview()" alt="Preview">
+              } @else if (empresaEditando()?.logo) {
+                <img [src]="getLogoUrl(empresaEditando()!.logo)" alt="Logo actual">
+              } @else {
+                <div class="upload-placeholder">
+                  <i class="fas fa-image"></i>
+                  <span>Sin logo</span>
+                </div>
+              }
+              <input 
+                type="file" 
+                id="logo-upload"
+                accept="image/*"
+                (change)="onLogoChange($event)"
+                style="display: none;">
+              <label for="logo-upload" class="btn btn-secondary btn-sm">
+                <i class="fas fa-upload"></i>
+                Seleccionar Logo
+              </label>
+            </div>
+            <small class="form-text">Máximo 5MB - JPG, PNG, GIF, SVG</small>
+          </div>
+
+          <!-- Nombre -->
+          <div class="form-group">
+            <label for="nombre">Nombre *</label>
+            <input 
+              type="text" 
+              id="nombre"
+              class="form-control"
+              [(ngModel)]="formNombre"
+              name="nombre"
+              placeholder="Nombre de la empresa"
+              required>
+          </div>
+
+          <!-- RUC -->
+          <div class="form-group">
+            <label for="ruc">RUC</label>
+            <input 
+              type="text" 
+              id="ruc"
+              class="form-control"
+              [(ngModel)]="formRuc"
+              name="ruc"
+              placeholder="1234567890001"
+              maxlength="13">
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+              type="email" 
+              id="email"
+              class="form-control"
+              [(ngModel)]="formEmail"
+              name="email"
+              placeholder="empresa@ejemplo.com">
+          </div>
+
+          <!-- Teléfono -->
+          <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input 
+              type="tel" 
+              id="telefono"
+              class="form-control"
+              [(ngModel)]="formTelefono"
+              name="telefono"
+              placeholder="+593 99 999 9999">
+          </div>
+
+          <!-- Slogan -->
+          <div class="form-group">
+            <label for="slogan">Slogan</label>
+            <textarea 
+              id="slogan"
+              class="form-control"
+              [(ngModel)]="formSlogan"
+              name="slogan"
+              placeholder="Slogan de la empresa (opcional)"
+              rows="3"></textarea>
+          </div>
+
+          <!-- Acciones -->
+          <div class="modal-actions">
+            <button 
+              type="button"
+              class="btn btn-secondary"
+              (click)="cerrarModal()"
+              [disabled]="guardando()">
+              Cancelar
+            </button>
+            <button 
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="guardando() || !formNombre()">
+              @if (guardando()) {
+                <i class="fas fa-spinner fa-spin"></i>
+                Guardando...
+              } @else {
+                <i class="fas fa-save"></i>
+                {{ empresaEditando() ? 'Actualizar' : 'Crear' }}
+              }
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
-</div>
+}

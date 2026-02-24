@@ -68,13 +68,13 @@ export class ModalClienteComponent implements OnInit {
     
     this.api.get<any>(this.config.endpoints.empresas).subscribe({
       next: (response) => {
-        console.log('📋 Empresas recibidas:', response);
+        console.log('[INFO] Empresas recibidas:', response);
         const empresas = response.empresas || response || [];
         this.empresas.set(empresas);
         this.loadingEmpresas.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando empresas:', error);
+        console.error('[ERROR] Error cargando empresas:', error);
         this.empresas.set([]);
         this.loadingEmpresas.set(false);
       }

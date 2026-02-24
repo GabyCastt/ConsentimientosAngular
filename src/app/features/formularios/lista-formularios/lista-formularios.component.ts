@@ -84,20 +84,20 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     
     this.formulariosService.getFormularios().subscribe({
       next: (response: any) => {
-        console.log('📋 Formularios response:', response);
+        console.log('[INFO] Formularios response:', response);
         const formularios = response.formularios || response || [];
         
         // Log detallado del primer formulario para debug
         if (formularios.length > 0) {
-          console.log('🔍 Primer formulario (estructura):', formularios[0]);
-          console.log('🔑 Token del primer formulario:', formularios[0].token_publico || 'NO ENCONTRADO');
+          console.log('[SEARCH] Primer formulario (estructura):', formularios[0]);
+          console.log('[TOKEN] Token del primer formulario:', formularios[0].token_publico || 'NO ENCONTRADO');
         }
         
         this.formularios.set(formularios);
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('❌ Error cargando formularios:', error);
+        console.error('[ERROR] Error cargando formularios:', error);
         this.toastService.error('Error al cargar formularios');
         this.formularios.set([]);
         this.loading.set(false);
@@ -299,7 +299,7 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error culminando proceso:', error);
-        this.toastService.error(`❌ Error: ${error.error?.message || error.message || 'Error desconocido'}`);
+        this.toastService.error(`[ERROR] Error: ${error.error?.message || error.message || 'Error desconocido'}`);
         this.procesandoDidit.set(false);
       }
     });

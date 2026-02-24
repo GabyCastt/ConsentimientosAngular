@@ -4,6 +4,19 @@ import { ApiService } from '../../core/services/api.service';
 import { ConfigService } from '../../core/services/config.service';
 import { Cliente, ClienteDetalle, CreateClienteDto } from '../../core/models/cliente.model';
 
+export interface PaginatedResponse<T> {
+  success: boolean;
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,10 +26,24 @@ export class ClientesService {
     private config: ConfigService
   ) {}
 
-  getClientes(): Observable<any> {
-    return this.api.get<any>(
-      this.config.endpoints.clientes
-    );
+  // paginación y filtros
+  getClientes(
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+    empresaId?: number
+  ): Observable<PaginatedResponse<Cliente>> {
+    let url = `${this.config.endpoints.clientes}?page=${page}&limit=${limit}`;
+    
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    
+    if (empresaId) {
+      url += `&empresa_id=${empresaId}`;
+    }
+    
+    return this.api.get<PaginatedResponse<Cliente>>(url);
   }
 
   getClienteDetalle(id: number): Observable<ClienteDetalle> {
@@ -47,9 +74,11 @@ export class ClientesService {
     );
   }
 
-  buscarPorCedula(cedula: string): Observable<Cliente | null> {
-    return this.api.get<Cliente | null>(
-      `${this.config.endpoints.clientes}/buscar/${cedula}`
+  consultarCedula(cedula: string): Observable<any> {
+    const endpoint = this.config.buildEndpoint(
+      this.config.endpoints.clientesConsultarCedula,
+      { cedula }
     );
+    return this.api.get<any>(endpoint);
   }
 }

@@ -51,8 +51,8 @@ export const routes: Routes = [
       },
       {
         path: 'empresas',
-        loadComponent: () => import('./features/empresas/lista-empresas/lista-empresas.component')
-          .then(m => m.ListaEmpresasComponent)
+        loadChildren: () => import('./features/empresas/empresas.routes')
+          .then(m => m.EMPRESAS_ROUTES)
       },
       {
         path: 'didit/admin',

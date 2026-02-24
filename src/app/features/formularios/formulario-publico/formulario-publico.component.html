@@ -388,7 +388,7 @@
                       @if (smsPasoActual() === 'telefono') {
                         <div class="alert alert-info">
                           <i class="fas fa-info-circle me-2"></i>
-                          Haz clic en el botón para enviar el código SMS a tu teléfono
+                          Se enviará un código SMS a: <strong>{{ telefono() }}</strong>
                         </div>
 
                         <button 
@@ -396,7 +396,11 @@
                           class="btn btn-warning btn-lg w-100"
                           (click)="solicitarCodigo()"
                           [disabled]="loading() || smsAttempts() >= smsMaxAttempts()">
-                          <i class="fas fa-sms me-1"></i>
+                          @if (loading()) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                          } @else {
+                            <i class="fas fa-sms me-1"></i>
+                          }
                           ENVIAR CÓDIGO SMS
                         </button>
 
@@ -430,7 +434,11 @@
                           class="btn btn-success btn-lg w-100 mb-2"
                           (click)="verificarCodigo()"
                           [disabled]="loading() || codigoVerificacion().length !== 6">
-                          <i class="fas fa-check me-1"></i>
+                          @if (loading()) {
+                            <span class="spinner-border spinner-border-sm me-2"></span>
+                          } @else {
+                            <i class="fas fa-check me-1"></i>
+                          }
                           VERIFICAR Y AUTORIZAR CONSENTIMIENTOS
                         </button>
 

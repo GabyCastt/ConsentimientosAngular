@@ -14,10 +14,13 @@ export class ApiService {
     private auth: AuthService
   ) {}
 
-  private getHeaders(): HttpHeaders {
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
+  private getHeaders(isFormData: boolean = false): HttpHeaders {
+    let headers = new HttpHeaders();
+    
+    // No agregar Content-Type para FormData (el navegador lo hace automáticamente)
+    if (!isFormData) {
+      headers = headers.set('Content-Type', 'application/json');
+    }
 
     const token = this.auth.getToken();
     if (token) {
@@ -35,18 +38,20 @@ export class ApiService {
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {
+    const isFormData = data instanceof FormData;
     return this.http.post<T>(
       this.config.getApiUrl(endpoint),
       data,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(isFormData) }
     );
   }
 
   put<T>(endpoint: string, data: any): Observable<T> {
+    const isFormData = data instanceof FormData;
     return this.http.put<T>(
       this.config.getApiUrl(endpoint),
       data,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(isFormData) }
     );
   }
 
