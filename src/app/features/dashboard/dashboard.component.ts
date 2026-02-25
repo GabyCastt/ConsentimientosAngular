@@ -1,6 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DashboardService, DashboardStats } from './dashboard.service';
+import { DashboardService, DashboardStats, EstadisticasGlobales } from './dashboard.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { ApiService } from '../../core/services/api.service';
 import { ConfigService } from '../../core/services/config.service';
@@ -25,8 +25,10 @@ interface StatCard {
 export class DashboardComponent implements OnInit {
   loading = signal(true);
   stats = signal<DashboardStats | null>(null);
+  estadisticasGlobales = signal<EstadisticasGlobales | null>(null);
   empresaStats = signal<EmpresaEstadisticas | null>(null);
   isDistribuidor = signal(false);
+  isAdmin = signal(false);
   
   statCards = signal<StatCard[]>([]);
 
@@ -54,9 +56,12 @@ export class DashboardComponent implements OnInit {
     });
     
     const currentUser = this.authService.currentUser();
+    this.isAdmin.set(currentUser?.rol === 'admin');
     this.isDistribuidor.set(currentUser?.rol === 'distribuidor' || currentUser?.rol === 'empresa');
     
-    if (this.isDistribuidor()) {
+    if (this.isAdmin()) {
+      this.loadEstadisticasGlobales();
+    } else if (this.isDistribuidor()) {
       this.loadEmpresaStats();
     } else {
       this.loadStats();
@@ -76,6 +81,22 @@ export class DashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error('[ERROR] Error cargando estadísticas de empresa:', error);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  loadEstadisticasGlobales(): void {
+    this.loading.set(true);
+    
+    this.dashboardService.getEstadisticasGlobales().subscribe({
+      next: (response) => {
+        console.log('[OK] Estadísticas globales:', response);
+        this.estadisticasGlobales.set(response.data);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('[ERROR] Error cargando estadísticas globales:', error);
         this.loading.set(false);
       }
     });

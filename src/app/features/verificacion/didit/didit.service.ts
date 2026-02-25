@@ -58,15 +58,6 @@ export class DiditService {
     );
   }
 
-  obtenerClientesPendientes(): Observable<any> {
-    return this.api.get(this.config.endpoints.didit.pendingClients);
-  }
-
-  // Alias para mantener compatibilidad
-  getPendingClients(): Observable<any> {
-    return this.obtenerClientesPendientes();
-  }
-
   completeProcess(token: string): Observable<any> {
     return this.completarProceso(token);
   }

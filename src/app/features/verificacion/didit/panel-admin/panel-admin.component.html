@@ -24,13 +24,10 @@
           </p>
         </div>
         <div class="col-md-4 text-end">
-          <button 
-            class="btn refresh-btn"
-            (click)="cargarClientesPendientes()"
-            [disabled]="loading()">
-            <i class="fas fa-sync-alt me-2" [class.fa-spin]="loading()"></i>
-            Actualizar Lista
-          </button>
+          <div class="alert alert-warning mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Panel administrativo deshabilitado
+          </div>
         </div>
       </div>
     </div>

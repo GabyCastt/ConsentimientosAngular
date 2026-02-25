@@ -48,39 +48,14 @@ export class PanelAdminComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.cargarClientesPendientes();
-    
-    // Actualizar cada 30 segundos
-    this.refreshInterval = setInterval(() => {
-      this.cargarClientesPendientes();
-    }, 30000);
+    // Panel admin deshabilitado - funcionalidad no implementada en backend
+    this.loading.set(false);
   }
 
   ngOnDestroy(): void {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-  }
-
-  cargarClientesPendientes(): void {
-    this.loading.set(true);
-    
-    this.diditService.getPendingClients().subscribe({
-      next: (response: any) => {
-        this.clientes.set(response.clientes || []);
-        this.estadisticas.set(response.estadisticas || {
-          completados_hoy: 0,
-          total_verificados: 0,
-          tasa_exito: 0
-        });
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error cargando clientes:', error);
-        this.toastService.error('Error al cargar clientes pendientes');
-        this.loading.set(false);
-      }
-    });
   }
 
   culminarProceso(cliente: ClientePendiente): void {
@@ -111,8 +86,9 @@ export class PanelAdminComponent implements OnInit, OnDestroy {
           this.toastService.success(mensaje);
           
           // Recargar lista después de 1 segundo
+          // Panel admin deshabilitado
           setTimeout(() => {
-            this.cargarClientesPendientes();
+            this.loading.set(false);
           }, 1000);
         } else {
           let mensajeError = resultado.error || 'Error desconocido';

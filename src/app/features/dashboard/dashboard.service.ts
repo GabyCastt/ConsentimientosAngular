@@ -40,6 +40,65 @@ export interface DashboardStats {
   completadas?: number;
 }
 
+export interface EstadisticasGlobales {
+  resumen_general: {
+    total_empresas: number;
+    total_usuarios: number;
+    total_clientes: number;
+    total_formularios: number;
+    total_consentimientos_completados: number;
+    total_verificados: number;
+    tasa_conversion: number;
+  };
+  empresa_destacada: {
+    mas_clientes: {
+      id: number;
+      nombre: string;
+      total_clientes: number;
+    };
+    mas_formularios_completados: {
+      id: number;
+      nombre: string;
+      total_completados: number;
+    };
+  };
+  verificacion: {
+    tipo_mas_utilizado: {
+      tipo: string;
+      total: number;
+    };
+    distribucion: Array<{
+      tipo: string;
+      total: number;
+    }>;
+  };
+  consentimientos: {
+    tipos_mas_aceptados: Array<{
+      tipo: string;
+      total: number;
+    }>;
+  };
+  usuarios: {
+    distribucion_por_rol: Array<{
+      rol: string;
+      total: number;
+    }>;
+  };
+  top_empresas: Array<{
+    id: number;
+    nombre: string;
+    total_clientes: number;
+    total_formularios: number;
+    total_consentimientos: number;
+  }>;
+  actividad_reciente_30_dias: {
+    clientes_nuevos: number;
+    formularios_nuevos: number;
+    consentimientos_nuevos: number;
+  };
+  fecha_generacion: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -52,6 +111,12 @@ export class DashboardService {
   getStats(): Observable<DashboardStats> {
     return this.api.get<DashboardStats>(
       this.config.endpoints.estadisticasDashboard
+    );
+  }
+
+  getEstadisticasGlobales(): Observable<{ success: boolean; data: EstadisticasGlobales }> {
+    return this.api.get<{ success: boolean; data: EstadisticasGlobales }>(
+      this.config.endpoints.estadisticasGlobal
     );
   }
 }

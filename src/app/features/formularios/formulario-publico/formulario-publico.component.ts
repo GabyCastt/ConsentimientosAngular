@@ -406,7 +406,8 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   }
 
   private consultarRegistroCivil(cedula: string): void {
-    this.formulariosService.consultarCedulaExterna(cedula).subscribe({
+    const empresaId = this.formulario()?.empresa_id;
+    this.formulariosService.consultarCedulaExterna(cedula, empresaId).subscribe({
       next: (response: any) => {
         console.log('[OK] Respuesta Registro Civil:', response);
         const estadoActual = this.estado();

@@ -1,0 +1,214 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+  animation: fadeIn 0.2s ease-in;
+}
+
+.modal-dialog {
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  animation: slideUp 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+// Información básica del cliente
+.cliente-info-compact {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 6px;
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  font-size: 0.9rem;
+
+  h5 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.stats-compact .stat-mini {
+  background: white;
+  border-radius: 4px;
+  padding: 0.4rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  margin-bottom: 0.25rem;
+}
+
+.stats-compact .stat-number-mini {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #042396;
+  line-height: 1;
+}
+
+.stats-compact .stat-label-mini {
+  font-size: 0.65rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  margin-top: 0.1rem;
+}
+
+// Tarjetas de formularios
+.formulario-card .card {
+  border-left: 3px solid #042396;
+  transition: all 0.2s ease;
+  border-radius: 6px;
+
+  &:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+.formulario-card .card-body {
+  padding: 0.6rem;
+}
+
+.formulario-card .card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+// Badges de consentimientos
+.consentimientos-badges .badge {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.4rem;
+  margin-right: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+// Estadísticas mini
+.estadisticas-mini .stat-circle {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #042396 0%, #0d47a1 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin: 0 auto 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.estadisticas-mini small {
+  font-size: 0.65rem;
+  color: #6c757d;
+  line-height: 1.2;
+}
+
+.estadisticas-mini h6 {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+// Sección de formularios
+.formularios-section h6 {
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+// Botones pequeños
+.btn-group-sm .btn {
+  padding: 0.2rem 0.4rem;
+  font-size: 0.75rem;
+  border-radius: 3px;
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .modal-dialog {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .cliente-info-compact {
+    padding: 0.5rem;
+  }
+
+  .stats-compact .stat-mini {
+    padding: 0.3rem;
+  }
+
+  .formulario-card .card-body {
+    padding: 0.5rem;
+  }
+
+  .estadisticas-mini .stat-circle {
+    width: 30px;
+    height: 30px;
+    font-size: 0.7rem;
+  }
+}

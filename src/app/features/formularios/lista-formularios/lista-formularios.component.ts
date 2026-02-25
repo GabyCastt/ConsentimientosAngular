@@ -107,21 +107,9 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
   }
 
   loadClientesDidit(): void {
-    this.diditService.getPendingClients().subscribe({
-      next: (response: any) => {
-        const clientes = response.clientes || response.data?.clientes || [];
-        this.clientesDidit.set(clientes);
-        this.actualizarContadoresDidit();
-      },
-      error: (error) => {
-        // Silently fail for 404 - endpoint might not be implemented yet
-        if (error.status !== 404) {
-          console.error('Error cargando clientes DIDIT:', error);
-        }
-        this.clientesDidit.set([]);
-        this.actualizarContadoresDidit();
-      }
-    });
+    // Endpoint deshabilitado - no existe en el backend
+    this.clientesDidit.set([]);
+    this.actualizarContadoresDidit();
   }
 
   actualizarContadoresDidit(): void {

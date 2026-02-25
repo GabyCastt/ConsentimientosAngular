@@ -89,12 +89,6 @@ export class SidebarComponent {
     { label: 'Formularios', icon: 'fas fa-clipboard-list', route: '/formularios' },
     { label: 'Documentos', icon: 'fas fa-file-pdf', route: '/documentos' },
     { 
-      label: 'Panel DIDIT', 
-      icon: 'fas fa-user-check', 
-      route: '/didit/admin',
-      roles: ['admin', 'super_admin']
-    },
-    { 
       label: 'Mi Empresa', 
       icon: 'fas fa-building', 
       route: '/empresas/perfil',

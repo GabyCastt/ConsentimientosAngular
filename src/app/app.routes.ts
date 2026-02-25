@@ -55,11 +55,6 @@ export const routes: Routes = [
           .then(m => m.EMPRESAS_ROUTES)
       },
       {
-        path: 'didit/admin',
-        loadComponent: () => import('./features/verificacion/didit/panel-admin/panel-admin.component')
-          .then(m => m.PanelAdminComponent)
-      },
-      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

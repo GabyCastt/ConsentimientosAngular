@@ -165,11 +165,15 @@ export class FormulariosService {
   // ==================== UTILIDADES ====================
   
   // Consultar cédula externa (Registro Civil)
-  consultarCedulaExterna(cedula: string): Observable<any> {
+  consultarCedulaExterna(cedula: string, empresaId?: number): Observable<any> {
     const endpoint = this.config.buildEndpoint(
       this.config.endpoints.clientesConsultarCedula,
       { cedula }
     );
-    return this.api.get<any>(endpoint);
+    
+    // Agregar empresa_id como query parameter si está disponible
+    const url = empresaId ? `${endpoint}?empresa_id=${empresaId}` : endpoint;
+    
+    return this.api.get<any>(url);
   }
 }

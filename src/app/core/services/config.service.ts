@@ -67,6 +67,7 @@ readonly endpoints = {
   
   // Estadísticas
   estadisticasDashboard: '/api/estadisticas/dashboard',
+  estadisticasGlobal: '/api/estadisticas/global',
   estadisticasFormularios: '/api/estadisticas/formularios',
   estadisticasPeriodo: '/api/estadisticas/periodo',
   

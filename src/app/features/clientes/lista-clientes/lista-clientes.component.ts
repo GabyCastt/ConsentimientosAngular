@@ -6,18 +6,19 @@ import { Cliente } from '../../../core/models/cliente.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { ToastService } from '../../../shared/services/toast.service';
 import { ModalClienteComponent } from '../modal-cliente/modal-cliente.component';
-import { Router } from '@angular/router';
+import { ModalDetalleClienteComponent } from '../modal-detalle-cliente/modal-detalle-cliente.component';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-lista-clientes',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingComponent, ModalClienteComponent],
+  imports: [CommonModule, FormsModule, LoadingComponent, ModalClienteComponent, ModalDetalleClienteComponent],
   templateUrl: './lista-clientes.component.html',
   styleUrls: ['./lista-clientes.component.scss']
 })
 export class ListaClientesComponent implements OnInit {
   @ViewChild(ModalClienteComponent) modalCliente!: ModalClienteComponent;
+  @ViewChild(ModalDetalleClienteComponent) modalDetalle!: ModalDetalleClienteComponent;
 
   clientes = signal<Cliente[]>([]);
   clientesFiltrados = signal<Cliente[]>([]);
@@ -35,7 +36,6 @@ export class ListaClientesComponent implements OnInit {
   constructor(
     private clientesService: ClientesService,
     private toastService: ToastService,
-    private router: Router,
     private authService: AuthService
   ) {}
 
@@ -57,11 +57,14 @@ export class ListaClientesComponent implements OnInit {
     const currentUser = this.authService.currentUser();
     console.log('[RELOAD] Cargando clientes página:', this.currentPage(), 'Tamaño:', this.pageSize());
     
+    // Admin ve todos los clientes (sin filtro de empresa)
+    const empresaId = currentUser?.rol === 'admin' ? undefined : currentUser?.empresa_id;
+    
     this.clientesService.getClientes(
       this.currentPage(),
       this.pageSize(),
       this.searchTerm || undefined,
-      currentUser?.empresa_id
+      empresaId
     ).subscribe({
       next: (response: PaginatedResponse<Cliente>) => {
         console.log('[OK] Respuesta paginada recibida:', response);
@@ -153,7 +156,7 @@ export class ListaClientesComponent implements OnInit {
   }
 
   verDetalle(cliente: Cliente): void {
-    this.router.navigate(['/clientes', cliente.id]);
+    this.modalDetalle.open(cliente.id);
   }
 
   deleteCliente(cliente: Cliente): void {
