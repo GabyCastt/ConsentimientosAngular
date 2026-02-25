@@ -3,79 +3,186 @@
 <div class="dashboard-container">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3>Resumen General</h3>
-    <button class="btn btn-outline-primary" (click)="loadStats()">
+    <button class="btn btn-outline-primary" (click)="isDistribuidor() ? loadEmpresaStats() : loadStats()">
       <i class="fas fa-sync-alt me-2"></i>Actualizar
     </button>
   </div>
 
-  <div class="row">
-    @for (card of statCards(); track card.title) {
+  <!-- Estadísticas para Distribuidores -->
+  @if (isDistribuidor() && empresaStats()) {
+    <!-- Estadísticas Principales -->
+    <div class="row">
       <div class="col-md-3 mb-4">
         <div class="card stat-card text-center">
           <div class="card-body">
-            <i [class]="card.icon + ' fa-2x text-' + card.color + ' mb-2'"></i>
-            <h5 class="card-title">{{ card.title }}</h5>
-            <h3 class="card-text">{{ card.value }}</h3>
+            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+            <h5 class="card-title">Usuarios</h5>
+            <h3 class="card-text">{{ empresaStats()!.total_usuarios }}</h3>
           </div>
         </div>
       </div>
-    }
-  </div>
-
-  @if (!loading() && stats() && stats()!.consentimientos) {
-    <div class="row mt-4">
-      <!-- Componente de Clientes DIDIT Pendientes -->
-      <div class="col-lg-6 mb-4">
-        <app-clientes-didit-pendientes></app-clientes-didit-pendientes>
-      </div>
-
-      <!-- Actividad Reciente -->
-      <div class="col-lg-6 mb-4">
-        <div class="card">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-              <i class="fas fa-chart-line me-2"></i>
-              Actividad Reciente
-            </h5>
-          </div>
+      <div class="col-md-3 mb-4">
+        <div class="card stat-card text-center">
           <div class="card-body">
-            <div class="activity-stats">
-              <div class="stat-item">
-                <i class="fas fa-check-circle text-success me-2"></i>
-                <span class="stat-label">Verificados:</span>
-                <span class="stat-value">{{ stats()!.consentimientos!.verificados }}</span>
-              </div>
-              <div class="stat-item">
-                <i class="fas fa-file-contract text-info me-2"></i>
-                <span class="stat-label">Consentimientos:</span>
-                <span class="stat-value">{{ stats()!.consentimientos!.total }}</span>
-              </div>
-              <div class="stat-item">
-                <i class="fas fa-clock text-warning me-2"></i>
-                <span class="stat-label">Pendientes:</span>
-                <span class="stat-value">{{ stats()!.consentimientos!.pendientes }}</span>
-              </div>
-            </div>
-            @if (stats()!.consentimientos!.total > 0) {
-              <div class="progress mt-3" style="height: 25px;">
-                <div 
-                  class="progress-bar bg-success" 
-                  role="progressbar" 
-                  [style.width.%]="(stats()!.consentimientos!.verificados / stats()!.consentimientos!.total * 100)"
-                  [attr.aria-valuenow]="stats()!.consentimientos!.verificados"
-                  [attr.aria-valuemin]="0"
-                  [attr.aria-valuemax]="stats()!.consentimientos!.total">
-                  {{ (stats()!.consentimientos!.verificados / stats()!.consentimientos!.total * 100).toFixed(1) }}%
-                </div>
-              </div>
-            }
-            <p class="text-muted mt-3 mb-0">
-              <i class="fas fa-info-circle me-1"></i>
-              Sistema funcionando correctamente
-            </p>
+            <i class="fas fa-user-friends fa-2x text-success mb-2"></i>
+            <h5 class="card-title">Clientes</h5>
+            <h3 class="card-text">{{ empresaStats()!.total_clientes }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card stat-card text-center">
+          <div class="card-body">
+            <i class="fas fa-clipboard-list fa-2x text-info mb-2"></i>
+            <h5 class="card-title">Formularios</h5>
+            <h3 class="card-text">{{ empresaStats()!.total_formularios }}</h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="card stat-card text-center">
+          <div class="card-body">
+            <i class="fas fa-file-signature fa-2x text-warning mb-2"></i>
+            <h5 class="card-title">Consentimientos</h5>
+            <h3 class="card-text">{{ empresaStats()!.total_consentimientos }}</h3>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Respuestas de Formularios -->
+    <div class="row">
+      <div class="col-lg-12 mb-4">
+        <div class="card">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+              <i class="fas fa-tasks me-2"></i>
+              Respuestas de Formularios
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3 mb-3">
+                <div class="detail-stat">
+                  <i class="fas fa-list text-primary fa-2x mb-2"></i>
+                  <h4>{{ empresaStats()!.respuestas_formularios.total }}</h4>
+                  <p class="text-muted mb-0">Total</p>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="detail-stat">
+                  <i class="fas fa-user-check text-info fa-2x mb-2"></i>
+                  <h4>{{ empresaStats()!.respuestas_formularios.verificados }}</h4>
+                  <p class="text-muted mb-0">Verificados</p>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="detail-stat">
+                  <i class="fas fa-check-double text-success fa-2x mb-2"></i>
+                  <h4>{{ empresaStats()!.respuestas_formularios.completados }}</h4>
+                  <p class="text-muted mb-0">Completados</p>
+                </div>
+              </div>
+              <div class="col-md-3 mb-3">
+                <div class="detail-stat">
+                  <i class="fas fa-hourglass-half text-warning fa-2x mb-2"></i>
+                  <h4>{{ empresaStats()!.respuestas_formularios.pendientes }}</h4>
+                  <p class="text-muted mb-0">Pendientes</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Método Más Usado -->
+    <div class="row">
+      <div class="col-lg-12 mb-4">
+        <div class="card bg-gradient-primary text-white">
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div class="me-4">
+                <i class="fas fa-trophy fa-3x"></i>
+              </div>
+              <div>
+                <h5 class="mb-1">Método Más Usado</h5>
+                <h3 class="mb-0">{{ formatMetodoNombre(empresaStats()!.metodo_mas_usado) }}</h3>
+                <p class="mb-0 opacity-75">{{ empresaStats()!.metodo_mas_usado_total }} usos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Estadísticas para Admin (original) -->
+  @if (!isDistribuidor()) {
+    <div class="row">
+      @for (card of statCards(); track card.title) {
+        <div class="col-md-3 mb-4">
+          <div class="card stat-card text-center">
+            <div class="card-body">
+              <i [class]="card.icon + ' fa-2x text-' + card.color + ' mb-2'"></i>
+              <h5 class="card-title">{{ card.title }}</h5>
+              <h3 class="card-text">{{ card.value }}</h3>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (!loading() && stats() && stats()!.consentimientos) {
+      <div class="row mt-4">
+        <!-- Actividad Reciente -->
+        <div class="col-lg-12 mb-4">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>
+                Actividad Reciente
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="activity-stats">
+                <div class="stat-item">
+                  <i class="fas fa-check-circle text-success me-2"></i>
+                  <span class="stat-label">Verificados:</span>
+                  <span class="stat-value">{{ stats()!.consentimientos!.verificados }}</span>
+                </div>
+                <div class="stat-item">
+                  <i class="fas fa-file-contract text-info me-2"></i>
+                  <span class="stat-label">Consentimientos:</span>
+                  <span class="stat-value">{{ stats()!.consentimientos!.total }}</span>
+                </div>
+                <div class="stat-item">
+                  <i class="fas fa-clock text-warning me-2"></i>
+                  <span class="stat-label">Pendientes:</span>
+                  <span class="stat-value">{{ stats()!.consentimientos!.pendientes }}</span>
+                </div>
+              </div>
+              @if (stats()!.consentimientos!.total > 0) {
+                <div class="progress mt-3" style="height: 25px;">
+                  <div 
+                    class="progress-bar bg-success" 
+                    role="progressbar" 
+                    [style.width.%]="(stats()!.consentimientos!.verificados / stats()!.consentimientos!.total * 100)"
+                    [attr.aria-valuenow]="stats()!.consentimientos!.verificados"
+                    [attr.aria-valuemin]="0"
+                    [attr.aria-valuemax]="stats()!.consentimientos!.total">
+                    {{ (stats()!.consentimientos!.verificados / stats()!.consentimientos!.total * 100).toFixed(1) }}%
+                  </div>
+                </div>
+              }
+              <p class="text-muted mt-3 mb-0">
+                <i class="fas fa-info-circle me-1"></i>
+                Sistema funcionando correctamente
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
   }
 </div>

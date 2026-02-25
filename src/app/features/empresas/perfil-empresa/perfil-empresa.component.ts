@@ -139,4 +139,14 @@ export class PerfilEmpresaComponent implements OnInit {
       this.mensaje.set('');
     }, 5000);
   }
+
+  formatMetodoNombre(metodo: string): string {
+    const nombres: { [key: string]: string } = {
+      'sms_email': 'SMS/Email',
+      'sms_didit': 'SMS DIDIT',
+      'biometria_free': 'Biometría Free',
+      'biometria_premium': 'Biometría Premium'
+    };
+    return nombres[metodo] || metodo;
+  }
 }

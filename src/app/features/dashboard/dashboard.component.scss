@@ -119,3 +119,35 @@
     }
   }
 }
+
+// Estadísticas Detalladas
+.detail-stat {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f8f9fa;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+  }
+
+  h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #042396;
+    margin: 0.5rem 0;
+  }
+
+  p {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+// Gradiente para tarjeta destacada
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #042396 0%, #0631c9 100%);
+  box-shadow: 0 4px 12px rgba(4, 35, 150, 0.3);
+}

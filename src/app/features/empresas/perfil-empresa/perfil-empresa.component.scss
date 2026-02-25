@@ -452,3 +452,144 @@
     }
   }
 }
+
+// Estadísticas Detalladas
+.detailed-stats {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e5e7eb;
+
+  h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 1.25rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: #4f46e5;
+    }
+  }
+
+  .stats-grid-detailed {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    .stat-detail-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+      }
+
+      .stat-detail-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        flex-shrink: 0;
+      }
+
+      &.stat-firmados .stat-detail-icon {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      }
+
+      &.stat-pendientes .stat-detail-icon,
+      &.stat-pendientes-form .stat-detail-icon {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      }
+
+      &.stat-revocados .stat-detail-icon {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      &.stat-total .stat-detail-icon {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      }
+
+      &.stat-verificados .stat-detail-icon {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      }
+
+      &.stat-completados .stat-detail-icon {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      }
+
+      .stat-detail-content {
+        flex: 1;
+
+        .stat-detail-value {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: #1f2937;
+          line-height: 1;
+          margin-bottom: 0.25rem;
+        }
+
+        .stat-detail-label {
+          font-size: 0.875rem;
+          color: #6b7280;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .metodo-mas-usado {
+    margin-top: 2rem;
+
+    .metodo-card {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      color: white;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+
+      .metodo-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        flex-shrink: 0;
+      }
+
+      .metodo-content {
+        flex: 1;
+
+        .metodo-name {
+          font-size: 1.5rem;
+          font-weight: 700;
+          margin-bottom: 0.25rem;
+        }
+
+        .metodo-count {
+          font-size: 1rem;
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+}

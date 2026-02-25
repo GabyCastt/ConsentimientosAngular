@@ -65,12 +65,13 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadFormularios();
-    this.loadClientesDidit();
+    // Deshabilitado: endpoint no existe en el backend
+    // this.loadClientesDidit();
     
     // Actualizar cada 60 segundos
-    this.refreshInterval = setInterval(() => {
-      this.loadClientesDidit();
-    }, 60000);
+    // this.refreshInterval = setInterval(() => {
+    //   this.loadClientesDidit();
+    // }, 60000);
   }
 
   ngOnDestroy(): void {

@@ -2,10 +2,11 @@ import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DashboardService, DashboardStats } from './dashboard.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
-import { ClientesDiditPendientesComponent } from './clientes-didit-pendientes/clientes-didit-pendientes.component';
 import { ApiService } from '../../core/services/api.service';
 import { ConfigService } from '../../core/services/config.service';
 import { DiagnosticoService } from '../../core/services/diagnostico.service';
+import { EmpresasService, EmpresaEstadisticas } from '../empresas/empresas.service';
+import { AuthService } from '../../core/services/auth.service';
 
 interface StatCard {
   title: string;
@@ -17,18 +18,22 @@ interface StatCard {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, LoadingComponent, ClientesDiditPendientesComponent],
+  imports: [CommonModule, LoadingComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   loading = signal(true);
   stats = signal<DashboardStats | null>(null);
+  empresaStats = signal<EmpresaEstadisticas | null>(null);
+  isDistribuidor = signal(false);
   
   statCards = signal<StatCard[]>([]);
 
   constructor(
     private dashboardService: DashboardService,
+    private empresasService: EmpresasService,
+    private authService: AuthService,
     private api: ApiService,
     private config: ConfigService,
     private diagnostico: DiagnosticoService
@@ -48,7 +53,32 @@ export class DashboardComponent implements OnInit {
       hostname: window.location.hostname
     });
     
-    this.loadStats();
+    const currentUser = this.authService.currentUser();
+    this.isDistribuidor.set(currentUser?.rol === 'distribuidor' || currentUser?.rol === 'empresa');
+    
+    if (this.isDistribuidor()) {
+      this.loadEmpresaStats();
+    } else {
+      this.loadStats();
+    }
+  }
+
+  loadEmpresaStats(): void {
+    this.loading.set(true);
+    
+    this.empresasService.getPerfil().subscribe({
+      next: (response) => {
+        console.log('[OK] Estadísticas de empresa:', response);
+        if (response.empresa.estadisticas) {
+          this.empresaStats.set(response.empresa.estadisticas);
+        }
+        this.loading.set(false);
+      },
+      error: (error) => {
+        console.error('[ERROR] Error cargando estadísticas de empresa:', error);
+        this.loading.set(false);
+      }
+    });
   }
 
   loadStats(): void {
@@ -171,5 +201,15 @@ export class DashboardComponent implements OnInit {
         color: 'warning'
       }
     ]);
+  }
+
+  formatMetodoNombre(metodo: string): string {
+    const nombres: { [key: string]: string } = {
+      'sms_email': 'SMS/Email',
+      'sms_didit': 'SMS DIDIT',
+      'biometria_free': 'Biometría Free',
+      'biometria_premium': 'Biometría Premium'
+    };
+    return nombres[metodo] || metodo;
   }
 }
