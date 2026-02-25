@@ -820,6 +820,16 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
   }
 
   verificarCodigo(): void {
+    const estadoActual = this.estado();
+    
+    // Si es SMS DIDIT, usar el método específico
+    if (estadoActual.tipoValidacion === 'sms_didit') {
+      console.log('[SMS] Detectado tipo SMS DIDIT, usando verificación específica');
+      this.verificarCodigoSms();
+      return;
+    }
+    
+    // Para otros tipos de verificación (email/whatsapp)
     const codigo = this.codigoVerificacion();
     
     if (codigo.length !== 6) {
@@ -827,7 +837,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const tokenVerificacion = this.estado().tokenVerificacion;
+    const tokenVerificacion = estadoActual.tokenVerificacion;
     
     console.log('[SEARCH] Verificando código:', {
       token_verificacion: tokenVerificacion,
@@ -852,15 +862,10 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
         // CORREGIDO: El backend responde con message, no con success
         if (response.message || response.respuesta) {
           // Actualizar estado
-          const estadoActual = this.estado();
           this.estado.set({
             ...estadoActual,
             codigoVerificado: true
           });
-          
-          if (estadoActual.tipoValidacion === 'sms_didit') {
-            this.smsPasoActual.set('exitoso');
-          }
           
           this.mostrarMensaje('Código verificado correctamente', 'success');
           
@@ -884,9 +889,8 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
           
           // Si el código ya fue verificado, completar el proceso
           if (errorMsg.includes('ya ha sido verificado') || errorMsg.includes('ya fue verificado')) {
-            console.log('⚠️ Código ya verificado anteriormente, completando proceso...');
+            console.log('[INFO] Código ya verificado anteriormente, completando proceso...');
             
-            const estadoActual = this.estado();
             this.estado.set({
               ...estadoActual,
               codigoVerificado: true
