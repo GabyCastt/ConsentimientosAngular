@@ -42,6 +42,27 @@ export interface CreateEmpresaDto {
   logo?: File;
 }
 
+export interface CreateEmpresaConDistribuidorDto {
+  nombre: string;
+  slogan?: string;
+  logo?: File;
+  usuario_email: string;
+  usuario_password: string;
+  usuario_nombre: string;
+}
+
+export interface CreateEmpresaConDistribuidorResponse {
+  message: string;
+  empresa: Empresa;
+  usuario: {
+    id: number;
+    email: string;
+    nombre: string;
+    rol: string;
+    empresa_id: number;
+  };
+}
+
 export interface UpdateEmpresaDto {
   nombre?: string;
   ruc?: string;
@@ -69,10 +90,8 @@ export class EmpresasService {
   updatePerfil(data: UpdateEmpresaDto): Observable<EmpresaResponse> {
     const formData = new FormData();
     
+    // Solo enviar los campos permitidos por el API de perfil
     if (data.nombre) formData.append('nombre', data.nombre);
-    if (data.ruc) formData.append('ruc', data.ruc);
-    if (data.email) formData.append('email', data.email);
-    if (data.telefono) formData.append('telefono', data.telefono);
     if (data.slogan) formData.append('slogan', data.slogan);
     if (data.logo) formData.append('logo', data.logo);
 
@@ -101,6 +120,20 @@ export class EmpresasService {
     if (data.logo) formData.append('logo', data.logo);
 
     return this.api.post<EmpresaResponse>(this.config.endpoints.empresas, formData);
+  }
+
+  // Crear empresa con usuario distribuidor (solo admin)
+  createEmpresaConDistribuidor(data: CreateEmpresaConDistribuidorDto): Observable<CreateEmpresaConDistribuidorResponse> {
+    const formData = new FormData();
+    formData.append('nombre', data.nombre);
+    formData.append('usuario_email', data.usuario_email);
+    formData.append('usuario_password', data.usuario_password);
+    formData.append('usuario_nombre', data.usuario_nombre);
+    
+    if (data.slogan) formData.append('slogan', data.slogan);
+    if (data.logo) formData.append('logo', data.logo);
+
+    return this.api.post<CreateEmpresaConDistribuidorResponse>(this.config.endpoints.empresas, formData);
   }
 
   // Actualizar empresa (solo admin)

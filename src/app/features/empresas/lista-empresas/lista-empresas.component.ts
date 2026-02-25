@@ -31,6 +31,11 @@ export class ListaEmpresasComponent implements OnInit {
   formSlogan = signal('');
   logoFile: File | null = null;
   logoPreview = signal<string | null>(null);
+  
+  // Campos para usuario distribuidor (solo al crear)
+  formUsuarioEmail = signal('');
+  formUsuarioPassword = signal('');
+  formUsuarioNombre = signal('');
 
   constructor(
     private empresasService: EmpresasService,
@@ -114,6 +119,9 @@ export class ListaEmpresasComponent implements OnInit {
     this.formEmail.set('');
     this.formTelefono.set('');
     this.formSlogan.set('');
+    this.formUsuarioEmail.set('');
+    this.formUsuarioPassword.set('');
+    this.formUsuarioNombre.set('');
     this.logoFile = null;
     this.logoPreview.set(null);
   }
@@ -154,36 +162,75 @@ export class ListaEmpresasComponent implements OnInit {
 
     this.guardando.set(true);
 
-    const data = {
-      nombre: this.formNombre(),
-      ruc: this.formRuc() || undefined,
-      email: this.formEmail() || undefined,
-      telefono: this.formTelefono() || undefined,
-      slogan: this.formSlogan() || undefined,
-      logo: this.logoFile || undefined
-    };
-
-    const request = this.empresaEditando()
-      ? this.empresasService.updateEmpresa(this.empresaEditando()!.id, data)
-      : this.empresasService.createEmpresa(data);
-
-    request.subscribe({
-      next: (response) => {
-        this.toastService.success(
-          this.empresaEditando() 
-            ? 'Empresa actualizada correctamente' 
-            : 'Empresa creada correctamente'
-        );
-        this.cerrarModal();
-        this.loadEmpresas();
+    // Si estamos creando (no editando), usar el endpoint con distribuidor
+    if (!this.empresaEditando()) {
+      // Validar campos de usuario distribuidor
+      if (!this.formUsuarioEmail().trim()) {
+        this.toastService.error('El email del distribuidor es requerido');
         this.guardando.set(false);
-      },
-      error: (error) => {
-        console.error('Error guardando empresa:', error);
-        this.toastService.error(error.error?.error || 'Error al guardar empresa');
-        this.guardando.set(false);
+        return;
       }
-    });
+      
+      if (!this.formUsuarioPassword().trim() || this.formUsuarioPassword().length < 6) {
+        this.toastService.error('La contraseña debe tener al menos 6 caracteres');
+        this.guardando.set(false);
+        return;
+      }
+      
+      if (!this.formUsuarioNombre().trim()) {
+        this.toastService.error('El nombre del distribuidor es requerido');
+        this.guardando.set(false);
+        return;
+      }
+
+      const dataConDistribuidor = {
+        nombre: this.formNombre(),
+        slogan: this.formSlogan() || undefined,
+        logo: this.logoFile || undefined,
+        usuario_email: this.formUsuarioEmail(),
+        usuario_password: this.formUsuarioPassword(),
+        usuario_nombre: this.formUsuarioNombre()
+      };
+
+      this.empresasService.createEmpresaConDistribuidor(dataConDistribuidor).subscribe({
+        next: (response) => {
+          console.log('[OK] Empresa y distribuidor creados:', response);
+          this.toastService.success('Empresa y usuario distribuidor creados correctamente');
+          this.cerrarModal();
+          this.loadEmpresas();
+          this.guardando.set(false);
+        },
+        error: (error) => {
+          console.error('[ERROR] Error creando empresa:', error);
+          this.toastService.error(error.error?.error || 'Error al crear empresa');
+          this.guardando.set(false);
+        }
+      });
+    } else {
+      // Actualizar empresa existente
+      const data = {
+        nombre: this.formNombre(),
+        ruc: this.formRuc() || undefined,
+        email: this.formEmail() || undefined,
+        telefono: this.formTelefono() || undefined,
+        slogan: this.formSlogan() || undefined,
+        logo: this.logoFile || undefined
+      };
+
+      this.empresasService.updateEmpresa(this.empresaEditando()!.id, data).subscribe({
+        next: (response) => {
+          this.toastService.success('Empresa actualizada correctamente');
+          this.cerrarModal();
+          this.loadEmpresas();
+          this.guardando.set(false);
+        },
+        error: (error) => {
+          console.error('[ERROR] Error actualizando empresa:', error);
+          this.toastService.error(error.error?.error || 'Error al actualizar empresa');
+          this.guardando.set(false);
+        }
+      });
+    }
   }
 
   deleteEmpresa(empresa: Empresa): void {

@@ -1,127 +1,187 @@
 <div class="perfil-empresa-container">
-  <div class="header">
-    <h1>Perfil de Empresa</h1>
-    <button 
-      class="btn-editar"
-      (click)="toggleEdicion()"
-      [disabled]="loading()">
-      {{ editando() ? 'Cancelar' : 'Editar Perfil' }}
-    </button>
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <i class="fas fa-building"></i>
+        Perfil de Empresa
+      </h1>
+      <p class="subtitle">Gestiona la información de tu empresa</p>
+    </div>
   </div>
 
+  <!-- Mensajes -->
   @if (mensaje()) {
-    <div class="mensaje" [class]="'mensaje-' + tipoMensaje()">
+    <div class="alert" [class]="'alert-' + tipoMensaje()">
+      <i class="fas" [class.fa-check-circle]="tipoMensaje() === 'success'"
+         [class.fa-exclamation-circle]="tipoMensaje() === 'error'"
+         [class.fa-info-circle]="tipoMensaje() === 'info'"></i>
       {{ mensaje() }}
     </div>
   }
 
+  <!-- Loading -->
   @if (loading()) {
-    <div class="loading">
+    <div class="loading-state">
       <div class="spinner"></div>
-      <p>Cargando...</p>
+      <p>Cargando perfil...</p>
     </div>
-  } @else if (empresa()) {
+  }
+
+  <!-- Contenido -->
+  @if (!loading() && empresa()) {
     <div class="perfil-content">
-      <div class="logo-section">
-        <div class="logo-container">
-          @if (getLogoUrl()) {
-            <img [src]="getLogoUrl()" alt="Logo de la empresa">
-          } @else {
-            <div class="logo-placeholder">
-              <span>Sin logo</span>
+      <!-- Formulario de Empresa -->
+      <div class="empresa-form-section">
+        <div class="form-row">
+          <!-- Columna Izquierda: Formulario -->
+          <div class="form-column">
+            <!-- Nombre de la Empresa -->
+            <div class="form-group">
+              <label>
+                <i class="fas fa-building"></i>
+                Nombre de la Empresa
+                <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                class="form-control"
+                [(ngModel)]="nombre"
+                placeholder="Nombre de la empresa"
+                [disabled]="!editando()">
             </div>
-          }
-        </div>
-        
-        @if (editando()) {
-          <div class="logo-upload">
-            <label for="logo-input" class="btn-upload">
-              Cambiar Logo
-            </label>
-            <input 
-              id="logo-input"
-              type="file" 
-              accept="image/*"
-              (change)="onLogoChange($event)"
-              style="display: none;">
-            <small>Máximo 5MB - JPG, PNG, GIF, SVG</small>
+
+            <!-- Eslogan -->
+            <div class="form-group">
+              <label>
+                <i class="fas fa-quote-left"></i>
+                Eslogan
+              </label>
+              <textarea 
+                class="form-control"
+                [(ngModel)]="slogan"
+                placeholder="Brindándote el mejor servicio para ayudarte crecer"
+                rows="3"
+                [disabled]="!editando()"></textarea>
+            </div>
+
+            <!-- Logo de la Empresa -->
+            <div class="form-group">
+              <label>
+                <i class="fas fa-image"></i>
+                Logo de la Empresa
+              </label>
+              <div class="file-input-wrapper">
+                <input 
+                  type="file" 
+                  id="logo-input"
+                  accept="image/*"
+                  (change)="onLogoChange($event)"
+                  [disabled]="!editando()"
+                  style="display: none;">
+                <label for="logo-input" class="file-input-label" [class.disabled]="!editando()">
+                  <i class="fas fa-folder-open"></i>
+                  Browse...
+                </label>
+                <span class="file-name">
+                  {{ logoFile ? logoFile.name : 'No file selected.' }}
+                </span>
+              </div>
+              <small class="form-hint">Formatos soportados: JPG, PNG, GIF. Tamaño máximo: 5MB</small>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="form-actions">
+              @if (editando()) {
+                <button 
+                  class="btn btn-primary"
+                  (click)="guardarCambios()"
+                  [disabled]="loading()">
+                  <i class="fas fa-save"></i>
+                  Actualizar Perfil
+                </button>
+                <button 
+                  class="btn btn-secondary"
+                  (click)="toggleEdicion()"
+                  [disabled]="loading()">
+                  <i class="fas fa-undo"></i>
+                  Descartar Cambios
+                </button>
+              } @else {
+                <button 
+                  class="btn btn-primary"
+                  (click)="toggleEdicion()">
+                  <i class="fas fa-edit"></i>
+                  Editar Perfil
+                </button>
+              }
+            </div>
           </div>
-        }
+
+          <!-- Columna Derecha: Logo Actual -->
+          <div class="logo-column">
+            <div class="logo-preview-card">
+              <h3>Logo Actual</h3>
+              <div class="logo-preview">
+                @if (getLogoUrl()) {
+                  <img [src]="getLogoUrl()" alt="Logo de la empresa">
+                } @else {
+                  <div class="logo-placeholder">
+                    <i class="fas fa-building"></i>
+                    <span>Sin logo</span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="info-section">
-        <div class="form-group">
-          <label>Nombre de la Empresa</label>
-          @if (editando()) {
-            <input 
-              type="text" 
-              [(ngModel)]="nombre"
-              class="form-control"
-              placeholder="Nombre de la empresa"
-              [disabled]="loading()">
-          } @else {
-            <p class="info-value">{{ empresa()?.nombre }}</p>
-          }
-        </div>
-
-        <div class="form-group">
-          <label>Slogan</label>
-          @if (editando()) {
-            <textarea 
-              [(ngModel)]="slogan"
-              class="form-control"
-              placeholder="Slogan de la empresa (opcional)"
-              rows="3"
-              [disabled]="loading()"></textarea>
-          } @else {
-            <p class="info-value">{{ empresa()?.slogan || 'Sin slogan' }}</p>
-          }
-        </div>
-
-        @if (editando()) {
-          <div class="form-actions">
-            <button 
-              class="btn-guardar"
-              (click)="guardarCambios()"
-              [disabled]="loading()">
-              Guardar Cambios
-            </button>
-          </div>
-        }
-      </div>
-
+      <!-- Estadísticas -->
       <div class="estadisticas-section">
-        <h2>Estadísticas</h2>
+        <h2>
+          <i class="fas fa-chart-bar"></i>
+          Estadísticas de tu Empresa
+        </h2>
+        
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-info">
-              <span class="stat-value">{{ empresa()?.total_usuarios || 0 }}</span>
-              <span class="stat-label">Usuarios</span>
+          <div class="stat-card stat-usuarios">
+            <div class="stat-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ empresa()?.total_usuarios || 0 }}</div>
+              <div class="stat-label">Usuarios</div>
             </div>
           </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">📋</div>
-            <div class="stat-info">
-              <span class="stat-value">{{ empresa()?.total_clientes || 0 }}</span>
-              <span class="stat-label">Clientes</span>
+
+          <div class="stat-card stat-clientes">
+            <div class="stat-icon">
+              <i class="fas fa-user-friends"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ empresa()?.total_clientes || 0 }}</div>
+              <div class="stat-label">Clientes</div>
             </div>
           </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">📝</div>
-            <div class="stat-info">
-              <span class="stat-value">{{ empresa()?.total_formularios || 0 }}</span>
-              <span class="stat-label">Formularios</span>
+
+          <div class="stat-card stat-formularios">
+            <div class="stat-icon">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ empresa()?.total_formularios || 0 }}</div>
+              <div class="stat-label">Formularios</div>
             </div>
           </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-info">
-              <span class="stat-value">{{ empresa()?.total_consentimientos || 0 }}</span>
-              <span class="stat-label">Consentimientos</span>
+
+          <div class="stat-card stat-consentimientos">
+            <div class="stat-icon">
+              <i class="fas fa-file-signature"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{ empresa()?.total_consentimientos || 0 }}</div>
+              <div class="stat-label">Consentimientos</div>
             </div>
           </div>
         </div>

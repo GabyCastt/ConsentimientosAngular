@@ -264,6 +264,60 @@
               rows="3"></textarea>
           </div>
 
+          <!-- Campos de Usuario Distribuidor (solo al crear) -->
+          @if (!empresaEditando()) {
+            <div class="form-section">
+              <h3>
+                <i class="fas fa-user-tie"></i>
+                Usuario Distribuidor
+              </h3>
+              <p class="section-description">
+                Se creará automáticamente un usuario distribuidor para esta empresa
+              </p>
+
+              <!-- Email del distribuidor -->
+              <div class="form-group">
+                <label for="usuario_email">Email del Distribuidor *</label>
+                <input 
+                  type="email" 
+                  id="usuario_email"
+                  class="form-control"
+                  [(ngModel)]="formUsuarioEmail"
+                  name="usuario_email"
+                  placeholder="distribuidor@empresa.com"
+                  required>
+              </div>
+
+              <!-- Contraseña del distribuidor -->
+              <div class="form-group">
+                <label for="usuario_password">Contraseña *</label>
+                <input 
+                  type="password" 
+                  id="usuario_password"
+                  class="form-control"
+                  [(ngModel)]="formUsuarioPassword"
+                  name="usuario_password"
+                  placeholder="Mínimo 6 caracteres"
+                  minlength="6"
+                  required>
+                <small class="form-text">Mínimo 6 caracteres</small>
+              </div>
+
+              <!-- Nombre del distribuidor -->
+              <div class="form-group">
+                <label for="usuario_nombre">Nombre Completo *</label>
+                <input 
+                  type="text" 
+                  id="usuario_nombre"
+                  class="form-control"
+                  [(ngModel)]="formUsuarioNombre"
+                  name="usuario_nombre"
+                  placeholder="Juan Pérez"
+                  required>
+              </div>
+            </div>
+          }
+
           <!-- Acciones -->
           <div class="modal-actions">
             <button 

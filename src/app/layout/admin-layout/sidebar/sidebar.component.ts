@@ -98,7 +98,7 @@ export class SidebarComponent {
       label: 'Mi Empresa', 
       icon: 'fas fa-building', 
       route: '/empresas/perfil',
-      roles: ['empresa', 'usuario']
+      roles: ['empresa', 'usuario', 'distribuidor']
     },
     { 
       label: 'Gestión Empresas', 
