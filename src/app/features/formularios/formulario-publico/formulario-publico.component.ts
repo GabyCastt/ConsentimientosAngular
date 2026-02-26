@@ -96,7 +96,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       });
     }
     
-    console.log('⚠️ No hay consentimientos disponibles');
+    console.log('WARNING: No hay consentimientos disponibles');
     return [];
   });
   
@@ -1081,7 +1081,7 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       console.log('[OK] Callback de DIDIT detectado, procesando...');
       this.manejarRegresoDeDidit(token);
     } else {
-      console.log('ℹ️ No es un callback de DIDIT');
+      console.log('INFO: No es un callback de DIDIT');
     }
   }
 

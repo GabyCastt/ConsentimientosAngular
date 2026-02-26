@@ -233,7 +233,7 @@ export class ModalFormularioComponent implements OnInit {
       empresa_id: this.formData.empresa_id || undefined
     };
 
-    console.log(' Guardando formulario:', formularioData);
+    // console.log(' Guardando formulario:', formularioData);
 
     const request = this.isEditMode()
       ? this.api.put(`${this.config.endpoints.formularios}/${this.formularioId()}`, formularioData)
@@ -241,7 +241,7 @@ export class ModalFormularioComponent implements OnInit {
 
     request.subscribe({
       next: (response: any) => {
-        console.log(' Formulario guardado:', response);
+        // console.log(' Formulario guardado:', response);
       
         // Mostrar URL generada si es nuevo
         if (!this.isEditMode() && response.formulario) {

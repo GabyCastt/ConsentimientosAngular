@@ -248,7 +248,7 @@ export class DiagnosticoService {
 
     resultados.forEach(resultado => {
       const icon = resultado.status === 'success' ? '[OK]' : 
-                   resultado.status === 'error' ? '[ERROR]' : '⚠️';
+                   resultado.status === 'error' ? '[ERROR]' : '[WARNING]';
       console.log(`${icon} ${resultado.test}: ${resultado.message}`);
     });
 

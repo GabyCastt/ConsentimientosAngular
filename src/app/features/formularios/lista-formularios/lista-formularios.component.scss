@@ -2,21 +2,58 @@
   animation: fadeIn 0.3s ease-in;
 }
 
-.card {
-  border: none;
-  box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.1);
+.page-header {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #042396;
 
-  .card-header {
-    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
-    border-bottom: 2px solid #042396;
-    padding: 1.25rem;
+  .page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
 
-    h5 {
-      font-weight: 700;
-      color: #000000;
-      margin: 0;
+  .form-check {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+  }
+
+  .form-check-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    margin-left: 0.5rem;
+  }
+
+  .form-check-input {
+    cursor: pointer;
+    width: 2.5rem;
+    height: 1.25rem;
+    margin: 0;
+    flex-shrink: 0;
+
+    &:checked {
+      background-color: #042396;
+      border-color: #042396;
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 0.2rem rgba(4, 35, 150, 0.25);
     }
   }
+}
+
+.card {
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
 }
 
 .table {
@@ -59,6 +96,13 @@
   font-weight: 600;
   padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
+}
+
+.badge-inactivo {
+  background: #dc3545 !important;
+  color: white !important;
+  border: 2px solid #c82333;
+  font-weight: 600;
 }
 
 // Badges de tipos de consentimientos

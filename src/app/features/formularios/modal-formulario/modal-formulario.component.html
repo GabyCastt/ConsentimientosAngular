@@ -7,7 +7,7 @@
             <i class="fas fa-clipboard-list me-2"></i>
             {{ isEditMode() ? 'Editar Formulario' : 'Nuevo Formulario' }}
           </h5>
-          <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+          <button type="button" class="btn-close btn-close-red" (click)="close()"></button>
         </div>
 
         <div class="modal-body p-4">
@@ -105,21 +105,19 @@
                 <i class="fas fa-list-check me-1 text-primary"></i>
                 Tipos de Consentimientos <span class="text-danger">*</span>
               </label>
-              <div class="row">
+              <div class="tipos-consentimiento-grid">
                 @for (tipo of tiposConsentimiento; track tipo.value) {
-                  <div class="col-md-4">
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        [id]="'tipo-' + tipo.value"
-                        [checked]="isTipoConsentimientoSelected(tipo.value)"
-                        (change)="toggleTipoConsentimiento(tipo.value)">
-                      <label class="form-check-label" [for]="'tipo-' + tipo.value">
-                        <i [class]="'fas ' + tipo.icon + ' text-' + tipo.color + ' me-1'"></i>
-                        {{ tipo.label }}
-                      </label>
-                    </div>
+                  <div class="form-check">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      [id]="'tipo-' + tipo.value"
+                      [checked]="isTipoConsentimientoSelected(tipo.value)"
+                      (change)="toggleTipoConsentimiento(tipo.value)">
+                    <label class="form-check-label" [for]="'tipo-' + tipo.value">
+                      <i [class]="'fas ' + tipo.icon + ' text-' + tipo.color + ' me-1'"></i>
+                      {{ tipo.label }}
+                    </label>
                   </div>
                 }
               </div>
@@ -146,7 +144,7 @@
                   <option [value]="tipo.value">
                     {{ tipo.label }}
                     @if (tipo.costo) {
-                      💰
+                      (Costo adicional)
                     }
                   </option>
                 }

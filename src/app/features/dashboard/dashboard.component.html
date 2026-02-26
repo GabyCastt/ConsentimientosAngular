@@ -127,7 +127,7 @@
                   <span>{{ tipo.tipo }}</span>
                   <strong>{{ tipo.total }}</strong>
                 </div>
-                <div class="progress" style="height: 8px;">
+                <div class="progress progress-sm">
                   <div class="progress-bar bg-success" 
                        [style.width.%]="(tipo.total / estadisticasGlobales()!.resumen_general.total_consentimientos_completados) * 100">
                   </div>
@@ -295,7 +295,7 @@
                 </div>
               </div>
               @if (stats()!.consentimientos!.total > 0) {
-                <div class="progress mt-3" style="height: 25px;">
+                <div class="progress progress-lg mt-3">
                   <div 
                     class="progress-bar bg-success" 
                     role="progressbar" 

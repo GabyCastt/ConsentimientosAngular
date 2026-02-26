@@ -1,0 +1,181 @@
+// ============================================
+// BOTONES GLOBALES
+// ============================================
+
+@use 'sass:color';
+@use 'variables' as *;
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  padding: 0.625rem 1.25rem;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  user-select: none;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
+
+  &:disabled,
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+// Tamaños de botones
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: $font-size-xs;
+}
+
+.btn-lg {
+  padding: 0.875rem 1.5rem;
+  font-size: $font-size-base;
+}
+
+// Variantes de botones
+.btn-primary {
+  color: white;
+  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+  border-color: $primary-color;
+  box-shadow: $shadow-sm;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, $primary-dark 0%, $primary-color 100%);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  color: white;
+  background-color: $secondary-color;
+  border-color: $secondary-color;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($secondary-color, $lightness: -10%);
+    border-color: color.adjust($secondary-color, $lightness: -10%);
+  }
+}
+
+.btn-success {
+  color: white;
+  background-color: $success-color;
+  border-color: $success-color;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($success-color, $lightness: -10%);
+    border-color: color.adjust($success-color, $lightness: -10%);
+  }
+}
+
+.btn-danger {
+  color: white;
+  background-color: $danger-color;
+  border-color: $danger-color;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($danger-color, $lightness: -10%);
+    border-color: color.adjust($danger-color, $lightness: -10%);
+  }
+}
+
+.btn-warning {
+  color: white;
+  background-color: $warning-color;
+  border-color: $warning-color;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($warning-color, $lightness: -10%);
+    border-color: color.adjust($warning-color, $lightness: -10%);
+  }
+}
+
+.btn-info {
+  color: white;
+  background-color: $info-color;
+  border-color: $info-color;
+
+  &:hover:not(:disabled) {
+    background-color: color.adjust($info-color, $lightness: -10%);
+    border-color: color.adjust($info-color, $lightness: -10%);
+  }
+}
+
+// Botones outline
+.btn-outline-primary {
+  color: $primary-color;
+  background-color: transparent;
+  border-color: $primary-color;
+
+  &:hover:not(:disabled) {
+    color: white;
+    background-color: $primary-color;
+  }
+}
+
+.btn-outline-secondary {
+  color: $secondary-color;
+  background-color: transparent;
+  border-color: $secondary-color;
+
+  &:hover:not(:disabled) {
+    color: white;
+    background-color: $secondary-color;
+  }
+}
+
+.btn-outline-danger {
+  color: $danger-color;
+  background-color: transparent;
+  border-color: $danger-color;
+
+  &:hover:not(:disabled) {
+    color: white;
+    background-color: $danger-color;
+  }
+}
+
+// Botón de texto
+.btn-link {
+  color: $primary-color;
+  background-color: transparent;
+  border-color: transparent;
+  text-decoration: none;
+
+  &:hover:not(:disabled) {
+    color: $primary-dark;
+    text-decoration: underline;
+  }
+}
+
+// Botón de bloque
+.btn-block {
+  display: flex;
+  width: 100%;
+}
+
+// Grupo de botones
+.btn-group {
+  display: inline-flex;
+  gap: $spacing-sm;
+}

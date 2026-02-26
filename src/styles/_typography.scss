@@ -1,0 +1,171 @@
+// ============================================
+// TIPOGRAFÍA GLOBAL
+// ============================================
+
+@use 'variables' as *;
+
+// Estilos base del body
+body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-normal;
+  color: $text-primary;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Headings
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  margin-top: 0;
+  margin-bottom: $spacing-md;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $text-primary;
+}
+
+h1, .h1 {
+  font-size: $font-size-4xl;
+  letter-spacing: -0.025em;
+}
+
+h2, .h2 {
+  font-size: $font-size-3xl;
+  letter-spacing: -0.025em;
+}
+
+h3, .h3 {
+  font-size: $font-size-2xl;
+}
+
+h4, .h4 {
+  font-size: $font-size-xl;
+}
+
+h5, .h5 {
+  font-size: $font-size-lg;
+}
+
+h6, .h6 {
+  font-size: $font-size-base;
+}
+
+// Párrafos
+p {
+  margin-top: 0;
+  margin-bottom: $spacing-md;
+}
+
+// Links
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-base;
+
+  &:hover {
+    color: $primary-dark;
+    text-decoration: underline;
+  }
+
+  &:focus {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+// Listas
+ul, ol {
+  margin-top: 0;
+  margin-bottom: $spacing-md;
+  padding-left: $spacing-lg;
+}
+
+// Texto pequeño
+small, .small {
+  font-size: $font-size-sm;
+}
+
+// Texto muted
+.text-muted {
+  color: $text-muted !important;
+}
+
+.text-secondary {
+  color: $text-secondary !important;
+}
+
+// Utilidades de peso de fuente
+.font-light {
+  font-weight: $font-weight-light !important;
+}
+
+.font-normal {
+  font-weight: $font-weight-normal !important;
+}
+
+.font-medium {
+  font-weight: $font-weight-medium !important;
+}
+
+.font-semibold {
+  font-weight: $font-weight-semibold !important;
+}
+
+.font-bold {
+  font-weight: $font-weight-bold !important;
+}
+
+// Utilidades de tamaño de texto
+.text-xs {
+  font-size: $font-size-xs !important;
+}
+
+.text-sm {
+  font-size: $font-size-sm !important;
+}
+
+.text-base {
+  font-size: $font-size-base !important;
+}
+
+.text-lg {
+  font-size: $font-size-lg !important;
+}
+
+.text-xl {
+  font-size: $font-size-xl !important;
+}
+
+.text-2xl {
+  font-size: $font-size-2xl !important;
+}
+
+// Responsive typography
+@media (max-width: $breakpoint-md) {
+  h1, .h1 {
+    font-size: $font-size-3xl;
+  }
+
+  h2, .h2 {
+    font-size: $font-size-2xl;
+  }
+
+  h3, .h3 {
+    font-size: $font-size-xl;
+  }
+}
+
+@media (max-width: $breakpoint-sm) {
+  h1, .h1 {
+    font-size: $font-size-2xl;
+  }
+
+  h2, .h2 {
+    font-size: $font-size-xl;
+  }
+
+  h3, .h3 {
+    font-size: $font-size-lg;
+  }
+}

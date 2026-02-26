@@ -30,7 +30,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               queryParams: { returnUrl: currentUrl, reason: 'session_expired' }
             });
           } else {
-            console.warn('⚠️ Error 401 en ruta pública - No se redirige al login');
+            console.warn('WARNING: Error 401 en ruta pública - No se redirige al login');
           }
           break;
 

@@ -1,0 +1,101 @@
+// ============================================
+// CARDS GLOBALES
+// ============================================
+
+@use 'variables' as *;
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-color: white;
+  background-clip: border-box;
+  border: 1px solid $border-color;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+  transition: box-shadow $transition-base, transform $transition-base;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+.card-header {
+  padding: $spacing-lg;
+  margin-bottom: 0;
+  background-color: $bg-secondary;
+  border-bottom: 1px solid $border-color;
+  border-top-left-radius: $radius-lg;
+  border-top-right-radius: $radius-lg;
+
+  &:first-child {
+    border-radius: $radius-lg $radius-lg 0 0;
+  }
+}
+
+.card-body {
+  flex: 1 1 auto;
+  padding: $spacing-lg;
+}
+
+.card-footer {
+  padding: $spacing-lg;
+  background-color: $bg-secondary;
+  border-top: 1px solid $border-color;
+  border-bottom-left-radius: $radius-lg;
+  border-bottom-right-radius: $radius-lg;
+
+  &:last-child {
+    border-radius: 0 0 $radius-lg $radius-lg;
+  }
+}
+
+.card-title {
+  margin-bottom: $spacing-md;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+}
+
+.card-subtitle {
+  margin-top: -$spacing-sm;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-sm;
+  color: $text-secondary;
+}
+
+.card-text {
+  margin-bottom: $spacing-md;
+  color: $text-secondary;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Card con hover elevado
+.card-hover {
+  transition: all $transition-base;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+}
+
+// Card sin borde
+.card-borderless {
+  border: none;
+  box-shadow: none;
+}
+
+// Card con sombra
+.card-shadow {
+  box-shadow: $shadow-md;
+}
+
+.card-shadow-lg {
+  box-shadow: $shadow-lg;
+}

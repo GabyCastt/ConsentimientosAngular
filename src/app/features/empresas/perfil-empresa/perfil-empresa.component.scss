@@ -188,6 +188,10 @@
   border-radius: 8px;
   background: white;
 
+  .file-input-hidden {
+    display: none;
+  }
+
   .file-input-label {
     padding: 0.5rem 1rem;
     background: #f3f4f6;

@@ -75,10 +75,10 @@
                 <input 
                   type="file" 
                   id="logo-input"
+                  class="file-input-hidden"
                   accept="image/*"
                   (change)="onLogoChange($event)"
-                  [disabled]="!editando()"
-                  style="display: none;">
+                  [disabled]="!editando()">
                 <label for="logo-input" class="file-input-label" [class.disabled]="!editando()">
                   <i class="fas fa-folder-open"></i>
                   Browse...

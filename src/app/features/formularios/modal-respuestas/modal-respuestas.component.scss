@@ -43,3 +43,20 @@
   font-size: 0.75rem;
   padding: 0.35em 0.65em;
 }
+
+.badge-inactivo {
+  background: #dc3545 !important;
+  color: white !important;
+  border: 2px solid #c82333;
+  font-weight: 600;
+}
+
+.btn-close-red {
+  filter: brightness(0) saturate(100%) invert(23%) sepia(89%) saturate(4632%) hue-rotate(347deg) brightness(92%) contrast(95%);
+  opacity: 1;
+
+  &:hover {
+    filter: brightness(0) saturate(100%) invert(13%) sepia(100%) saturate(7426%) hue-rotate(357deg) brightness(95%) contrast(115%);
+    opacity: 1;
+  }
+}

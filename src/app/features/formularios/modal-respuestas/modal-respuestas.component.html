@@ -7,7 +7,7 @@
             <i class="fas fa-list me-2"></i>
             Respuestas: {{ formulario()?.nombre }}
           </h5>
-          <button type="button" class="btn-close btn-close-white" (click)="close()"></button>
+          <button type="button" class="btn-close btn-close-red" (click)="close()"></button>
         </div>
 
         <div class="modal-body">
@@ -17,7 +17,7 @@
               <i class="fas fa-chart-bar me-1"></i>
               Total: {{ respuestas().length }} respuesta(s)
             </span>
-            <span class="badge" [class]="formulario()?.activo ? 'bg-success' : 'bg-secondary'">
+            <span class="badge" [class]="formulario()?.activo ? 'bg-success' : 'badge-inactivo'">
               <i [class]="formulario()?.activo ? 'fas fa-check-circle' : 'fas fa-pause-circle'" class="me-1"></i>
               {{ formulario()?.activo ? 'Activo' : 'Inactivo' }}
             </span>

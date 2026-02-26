@@ -235,9 +235,9 @@ readonly endpoints = {
    */
   private logEnvironmentInfo(): void {
     if (this.isDevelopment()) {
-      console.log(' Entorno:', environment.production ? 'PRODUCCIÓN' : 'DESARROLLO');
-      console.log(' API Base URL:', this.apiUrl);
-      console.log(' App Version:', this.version);
+      // console.log(' Entorno:', environment.production ? 'PRODUCCIÓN' : 'DESARROLLO');
+      // console.log(' API Base URL:', this.apiUrl);
+      // console.log(' App Version:', this.version);
     }
   }
 
@@ -340,12 +340,12 @@ readonly endpoints = {
    */
   private verificarConfiguracion(): void {
     if (this.isDevelopment()) {
-      console.log('🔧 Modo desarrollo activado');
-      console.log('📡 Usando proxy para evitar CORS');
-      console.log('🌐 Backend esperado en: http://localhost:3811');
+      // console.log(' Modo desarrollo activado');
+      // console.log(' Usando proxy para evitar CORS');
+      // console.log(' Backend esperado en: http://localhost:3811');
     } else {
-      console.log('[START] Modo producción activado');
-      console.log('📡 API URL:', this.apiUrl);
+      // console.log('[START] Modo producción activado');
+      // console.log(' API URL:', this.apiUrl);
     }
   }
 
