@@ -6,10 +6,23 @@ RewriteBase /demo-apps/ConsentApp/consentimientos-angular/
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-# Angular routing - permitir que archivos reales se sirvan directamente
+# Angular routing - CRÍTICO: Solo redirigir si el archivo NO existe
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !\.(?:css|js|map|jpe?g|png|gif|svg|ico|woff2?|ttf|eot)$ [NC]
 RewriteRule . /demo-apps/ConsentApp/consentimientos-angular/index.html [L]
+
+# Configurar MIME types correctos
+<IfModule mod_mime.c>
+  AddType application/javascript .js
+  AddType application/json .json
+  AddType text/css .css
+  AddType text/html .html
+  AddType image/svg+xml .svg
+  AddType image/x-icon .ico
+  AddType font/woff .woff
+  AddType font/woff2 .woff2
+</IfModule>
 
 # Configurar headers de seguridad
 <IfModule mod_headers.c>

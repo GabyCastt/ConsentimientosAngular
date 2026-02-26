@@ -179,3 +179,23 @@
   display: inline-flex;
   gap: $spacing-sm;
 }
+
+// Botón de cerrar (X) - Versión roja
+.btn-close-red {
+  filter: brightness(0) saturate(100%) invert(23%) sepia(89%) saturate(4632%) hue-rotate(347deg) brightness(92%) contrast(95%);
+  opacity: 1;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// Botón de cerrar (X) - Versión blanca
+.btn-close-white {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+}

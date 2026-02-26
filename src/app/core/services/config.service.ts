@@ -164,32 +164,23 @@ readonly endpoints = {
   getLogoUrl(logoPath: string | null): string | null {
     if (!logoPath) return null;
     
-    // Si ya es una URL completa
+    // Si ya es una URL completa, devolverla tal cual
     if (logoPath.startsWith('http://') || logoPath.startsWith('https://')) {
-      // CORRECCIÓN: Remover /api-consentimientos si existe (problema del backend)
-      let cleanUrl = logoPath.replace('/api-consentimientos', '');
-      return cleanUrl;
+      return logoPath;
     }
     
     // Si empieza con /, es una ruta absoluta desde el servidor
     if (logoPath.startsWith('/')) {
-      // Remover /api-consentimientos si existe
-      const cleanPath = logoPath.replace('/api-consentimientos', '');
-      const finalUrl = this.apiUrl ? `${this.apiUrl}${cleanPath}` : cleanPath;
-      return finalUrl;
+      return this.apiUrl ? `${this.apiUrl}${logoPath}` : logoPath;
     }
     
-    // Si ya contiene 'uploads/logos/', solo agregar el dominio
+    // Si ya contiene 'uploads/logos/', agregar el dominio
     if (logoPath.includes('uploads/logos/')) {
-      // Remover /api-consentimientos si existe
-      const cleanPath = logoPath.replace('/api-consentimientos/', '');
-      const finalUrl = this.apiUrl ? `${this.apiUrl}/${cleanPath}` : `/${cleanPath}`;
-      return finalUrl;
+      return this.apiUrl ? `${this.apiUrl}/${logoPath}` : `/${logoPath}`;
     }
     
     // Si no, es solo el nombre del archivo
-    const finalUrl = this.apiUrl ? `${this.apiUrl}/uploads/logos/${logoPath}` : `/uploads/logos/${logoPath}`;
-    return finalUrl;
+    return this.apiUrl ? `${this.apiUrl}/uploads/logos/${logoPath}` : `/uploads/logos/${logoPath}`;
   }
 
   /**
@@ -198,22 +189,25 @@ readonly endpoints = {
   getPdfUrl(pdfPath: string | null): string | null {
     if (!pdfPath) return null;
     
-    // Si ya es una URL completa
+    // Si ya es una URL completa, devolverla tal cual
     if (pdfPath.startsWith('http')) {
-      // CORRECCIÓN: Remover /api-consentimientos si existe (problema del backend)
-      let cleanUrl = pdfPath.replace('/api-consentimientos', '');
-      return cleanUrl;
+      return pdfPath;
     }
     
-    // Si ya contiene 'uploads/'
-    if (pdfPath.includes('uploads/')) {
-      // Remover /api-consentimientos si existe
-      const cleanPath = pdfPath.replace('/api-consentimientos/', '');
-      return `${this.apiUrl}/${cleanPath}`;
+    // Si la ruta ya incluye /api-consentimientos/, construir URL completa
+    if (pdfPath.includes('/api-consentimientos/')) {
+      // Extraer solo la parte después de /api-consentimientos/
+      const pathAfterApi = pdfPath.split('/api-consentimientos/')[1];
+      return `${this.apiUrl}/api-consentimientos/${pathAfterApi}`;
     }
     
-    // Si no, agregar ruta completa
-    return `${this.apiUrl}/uploads/pdfs/${pdfPath}`;
+    // Si la ruta empieza con archivos/ o uploads/
+    if (pdfPath.startsWith('archivos/') || pdfPath.startsWith('uploads/')) {
+      return `${this.apiUrl}/api-consentimientos/${pdfPath}`;
+    }
+    
+    // Por defecto, asumir que está en archivos/
+    return `${this.apiUrl}/api-consentimientos/archivos/${pdfPath}`;
   }
 
   /**

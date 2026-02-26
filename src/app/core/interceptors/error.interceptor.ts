@@ -44,12 +44,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           // Recurso no encontrado
           console.error(' Error 404: Recurso no encontrado');
           console.error('URL:', error.url);
+          // No mostrar alert - el 404 es esperado en muchos casos (cliente nuevo, etc.)
           break;
 
         case 500:
           // Error del servidor
           console.error(' Error 500: Error interno del servidor');
-          alert('Error del servidor. Por favor, intenta más tarde.');
+          console.error('URL:', error.url);
+          console.error('Detalles:', error.error);
+          
+          // Solo mostrar alert si NO es una búsqueda de cliente (es esperado que no exista)
+          const isClientSearch = error.url?.includes('/clientes/buscar-cedula') || 
+                                 error.url?.includes('/clientes/buscar-formulario');
+          
+          if (!isClientSearch) {
+            alert('Error del servidor. Por favor, intenta más tarde.');
+          }
           break;
 
         case 0:

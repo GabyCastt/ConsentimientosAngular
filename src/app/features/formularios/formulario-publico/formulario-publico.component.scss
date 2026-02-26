@@ -20,7 +20,7 @@
   color: white;
   padding: 2rem 1.5rem;
   position: relative;
-  overflow: hidden;
+  overflow: visible; // Cambiar de hidden a visible para que el logo no se corte
 
   &::before {
     content: '';
@@ -31,6 +31,7 @@
     height: 200%;
     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
     animation: pulse 15s ease-in-out infinite;
+    z-index: 0; // Asegurar que esté detrás del contenido
   }
 }
 
@@ -54,6 +55,8 @@
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   flex-shrink: 0;
+  z-index: 2; // Asegurar que esté por encima del fondo animado
+  position: relative;
 }
 
 .empresa-logo {
@@ -68,6 +71,8 @@
   align-items: center;
   gap: 15px;
   flex: 1;
+  position: relative;
+  z-index: 2; // Asegurar que esté por encima del fondo animado
 }
 
 .escudo-icon {
@@ -78,13 +83,16 @@
 }
 
 .empresa-info {
-  text-align: left;
+  text-align: center; // Centrar el texto
   flex: 1;
+  position: relative;
+  z-index: 2; // Asegurar que esté por encima del fondo animado
 
   h2 {
     margin: 0;
     font-size: 1.6rem;
     font-weight: 700;
+    color: white; // Asegurar que sea blanco
     text-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
@@ -93,6 +101,7 @@
     opacity: 0.95;
     font-size: 0.95rem;
     font-weight: 300;
+    color: white; // Asegurar que sea blanco
   }
 }
 
@@ -212,6 +221,8 @@
     height: 1.5rem;
     cursor: pointer;
     border: 2px solid #042396;
+    margin-top: 0; // Alinear correctamente con el texto
+    flex-shrink: 0; // Evitar que se deforme
 
     &:checked {
       background-color: #042396;

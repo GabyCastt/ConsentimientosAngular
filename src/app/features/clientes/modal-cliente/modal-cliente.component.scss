@@ -10,3 +10,55 @@
 .text-danger {
   font-weight: bold;
 }
+
+// Estilos para el botón de cerrar
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+// Botón de cerrar personalizado con ícono
+.btn-close-custom {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  line-height: 1;
+  transition: all 0.2s;
+  color: #dc3545; // Rojo desde el inicio
+  font-size: 1.5rem;
+
+  &:hover {
+    transform: scale(1.1);
+    color: #bb2d3b; // Rojo más oscuro al hacer hover
+  }
+}
+
+// Botón de cerrar blanco (para headers oscuros)
+.btn-close-white {
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+// Botón de cerrar rojo
+.btn-close-red {
+  filter: brightness(0) saturate(100%) invert(23%) sepia(89%) saturate(4632%) hue-rotate(347deg) brightness(92%) contrast(95%);
+  opacity: 1;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
