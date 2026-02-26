@@ -63,7 +63,13 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     private diditService: DiditService,
     private toastService: ToastService,
     private platformLocation: PlatformLocation
-  ) {}
+  ) {
+    // Restaurar preferencia de mostrar inactivos desde localStorage
+    const savedPreference = localStorage.getItem('mostrarFormulariosInactivos');
+    if (savedPreference === 'true') {
+      this.mostrarInactivos.set(true);
+    }
+  }
 
   ngOnInit(): void {
     this.loadFormularios();
@@ -90,13 +96,20 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
         console.log('[INFO] Formularios response:', response);
         const formularios = response.formularios || response || [];
         
+        // Normalizar el campo activo: convertir 0/1 a false/true
+        const formulariosNormalizados = formularios.map((f: any) => ({
+          ...f,
+          activo: Boolean(f.activo) // Convierte 0 a false, 1 a true
+        }));
+        
         // Log detallado del primer formulario para debug
-        if (formularios.length > 0) {
-          console.log('[SEARCH] Primer formulario (estructura):', formularios[0]);
-          console.log('[TOKEN] Token del primer formulario:', formularios[0].token_publico || 'NO ENCONTRADO');
+        if (formulariosNormalizados.length > 0) {
+          console.log('[SEARCH] Primer formulario (estructura):', formulariosNormalizados[0]);
+          console.log('[TOKEN] Token del primer formulario:', formulariosNormalizados[0].token_publico || 'NO ENCONTRADO');
+          console.log('[ACTIVO] Estado activo:', formulariosNormalizados[0].activo, '(tipo:', typeof formulariosNormalizados[0].activo, ')');
         }
         
-        this.formularios.set(formularios);
+        this.formularios.set(formulariosNormalizados);
         this.loading.set(false);
       },
       error: (error) => {
@@ -132,6 +145,8 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
 
   toggleInactivos(): void {
     this.mostrarInactivos.update(v => !v);
+    // Guardar preferencia en localStorage
+    localStorage.setItem('mostrarFormulariosInactivos', this.mostrarInactivos().toString());
   }
 
   copiarUrl(token: string): void {
@@ -192,7 +207,11 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     
     this.formulariosService.toggleEstado(formulario.id, nuevoEstado).subscribe({
       next: () => {
+        // Actualizar el estado localmente
         formulario.activo = nuevoEstado;
+        // Forzar actualización del signal
+        this.formularios.set([...this.formularios()]);
+        
         this.toastService.success(
           nuevoEstado ? 'Formulario activado' : 'Formulario desactivado'
         );
