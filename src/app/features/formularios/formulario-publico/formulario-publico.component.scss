@@ -139,6 +139,41 @@
   }
 }
 
+// Información del Formulario
+.formulario-info-card {
+  background: linear-gradient(135deg, rgba(4, 35, 150, 0.05) 0%, rgba(4, 35, 150, 0.1) 100%);
+  border: 2px solid #042396;
+  border-radius: 12px;
+  padding: 1.5rem;
+  animation: fadeIn 0.5s ease-out;
+
+  .info-icon {
+    width: 50px;
+    height: 50px;
+    background: #042396;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .formulario-titulo {
+    color: #042396;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .formulario-descripcion {
+    color: #4b5563;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+
 .cedula-input {
   font-size: 1.3rem;
   text-align: center;
@@ -708,6 +743,24 @@
       font-size: 0.7rem;
       line-height: 1.2;
       margin-top: 0.25rem;
+    }
+  }
+
+  .formulario-info-card {
+    padding: 1rem;
+
+    .info-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+    }
+
+    .formulario-titulo {
+      font-size: 1.1rem;
+    }
+
+    .formulario-descripcion {
+      font-size: 0.9rem;
     }
   }
 

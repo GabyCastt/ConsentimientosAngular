@@ -767,8 +767,8 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
           this.estado.set(nuevoEstado);
           
           this.mostrarMensaje(
-            'Email enviado con enlace de verificación biométrica. Revisa tu correo.',
-            'success'
+            'Redirigiendo a verificación biométrica...',
+            'info'
           );
           
           // Iniciar verificación biométrica si hay URL
@@ -777,10 +777,13 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
             this.sessionId.set(response.session_id);
             this.startPolling();
             
+            // IMPORTANTE: Desactivar protección contra recarga antes de redirigir
+            this.deshabilitarProteccionRecarga();
+            
             setTimeout(() => {
               console.log('[START] Redirigiendo a DIDIT:', response.verification_url);
               window.location.href = response.verification_url;
-            }, 2000);
+            }, 1500);
           } else {
             console.error('[ERROR] Faltan datos para iniciar DIDIT');
             console.error('   verification_url:', response.verification_url);
@@ -1059,6 +1062,9 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
       this.sessionId.set(response.session_id);
       this.startPolling();
       this.mostrarMensaje('Redirigiendo a verificación biométrica...', 'info');
+      
+      // Desactivar protección contra recarga antes de redirigir
+      this.deshabilitarProteccionRecarga();
       
       setTimeout(() => {
         window.location.href = response.verification_url;

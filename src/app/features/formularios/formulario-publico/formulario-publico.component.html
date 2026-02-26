@@ -7,11 +7,11 @@
           <!-- Header de la empresa -->
           <div class="empresa-header">
             <div class="empresa-logo-container">
-              @if (formulario()?.empresa?.logo || formulario()?.empresa_logo) {
+              @if (formulario()?.empresa_logo || formulario()?.empresa?.logo) {
                 <div class="empresa-logo-wrapper">
                   <img 
-                    [src]="getLogoUrl(formulario()?.empresa?.logo || formulario()?.empresa_logo)" 
-                    [alt]="(formulario()?.empresa?.nombre || formulario()?.empresa_nombre || 'Empresa')"
+                    [src]="getLogoUrl(formulario()?.empresa_logo || formulario()?.empresa?.logo)" 
+                    [alt]="(formulario()?.empresa_nombre || formulario()?.empresa?.nombre || 'Empresa')"
                     class="empresa-logo"
                     (error)="onLogoError($event)">
                 </div>
@@ -19,8 +19,8 @@
               <div class="escudo-container">
                 <i class="fas fa-shield-alt escudo-icon"></i>
                 <div class="empresa-info">
-                  <h2>{{ formulario()?.empresa?.nombre || formulario()?.empresa_nombre || 'Cargando...' }}</h2>
-                  <p class="mb-0">{{ formulario()?.empresa?.slogan || formulario()?.empresa_slogan || '' }}</p>
+                  <h2>{{ formulario()?.empresa_nombre || formulario()?.empresa?.nombre || 'Cargando...' }}</h2>
+                  <p class="mb-0">{{ formulario()?.empresa_slogan || formulario()?.empresa?.slogan || '' }}</p>
                 </div>
               </div>
             </div>
@@ -28,6 +28,23 @@
 
           <!-- Contenido del formulario -->
           <div class="p-3">
+            
+            <!-- Información del Formulario -->
+            @if (formulario()) {
+              <div class="formulario-info-card mb-4">
+                <div class="d-flex align-items-start">
+                  <div class="info-icon me-3">
+                    <i class="fas fa-clipboard-list"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h3 class="formulario-titulo mb-2">{{ formulario()!.nombre }}</h3>
+                    @if (formulario()!.descripcion) {
+                      <p class="formulario-descripcion mb-0">{{ formulario()!.descripcion }}</p>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
             
             <!-- Mensajes globales -->
             @if (mensajeVerificacion()) {
@@ -506,8 +523,8 @@
                         DOCUMENTOS DISPONIBLES
                       </h5>
                       
-                      <div class="row mt-3">
-                        <div class="col-md-6 mb-3">
+                      <div class="row mt-3 justify-content-center">
+                        <div class="col-md-8 col-lg-6 mb-3">
                           <div class="card border-primary h-100">
                             <div class="card-body text-center">
                               <i class="fas fa-file-pdf fa-3x text-primary mb-3"></i>
@@ -524,7 +541,8 @@
                           </div>
                         </div>
                         
-                        <div class="col-md-6 mb-3">
+                        <!-- Términos y Condiciones - OCULTO POR AHORA -->
+                        <!-- <div class="col-md-6 mb-3">
                           <div class="card border-info h-100">
                             <div class="card-body text-center">
                               <i class="fas fa-file-contract fa-3x text-info mb-3"></i>
@@ -539,7 +557,7 @@
                               </a>
                             </div>
                           </div>
-                        </div>
+                        </div> -->
                       </div>
 
                       @if (email()) {
