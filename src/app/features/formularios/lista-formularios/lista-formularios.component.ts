@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { PlatformLocation } from '@angular/common';
 import { FormulariosService } from '../formularios.service';
 import { DiditService } from '../../verificacion/didit/didit.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
@@ -60,7 +61,8 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
   constructor(
     private formulariosService: FormulariosService,
     private diditService: DiditService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private platformLocation: PlatformLocation
   ) {}
 
   ngOnInit(): void {
@@ -144,8 +146,10 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     }
     
     // Generar URL con query parameter (como en la maqueta original)
-    const url = `${window.location.origin}/formulario?token=${token}`;
-    console.log(' URL generada:', url);
+    // Usar getBaseHrefFromDOM() para obtener la base href correcta incluyendo subcarpetas
+    const baseHref = this.platformLocation.getBaseHrefFromDOM();
+    const url = `${window.location.origin}${baseHref}formulario?token=${token}`;
+    // console.log(' URL generada:', url);
     
     navigator.clipboard.writeText(url).then(() => {
       this.toastService.success('URL copiada al portapapeles');
