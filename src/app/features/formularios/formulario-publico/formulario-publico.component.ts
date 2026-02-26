@@ -416,8 +416,11 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
           // Datos encontrados en Registro Civil
           console.log('[OK] Datos encontrados en Registro Civil');
           
+          // CORREGIDO: Asignar TODOS los datos que vienen del Registro Civil
           this.nombre.set(response.nombre || '');
           this.apellido.set(response.apellido || '');
+          this.email.set(response.email || '');
+          this.telefono.set(response.telefono || '');
           
           estadoActual.clienteEncontrado = true;
           estadoActual.clienteExisteEnBD = false; // No existe en BD, se creará después
@@ -1222,6 +1225,14 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
 
   getLogoUrl(logoPath?: string): string | null {
     return this.config.getLogoUrl(logoPath || null);
+  }
+
+  onLogoError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (img) {
+      img.style.display = 'none';
+      console.log('[ERROR] No se pudo cargar el logo');
+    }
   }
 
   getPdfUrl(pdfPath: string): string | null {

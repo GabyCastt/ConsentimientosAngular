@@ -50,10 +50,10 @@
 }
 
 .empresa-logo-wrapper {
-  background: white;
-  padding: 10px;
+  background: transparent;
+  padding: 0;
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: none;
   flex-shrink: 0;
   z-index: 2; // Asegurar que esté por encima del fondo animado
   position: relative;
@@ -193,7 +193,7 @@
 .consentimiento-item {
   border: 2px solid #e9ecef;
   border-radius: 10px;
-  padding: 1.25rem;
+  padding: 1.5rem;
   margin-bottom: 1rem;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -216,13 +216,19 @@
     }
   }
 
+  .form-check {
+    padding-left: 0;
+    margin-right: 1rem !important;
+  }
+
   .form-check-input {
     width: 1.5rem;
     height: 1.5rem;
     cursor: pointer;
     border: 2px solid #042396;
-    margin-top: 0; // Alinear correctamente con el texto
-    flex-shrink: 0; // Evitar que se deforme
+    margin-top: 0.25rem;
+    margin-left: 0;
+    flex-shrink: 0;
 
     &:checked {
       background-color: #042396;
@@ -594,7 +600,7 @@
   }
 
   .empresa-logo-wrapper {
-    padding: 8px;
+    padding: 0;
   }
 
   .empresa-logo {
@@ -680,7 +686,7 @@
   }
 
   .empresa-logo-wrapper {
-    padding: 6px;
+    padding: 0;
   }
 
   .empresa-logo {
@@ -699,8 +705,9 @@
     }
 
     p {
-      font-size: 0.75rem;
-      display: none; // Ocultar slogan en pantallas muy pequeñas
+      font-size: 0.7rem;
+      line-height: 1.2;
+      margin-top: 0.25rem;
     }
   }
 

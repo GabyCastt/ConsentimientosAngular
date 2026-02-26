@@ -148,11 +148,13 @@ export class FormulariosService {
     );
   }
 
-  // 6. Buscar cliente por cédula
+  // 6. Buscar cliente por cédula en el contexto del formulario
   buscarClientePorCedula(token: string, cedula: string): Observable<BuscarClienteResponse> {
-    return this.api.get<BuscarClienteResponse>(
-      `${this.config.endpoints.formulariosPublico}/${token}/buscar-cliente/${cedula}`
+    const endpoint = this.config.buildEndpoint(
+      this.config.endpoints.formulariosPublicoBuscarCliente,
+      { token, cedula }
     );
+    return this.api.get<BuscarClienteResponse>(endpoint);
   }
 
   // 7. Auto-verificación y completado (Polling)

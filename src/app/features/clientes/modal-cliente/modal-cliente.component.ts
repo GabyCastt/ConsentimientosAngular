@@ -127,13 +127,17 @@ export class ModalClienteComponent implements OnInit {
   validate(): boolean {
     const errors: Record<string, string> = {};
 
-    // Validar cédula - exactamente 10 dígitos
-    if (!this.config.isValidCedula(this.formData.cedula)) {
-      errors['cedula'] = 'La cédula debe tener exactamente 10 dígitos';
+    // Validar cédula - exactamente 10 dígitos numéricos
+    const cedulaTrimmed = this.formData.cedula.trim();
+    if (!/^\d{10}$/.test(cedulaTrimmed)) {
+      errors['cedula'] = 'La cédula debe tener exactamente 10 dígitos numéricos';
+    } else if (!this.config.isValidCedula(cedulaTrimmed)) {
+      // Validación adicional del algoritmo de cédula ecuatoriana
+      errors['cedula'] = 'La cédula ingresada no es válida';
     }
 
     // Validar nombre - mínimo 2 caracteres
-    if (this.formData.nombre.length < 2) {
+    if (this.formData.nombre.trim().length < 2) {
       errors['nombre'] = 'El nombre debe tener al menos 2 caracteres';
     }
 
@@ -169,11 +173,11 @@ export class ModalClienteComponent implements OnInit {
     this.loading.set(true);
 
     const clienteData: CreateClienteDto = {
-      cedula: this.formData.cedula,
-      nombre: this.formData.nombre,
-      apellido: this.formData.apellido || undefined,
-      email: this.formData.email || undefined,
-      telefono: this.formData.telefono || undefined,
+      cedula: this.formData.cedula.trim(),
+      nombre: this.formData.nombre.trim(),
+      apellido: this.formData.apellido?.trim() || undefined,
+      email: this.formData.email?.trim() || undefined,
+      telefono: this.formData.telefono?.trim() || undefined,
       empresa_id: this.formData.empresa_id || undefined
     };
 
@@ -192,7 +196,20 @@ export class ModalClienteComponent implements OnInit {
       },
       error: (error) => {
         console.error(' Error guardando cliente:', error);
-        const errorMsg = error.error?.error || error.error?.message || 'Error al guardar cliente';
+        let errorMsg = 'Error al guardar cliente';
+        
+        // Manejar errores específicos
+        if (error.error?.error) {
+          errorMsg = error.error.error;
+          
+          // Mensaje específico para cliente duplicado
+          if (errorMsg.includes('Ya existe un cliente con esta cédula')) {
+            errorMsg = 'Ya existe un cliente con esta cédula en esta empresa';
+          }
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        }
+        
         this.errors.set({ general: errorMsg });
         this.loading.set(false);
       }

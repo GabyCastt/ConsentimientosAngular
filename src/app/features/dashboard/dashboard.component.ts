@@ -233,4 +233,13 @@ export class DashboardComponent implements OnInit {
     };
     return nombres[metodo] || metodo;
   }
+
+  getFormulariosCount(empresa: any): number {
+    // Intentar diferentes nombres de campos que el backend podría enviar
+    return empresa.total_formularios ?? 
+           empresa.formularios ?? 
+           empresa.total_forms ?? 
+           empresa.num_formularios ?? 
+           0;
+  }
 }

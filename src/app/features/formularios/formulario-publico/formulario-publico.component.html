@@ -11,8 +11,9 @@
                 <div class="empresa-logo-wrapper">
                   <img 
                     [src]="getLogoUrl(formulario()?.empresa?.logo || formulario()?.empresa_logo)" 
-                    [alt]="'Logo ' + (formulario()?.empresa?.nombre || formulario()?.empresa_nombre)"
-                    class="empresa-logo">
+                    [alt]="(formulario()?.empresa?.nombre || formulario()?.empresa_nombre || 'Empresa')"
+                    class="empresa-logo"
+                    (error)="onLogoError($event)">
                 </div>
               }
               <div class="escudo-container">

@@ -187,6 +187,10 @@
 }
 
 .form-check {
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+  
   .form-check-input {
     background: white;
     border: 1.5px solid #d1d5db;
@@ -194,6 +198,8 @@
     width: 1.125rem;
     height: 1.125rem;
     cursor: pointer;
+    margin: 0;
+    flex-shrink: 0;
 
     &:checked {
       background-color: #042396;
@@ -209,6 +215,7 @@
     cursor: pointer;
     user-select: none;
     margin-left: 0.5rem;
+    margin-bottom: 0;
     color: #4b5563;
     font-weight: 400;
     font-size: 0.875rem;

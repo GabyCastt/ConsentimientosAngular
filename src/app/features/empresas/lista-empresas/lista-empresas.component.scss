@@ -99,7 +99,7 @@
   margin: 0 auto 1rem;
   border-radius: 12px;
   overflow: hidden;
-  background: #f3f4f6;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +112,7 @@
     padding: 0.5rem;
     position: relative;
     z-index: 2;
-    background: #f3f4f6;
+    background: transparent;
     
     // Cuando la imagen se oculta por error, mostrar el placeholder
     &[style*="display: none"] {
