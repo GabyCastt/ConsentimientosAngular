@@ -686,26 +686,44 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
     const selected = this.consentimientosSeleccionados();
     const index = selected.indexOf(tipo);
     
-    console.log('[RELOAD] Toggle consentimiento:', tipo, 'Seleccionados actuales:', selected);
+    console.log('========== TOGGLE CONSENTIMIENTO ==========');
+    console.log('Tipo recibido:', tipo, 'Type:', typeof tipo);
+    console.log('Seleccionados actuales:', selected);
+    console.log('Index encontrado:', index);
+    console.log('Consentimientos formateados:', this.consentimientosFormateados().map(c => ({ id: c.id, tipo: typeof c.id })));
     
     if (index > -1) {
-      this.consentimientosSeleccionados.set(
-        selected.filter(t => t !== tipo)
-      );
+      const newSelected = selected.filter(t => t !== tipo);
+      console.log('Removiendo, nuevo array:', newSelected);
+      this.consentimientosSeleccionados.set(newSelected);
     } else {
-      this.consentimientosSeleccionados.set([...selected, tipo]);
+      const newSelected = [...selected, tipo];
+      console.log('Agregando, nuevo array:', newSelected);
+      this.consentimientosSeleccionados.set(newSelected);
     }
     
-    console.log('[OK] Consentimientos después del toggle:', this.consentimientosSeleccionados());
+    console.log('Consentimientos después del toggle:', this.consentimientosSeleccionados());
+    console.log('===========================================');
   }
 
   isConsentimientoSeleccionado(tipo: string): boolean {
     return this.consentimientosSeleccionados().includes(tipo);
   }
 
+  todosConsentimientosSeleccionados(): boolean {
+    const total = this.consentimientosFormateados().length;
+    const seleccionados = this.consentimientosSeleccionados().length;
+    return total > 0 && seleccionados === total;
+  }
+
   continuarConConsentimientos(): void {
-    if (this.consentimientosSeleccionados().length === 0) {
-      this.mostrarMensaje('Debes seleccionar al menos un consentimiento', 'error');
+    if (!this.todosConsentimientosSeleccionados()) {
+      const total = this.consentimientosFormateados().length;
+      const seleccionados = this.consentimientosSeleccionados().length;
+      this.mostrarMensaje(
+        `Debes aceptar TODOS los consentimientos para continuar (${seleccionados}/${total} seleccionados)`,
+        'error'
+      );
       return;
     }
 
@@ -1209,6 +1227,17 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
 
   verificarDatosFormulario(): boolean {
     const estadoActual = this.estado();
+    
+    // No mostrar alerta si está en proceso de verificación biométrica
+    if (estadoActual.verificacionBiometrica) {
+      return false;
+    }
+    
+    // No mostrar alerta si ya completó el proceso
+    if (estadoActual.consentimientosCompletados) {
+      return false;
+    }
+    
     return !!(
       this.cedula() ||
       this.nombre() ||

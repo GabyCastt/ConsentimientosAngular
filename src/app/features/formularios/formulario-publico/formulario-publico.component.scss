@@ -231,14 +231,7 @@
   padding: 1.5rem;
   margin-bottom: 1rem;
   transition: all 0.3s ease;
-  cursor: pointer;
   background: white;
-
-  &:hover {
-    border-color: #042396;
-    box-shadow: 0 4px 12px rgba(4, 35, 150, 0.15);
-    transform: translateY(-2px);
-  }
 
   &.selected {
     border-color: #042396;
@@ -269,13 +262,38 @@
       background-color: #042396;
       border-color: #042396;
     }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
   }
 
   label {
-    cursor: pointer;
     margin: 0;
     font-size: 1.1rem;
     color: #042396;
+  }
+}
+
+// Estilo para formulario bloqueado
+.seccion {
+  &.formulario-bloqueado {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      pointer-events: none;
+    }
   }
 }
 
@@ -730,55 +748,105 @@
   }
 
   .escudo-icon {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
   }
 
   .empresa-info {
     h2 {
-      font-size: 1rem;
+      font-size: 0.9rem;
       line-height: 1.2;
     }
 
     p {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       line-height: 1.2;
       margin-top: 0.25rem;
     }
   }
 
   .formulario-info-card {
-    padding: 1rem;
+    padding: 0.75rem;
 
     .info-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
+      width: 35px;
+      height: 35px;
+      font-size: 1rem;
     }
 
     .formulario-titulo {
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
 
     .formulario-descripcion {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  .seccion {
+    h4 {
+      font-size: 1rem;
+    }
+
+    p {
+      font-size: 0.875rem;
     }
   }
 
   .cedula-input {
-    font-size: 1.1rem;
+    font-size: 1rem;
     letter-spacing: 1px;
+    padding: 0.5rem;
   }
 
   .consentimiento-item {
-    padding: 1rem;
+    padding: 0.75rem;
 
     label {
-      font-size: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .form-check-input {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    p, small {
+      font-size: 0.8rem;
     }
   }
 
+  .btn {
+    font-size: 0.8rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
   .btn-lg {
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
+    padding: 0.65rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
+
+  .codigo-input {
+    font-size: 1.3rem;
+    letter-spacing: 2px;
+  }
+
+  .begroup-brand {
+    font-size: 1.3rem;
+  }
+
+  .social-links a {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+
+  // Ajustes adicionales para textos en alertas y mensajes
+  .alert {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+  }
+
+  h5, h6 {
+    font-size: 0.95rem;
   }
 }

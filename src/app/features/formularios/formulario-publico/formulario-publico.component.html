@@ -63,7 +63,9 @@
             }
 
             <!-- Sección 1: Búsqueda por Cédula -->
-            <div class="seccion seccion-activa" id="seccion-busqueda">
+            <div class="seccion seccion-activa" 
+                 [class.formulario-bloqueado]="estado().consentimientosCompletados"
+                 id="seccion-busqueda">
               <h4>
                 <i class="fas fa-search text-primary me-2"></i>
                 BUSCAR POR CÉDULA
@@ -81,6 +83,7 @@
                     (input)="onCedulaInput($event)"
                     placeholder="1234567890"
                     maxlength="10"
+                    [disabled]="estado().consentimientosCompletados"
                     (keypress)="onCedulaKeypress($event)">
                   <small class="text-muted">Solo números, exactamente 10 dígitos</small>
                 </div>
@@ -89,7 +92,7 @@
                     type="button"
                     class="btn btn-primary btn-lg w-100"
                     (click)="buscarPorCedula()"
-                    [disabled]="loading() || cedula().length !== 10">
+                    [disabled]="loading() || cedula().length !== 10 || estado().consentimientosCompletados">
                     <i class="fas fa-search me-1"></i>
                     Buscar
                   </button>
@@ -101,6 +104,7 @@
                   <button 
                     type="button"
                     class="btn btn-outline-secondary"
+                    [disabled]="estado().consentimientosCompletados"
                     (click)="buscarOtraCedula()">
                     <i class="fas fa-redo me-1"></i>
                     Buscar otra cédula
@@ -134,7 +138,9 @@
 
             <!-- Sección 2: Datos Personales -->
             @if (estado().cedula && estado().cedula.length === 10 && !estado().yaCompletado) {
-              <div class="seccion seccion-activa" id="seccion-datos">
+              <div class="seccion seccion-activa" 
+                   [class.formulario-bloqueado]="estado().consentimientosCompletados"
+                   id="seccion-datos">
                 <h4>
                   <i class="fas fa-user text-primary me-2"></i>
                   DATOS PERSONALES
@@ -165,6 +171,7 @@
                           [value]="nombre()"
                           (input)="nombre.set($any($event.target).value); validarDatosPersonales()"
                           name="nombre"
+                          [disabled]="estado().consentimientosCompletados"
                           required>
                       </div>
                     </div>
@@ -177,6 +184,7 @@
                           [value]="apellido()"
                           (input)="apellido.set($any($event.target).value); validarDatosPersonales()"
                           name="apellido"
+                          [disabled]="estado().consentimientosCompletados"
                           required>
                       </div>
                     </div>
@@ -196,6 +204,7 @@
                           [value]="email()"
                           (input)="onEmailInput($event)"
                           name="email"
+                          [disabled]="estado().consentimientosCompletados"
                           placeholder="ejemplo@correo.com">
                         @if (email() && !validarEmail(email())) {
                           <div class="invalid-feedback">
@@ -226,6 +235,7 @@
                           [value]="telefono()"
                           (input)="onTelefonoInput($event)"
                           name="telefono"
+                          [disabled]="estado().consentimientosCompletados"
                           placeholder="0987654321">
                         @if (telefono() && !validarTelefono(telefono())) {
                           <div class="invalid-feedback">
@@ -252,33 +262,41 @@
 
             <!-- Sección 3: Consentimientos -->
             @if (estado().datosPersonalesCompletos && !estado().yaCompletado) {
-              <div class="seccion seccion-activa" id="seccion-consentimientos">
+              <div class="seccion seccion-activa" 
+                   [class.formulario-bloqueado]="estado().consentimientosCompletados"
+                   id="seccion-consentimientos">
                 <h4>
                   <i class="fas fa-file-contract text-primary me-2"></i>
                   CONSENTIMIENTOS A AUTORIZAR
                 </h4>
-                <p class="text-muted mb-4">
-                  Selecciona los consentimientos que deseas otorgar:
+                <p class="text-muted mb-3">
+                  Lee y acepta todos los consentimientos para continuar:
                 </p>
+
+                <!-- <div class="alert alert-warning mb-3">
+                  <i class="fas fa-exclamation-circle me-2"></i>
+                  <strong>Importante:</strong> Debes aceptar TODOS los consentimientos para continuar con la verificación.
+                </div> -->
 
                 <div class="consentimientos-lista">
                   @for (consentimiento of consentimientosFormateados(); track consentimiento.id) {
                     <div 
                       class="consentimiento-item"
-                      [class.selected]="isConsentimientoSeleccionado(consentimiento.id.toString())"
-                      (click)="toggleConsentimiento(consentimiento.id.toString())">
+                      [class.selected]="isConsentimientoSeleccionado(consentimiento.id + '')">
                       <div class="d-flex align-items-start">
                         <div class="form-check me-3">
                           <input 
                             class="form-check-input"
                             type="checkbox"
-                            [checked]="isConsentimientoSeleccionado(consentimiento.id.toString())"
-                            (click)="$event.stopPropagation()">
+                            [checked]="isConsentimientoSeleccionado(consentimiento.id + '')"
+                            [id]="'consent-' + consentimiento.id"
+                            [disabled]="estado().consentimientosCompletados"
+                            (change)="toggleConsentimiento(consentimiento.id + '')">
                         </div>
                         <div class="flex-grow-1">
                           <div class="d-flex align-items-center mb-2">
                             <i class="fas fa-shield-alt text-primary me-2"></i>
-                            <label class="form-check-label fw-bold">
+                            <label class="form-check-label fw-bold" [for]="'consent-' + consentimiento.id">
                               {{ consentimiento.tipo }}
                             </label>
                           </div>
@@ -314,9 +332,14 @@
                     type="button"
                     class="btn btn-success btn-lg"
                     (click)="continuarConConsentimientos()"
-                    [disabled]="consentimientosSeleccionados().length === 0">
+                    [disabled]="!todosConsentimientosSeleccionados()">
                     <i class="fas fa-arrow-right me-2"></i>
                     CONTINUAR CON CONSENTIMIENTOS
+                    @if (!todosConsentimientosSeleccionados()) {
+                      <span class="d-block small mt-1">
+                        ({{ consentimientosSeleccionados().length }} de {{ consentimientosFormateados().length }} seleccionados)
+                      </span>
+                    }
                   </button>
                 </div>
               </div>

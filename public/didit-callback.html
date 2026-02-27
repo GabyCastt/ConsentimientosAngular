@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación Completada - ConsentPro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #042396 0%, #0d47a1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo {
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 60px;
+            color: #042396;
+        }
+
+        .status-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+
+        .status-icon.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .status-icon.error {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .status-icon.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 15px;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin: 20px 0;
+        }
+
+        .status-badge.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+
+        .status-badge.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 2px solid #ef4444;
+        }
+
+        .status-badge.info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 2px solid #3b82f6;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .info-card h3 {
+            color: #042396;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-card li {
+            padding: 12px 0;
+            color: #4b5563;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid #d1d5db;
+        }
+
+        .info-card li:last-child {
+            border-bottom: none;
+        }
+
+        .info-card li i {
+            color: #10b981;
+            margin-top: 3px;
+            font-size: 1.1rem;
+        }
+
+        .document-box {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .document-box:hover {
+            border-color: #042396;
+            box-shadow: 0 4px 12px rgba(4, 35, 150, 0.1);
+        }
+
+        .document-box i {
+            font-size: 2.5rem;
+            color: #042396;
+        }
+
+        .document-box .doc-info {
+            text-align: left;
+            flex: 1;
+        }
+
+        .document-box .doc-info strong {
+            display: block;
+            color: #1a1a1a;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .document-box .doc-info small {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .alert-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .alert-box.success {
+            background: #d1fae5;
+            border-left-color: #10b981;
+        }
+
+        .alert-box.warning {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+
+        .alert-box strong {
+            display: block;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+
+        .alert-box p {
+            color: #4b5563;
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #042396 0%, #0d47a1 100%);
+            color: white;
+            padding: 16px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(4, 35, 150, 0.3);
+        }
+
+        .btn i {
+            font-size: 1.2rem;
+        }
+
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .status-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 40px;
+            }
+
+            .document-box {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .document-box .doc-info {
+                text-align: center;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+
+        <!-- Estado de éxito -->
+        <div id="success-state" style="display: none;">
+            <div class="status-icon success">
+                <i class="fas fa-check"></i>
+            </div>
+            
+            <h1>Verificación Completada Exitosamente</h1>
+            <p class="subtitle">Tu identidad ha sido verificada y tus consentimientos han sido autorizados correctamente.</p>
+            
+            <div class="status-badge success">
+                <i class="fas fa-check-circle"></i> Verificación Biométrica Aprobada
+            </div>
+
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-clipboard-check"></i>
+                    Proceso Completado
+                </h3>
+                <ul>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Verificación biométrica procesada exitosamente</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Consentimientos autorizados automáticamente</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Certificados generados y enviados por email</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-check"></i>
+                        <span>Proceso completado al 100%</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="document-box">
+                <i class="fas fa-file-certificate"></i>
+                <div class="doc-info">
+                    <strong>Certificado de Consentimientos</strong>
+                    <small>Documento oficial con todos los consentimientos autorizados</small>
+                </div>
+            </div>
+
+            <div class="alert-box success">
+                <strong><i class="fas fa-envelope"></i> Documentos Enviados</strong>
+                <p>Recibirás los certificados en tu correo electrónico en los próximos minutos. Revisa tu bandeja de entrada y carpeta de spam.</p>
+            </div>
+
+            <button class="btn" onclick="cerrarVentana()">
+                <i class="fas fa-times"></i>
+                Cerrar Ventana
+            </button>
+
+            <div class="footer">
+                <i class="fas fa-shield-alt"></i> ConsentPro - Sistema Seguro de Gestión de Consentimientos
+            </div>
+        </div>
+
+        <!-- Estado de error -->
+        <div id="error-state" style="display: none;">
+            <div class="status-icon error">
+                <i class="fas fa-times"></i>
+            </div>
+            
+            <h1>Verificación No Completada</h1>
+            <p class="subtitle">La verificación biométrica no pudo completarse exitosamente.</p>
+            
+            <div class="status-badge error">
+                <i class="fas fa-exclamation-circle"></i> Verificación Rechazada
+            </div>
+
+            <div class="alert-box warning">
+                <strong><i class="fas fa-info-circle"></i> No te preocupes</strong>
+                <p>Puedes intentar nuevamente o usar otro método de verificación disponible.</p>
+            </div>
+
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-lightbulb"></i>
+                    Recomendaciones
+                </h3>
+                <ul>
+                    <li>
+                        <i class="fas fa-sun"></i>
+                        <span>Usa buena iluminación natural o artificial</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-camera"></i>
+                        <span>Mantén la cámara estable y enfocada</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-user"></i>
+                        <span>Asegúrate de que tu rostro esté completamente visible</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-id-card"></i>
+                        <span>Ten tu documento de identidad listo y legible</span>
+                    </li>
+                </ul>
+            </div>
+
+            <button class="btn" onclick="cerrarVentana()">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Intentar
+            </button>
+
+            <div class="footer">
+                <i class="fas fa-shield-alt"></i> ConsentPro - Sistema Seguro de Gestión de Consentimientos
+            </div>
+        </div>
+
+        <!-- Estado por defecto -->
+        <div id="default-state">
+            <div class="status-icon info">
+                <i class="fas fa-info"></i>
+            </div>
+            
+            <h1>Proceso de Verificación Finalizado</h1>
+            <p class="subtitle">El proceso de verificación biométrica ha concluido.</p>
+            
+            <div class="status-badge info">
+                <i class="fas fa-check-circle"></i> Proceso Completado
+            </div>
+
+            <div class="info-card">
+                <h3>
+                    <i class="fas fa-list-check"></i>
+                    Próximos Pasos
+                </h3>
+                <ul>
+                    <li>
+                        <i class="fas fa-times"></i>
+                        <span>Cierra esta ventana</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>Revisa tu correo electrónico en los próximos minutos</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-file-pdf"></i>
+                        <span>Recibirás los documentos de respaldo de tus consentimientos</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="alert-box">
+                <strong><i class="fas fa-envelope-open-text"></i> Documentos por Email</strong>
+                <p>Si no recibes los documentos en 10 minutos, revisa tu carpeta de spam o contacta a soporte.</p>
+            </div>
+
+            <button class="btn" onclick="cerrarVentana()">
+                <i class="fas fa-times"></i>
+                Cerrar Ventana
+            </button>
+
+            <div class="footer">
+                <i class="fas fa-shield-alt"></i> ConsentPro - Sistema Seguro de Gestión de Consentimientos
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                token: params.get('token'),
+                status: params.get('status'),
+                verificationSessionId: params.get('verificationSessionId'),
+                from: params.get('from'),
+                verified: params.get('verified'),
+                session_id: params.get('session_id'),
+                error: params.get('error')
+            };
+        }
+
+        function showStatus(status) {
+            document.getElementById('success-state').style.display = 'none';
+            document.getElementById('error-state').style.display = 'none';
+            document.getElementById('default-state').style.display = 'none';
+            document.getElementById(status + '-state').style.display = 'block';
+        }
+
+        function cerrarVentana() {
+            if (window.opener) {
+                window.close();
+            } else {
+                window.history.back();
+            }
+            
+            setTimeout(() => {
+                alert('Por favor, regresa manualmente a la pestaña del formulario para continuar.');
+            }, 500);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = getUrlParams();
+            
+            if (params.from === 'didit') {
+                const statusLower = String(params.status || '').toLowerCase();
+                if (statusLower === 'approved' || statusLower === 'success') {
+                    showStatus('success');
+                } else if (statusLower === 'rejected' || statusLower === 'failed' || statusLower === 'error') {
+                    showStatus('error');
+                } else {
+                    showStatus('default');
+                }
+            } else {
+                showStatus('default');
+            }
+        });
+
+        setTimeout(() => {
+            const shouldAutoClose = confirm('¿Deseas cerrar esta ventana automáticamente?\n\nRecuerda regresar al formulario original para continuar con el proceso.');
+            if (shouldAutoClose) {
+                cerrarVentana();
+            }
+        }, 120000);
+    </script>
+</body>
+</html>
