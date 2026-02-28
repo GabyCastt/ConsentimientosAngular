@@ -63,6 +63,7 @@
             <thead>
               <tr>
                 <th>Cliente</th>
+                <th>Empresa</th>
                 <th>Contacto</th>
                 <th>Consentimientos</th>
                 <th>Estado</th>
@@ -76,6 +77,12 @@
                     <strong>{{ cliente.nombre }}</strong>
                     <br>
                     <small class="text-muted">CI: {{ cliente.cedula }}</small>
+                  </td>
+                  <td>
+                    <div class="empresa-badge">
+                      <i class="fas fa-building me-1 text-primary"></i>
+                      <span class="text-muted">{{ cliente.empresa_nombre || '-' }}</span>
+                    </div>
                   </td>
                   <td>
                     <div>

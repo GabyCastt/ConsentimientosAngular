@@ -112,6 +112,21 @@
   gap: 0.4rem;
 }
 
+// Badge de empresa
+.empresa-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.85rem;
+  
+  i {
+    font-size: 0.9rem;
+  }
+  
+  span {
+    font-weight: 500;
+  }
+}
+
 .badge-tipo {
   display: inline-flex;
   align-items: center;

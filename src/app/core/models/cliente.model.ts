@@ -6,6 +6,7 @@ export interface Cliente {
   email?: string;
   telefono?: string;
   empresa_id: number;
+  empresa_nombre?: string; // Nombre de la empresa (viene del backend)
   created_at: string;
   updated_at?: string;
   

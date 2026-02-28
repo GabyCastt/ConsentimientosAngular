@@ -19,6 +19,8 @@ interface Formulario {
   token?: string;  // Puede ser opcional (alias)
   enlace_publico?: string;  // Nombre alternativo
   url_publica?: string;  // Otro nombre alternativo
+  empresa_id: number;
+  empresa_nombre?: string; // Nombre de la empresa
   estadisticas?: {
     total_respuestas: number;
     completadas: number;
