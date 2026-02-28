@@ -742,12 +742,17 @@ export class FormularioPublicoComponent implements OnInit, OnDestroy {
 
     // Preparar datos para el registro
     // El backend automáticamente crea/actualiza el cliente
+    // IMPORTANTE: Solo enviar email/teléfono si tienen valores válidos
+    // para evitar borrar datos existentes del cliente
+    const emailValido = this.email() && this.validarEmail(this.email()) ? this.email() : undefined;
+    const telefonoValido = this.telefono() && this.validarTelefono(this.telefono()) ? this.telefono() : undefined;
+    
     const datos: DatosUsuario = {
       cedula: this.cedula(),
       nombre: this.nombre(),
       apellido: this.apellido(),
-      email: this.email() || undefined,
-      telefono: this.telefono() || undefined,
+      email: emailValido,
+      telefono: telefonoValido,
       consentimientos_seleccionados: this.consentimientosSeleccionados().map(id => parseInt(id))
     };
 

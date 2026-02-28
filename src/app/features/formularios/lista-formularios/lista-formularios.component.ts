@@ -19,7 +19,12 @@ interface Formulario {
   token?: string;  // Puede ser opcional (alias)
   enlace_publico?: string;  // Nombre alternativo
   url_publica?: string;  // Otro nombre alternativo
-  respuestas_count: number;
+  estadisticas?: {
+    total_respuestas: number;
+    completadas: number;
+    pendientes: number;
+  };
+  respuestas_count?: number; // Alias calculado para compatibilidad
   created_at: string;
   clientes_didit_pendientes?: number;
 }
@@ -97,9 +102,11 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
         const formularios = response.formularios || response || [];
         
         // Normalizar el campo activo: convertir 0/1 a false/true
+        // Y agregar respuestas_count desde estadisticas.total_respuestas
         const formulariosNormalizados = formularios.map((f: any) => ({
           ...f,
-          activo: Boolean(f.activo) // Convierte 0 a false, 1 a true
+          activo: Boolean(f.activo), // Convierte 0 a false, 1 a true
+          respuestas_count: f.estadisticas?.total_respuestas || 0 // Agregar alias para compatibilidad
         }));
         
         // Log detallado del primer formulario para debug
@@ -107,6 +114,7 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
           console.log('[SEARCH] Primer formulario (estructura):', formulariosNormalizados[0]);
           console.log('[TOKEN] Token del primer formulario:', formulariosNormalizados[0].token_publico || 'NO ENCONTRADO');
           console.log('[ACTIVO] Estado activo:', formulariosNormalizados[0].activo, '(tipo:', typeof formulariosNormalizados[0].activo, ')');
+          console.log('[RESPUESTAS] Total respuestas:', formulariosNormalizados[0].respuestas_count);
         }
         
         this.formularios.set(formulariosNormalizados);

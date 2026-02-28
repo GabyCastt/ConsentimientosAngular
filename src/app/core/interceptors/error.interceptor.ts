@@ -62,6 +62,28 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           }
           break;
 
+        case 400:
+          // Error de validación o datos incorrectos
+          console.error(' Error 400: Solicitud incorrecta');
+          console.error('URL:', error.url);
+          console.error('Detalles:', error.error);
+          
+          // Mostrar mensaje específico del backend si existe
+          if (error.error?.error) {
+            const errorMsg = error.error.error;
+            
+            // Mensajes específicos para errores comunes
+            if (errorMsg.includes('email') && errorMsg.includes('registrado')) {
+              alert('El email ya está registrado en el sistema. Por favor, usa otro email.');
+            } else if (errorMsg.includes('cédula') && errorMsg.includes('registrado')) {
+              alert('La cédula ya está registrada en el sistema.');
+            } else {
+              // Mostrar el mensaje del backend tal cual
+              alert(errorMsg);
+            }
+          }
+          break;
+
         case 0:
           // Error de red
           console.error(' Error de red: No se puede conectar al servidor');

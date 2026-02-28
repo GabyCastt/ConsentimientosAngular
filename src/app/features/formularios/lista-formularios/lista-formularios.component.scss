@@ -211,9 +211,32 @@
 }
 
 .btn-group-sm {
+  display: inline-flex;
+  justify-content: center;
+  
   .btn {
     padding: 0.25rem 0.5rem;
     font-size: 0.875rem;
+  }
+}
+
+// Centrado de columnas específicas
+.text-center {
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+// Asegurar que los botones de acción estén centrados
+td.text-center {
+  .btn-group {
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 

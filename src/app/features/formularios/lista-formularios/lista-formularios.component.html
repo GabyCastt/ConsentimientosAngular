@@ -45,11 +45,11 @@
                 <th>Descripción</th>
                 <th>Tipos</th>
                 <th>Verificación</th>
-                <th>Respuestas</th>
-                <th>DIDIT Pendientes</th>
-                <th>Estado</th>
-                <th>URL Pública</th>
-                <th>Acciones</th>
+                <th class="text-center">Respuestas</th>
+                <!--<th>DIDIT Pendientes</th>-->
+                <th class="text-center">URL Pública</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -115,7 +115,7 @@
                   <td class="text-center">
                     <span class="badge bg-success">{{ formulario.respuestas_count }}</span>
                   </td>
-                  <td class="text-center">
+                  <!--<td class="text-center">
                     @if (formulario.clientes_didit_pendientes && formulario.clientes_didit_pendientes > 0) {
                       <button 
                         class="btn btn-sm btn-warning"
@@ -127,8 +127,16 @@
                     } @else {
                       <span class="text-muted">-</span>
                     }
+                  </td>-->
+                  <td class="text-center">
+                    <button 
+                      class="btn btn-sm btn-outline-primary"
+                      (click)="copiarUrl(getFormularioToken(formulario))"
+                      title="Copiar URL">
+                      <i class="fas fa-copy"></i>
+                    </button>
                   </td>
-                  <td>
+                  <td class="text-center">
                     @if (formulario.activo) {
                       <span class="badge bg-success">
                         <i class="fas fa-check-circle me-1"></i>Activo
@@ -139,16 +147,8 @@
                       </span>
                     }
                   </td>
-                  <td>
-                    <button 
-                      class="btn btn-sm btn-outline-primary"
-                      (click)="copiarUrl(getFormularioToken(formulario))"
-                      title="Copiar URL">
-                      <i class="fas fa-copy"></i>
-                    </button>
-                  </td>
-                  <td>
-                    <div class="btn-group btn-group-sm">
+                  <td class="text-center">
+                    <div class="btn-group btn-group-sm" role="group">
                       <button 
                         class="btn btn-outline-primary"
                         (click)="verRespuestas(formulario)"
