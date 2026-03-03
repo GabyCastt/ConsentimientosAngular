@@ -5,6 +5,7 @@ import { FormulariosService } from '../formularios.service';
 import { DiditService } from '../../verificacion/didit/didit.service';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ModalFormularioComponent } from '../modal-formulario/modal-formulario.component';
 import { ModalRespuestasComponent } from '../modal-respuestas/modal-respuestas.component';
 
@@ -69,13 +70,19 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     private formulariosService: FormulariosService,
     private diditService: DiditService,
     private toastService: ToastService,
-    private platformLocation: PlatformLocation
+    private platformLocation: PlatformLocation,
+    private authService: AuthService
   ) {
     // Restaurar preferencia de mostrar inactivos desde localStorage
     const savedPreference = localStorage.getItem('mostrarFormulariosInactivos');
     if (savedPreference === 'true') {
       this.mostrarInactivos.set(true);
     }
+  }
+
+  // Verificar si es admin
+  get isAdmin(): boolean {
+    return this.authService.currentUser()?.rol === 'admin';
   }
 
   ngOnInit(): void {

@@ -107,9 +107,57 @@
 
 // Badges de tipos de consentimientos
 .tipos-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.badge-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.15);
+  }
+
+  i {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  &[data-tipo="datos_personales"] {
+    i {
+      color: #007bff;
+    }
+  }
+
+  &[data-tipo="imagen"] {
+    i {
+      color: #6f42c1;
+    }
+  }
+
+  &[data-tipo="marketing"] {
+    i {
+      color: #fd7e14;
+    }
+  }
+
+  &[data-tipo="terceros"] {
+    i {
+      color: #20c997;
+    }
+  }
 }
 
 // Badge de empresa
@@ -124,49 +172,6 @@
   
   span {
     font-weight: 500;
-  }
-}
-
-.badge-tipo {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-  color: white;
-  border: none;
-  box-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(23, 162, 184, 0.4);
-  }
-
-  i {
-    font-size: 0.85rem;
-  }
-
-  &[data-tipo="datos_personales"] {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
-  }
-
-  &[data-tipo="imagen"] {
-    background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
-    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
-  }
-
-  &[data-tipo="marketing"] {
-    background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
-    box-shadow: 0 2px 4px rgba(253, 126, 20, 0.3);
-  }
-
-  &[data-tipo="terceros"] {
-    background: linear-gradient(135deg, #20c997 0%, #17a589 100%);
-    box-shadow: 0 2px 4px rgba(32, 201, 151, 0.3);
   }
 }
 
@@ -355,13 +360,13 @@ td.text-center {
   }
 
   .tipos-badges {
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 0.25rem;
   }
 
   .badge-tipo {
-    font-size: 0.7rem;
-    padding: 0.35rem 0.65rem;
+    i {
+      font-size: 0.9rem;
+    }
   }
 
   .badge-verificacion {

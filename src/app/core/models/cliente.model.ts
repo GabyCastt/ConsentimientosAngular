@@ -16,9 +16,11 @@ export interface Cliente {
   tiene_autorizaciones?: boolean;
 }
 
-export interface ClienteDetalle extends Cliente {
+export interface ClienteDetalle {
+  cliente: Cliente;
   formularios_autorizados?: FormularioCliente[];
   consentimientos_consolidados?: string[];
+  consentimientos_manuales?: any[];
   estadisticas?: {
     total_formularios: number;
     total_consentimientos_manuales: number;

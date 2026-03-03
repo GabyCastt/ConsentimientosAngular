@@ -61,4 +61,13 @@ export class ApiService {
       { headers: this.getHeaders() }
     );
   }
+
+  patch<T>(endpoint: string, data: any): Observable<T> {
+    const isFormData = data instanceof FormData;
+    return this.http.patch<T>(
+      this.config.getApiUrl(endpoint),
+      data,
+      { headers: this.getHeaders(isFormData) }
+    );
+  }
 }

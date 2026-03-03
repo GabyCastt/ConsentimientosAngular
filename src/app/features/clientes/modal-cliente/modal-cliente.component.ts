@@ -6,6 +6,8 @@ import { Cliente, CreateClienteDto } from '../../../core/models/cliente.model';
 import { ConfigService } from '../../../core/services/config.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ApiService } from '../../../core/services/api.service';
+import { AlertService } from '../../../shared/services/alert.service';
+import { ToastService } from '../../../shared/services/toast.service';
 
 interface Empresa {
   id: number;
@@ -53,7 +55,9 @@ export class ModalClienteComponent implements OnInit {
     private clientesService: ClientesService,
     private config: ConfigService,
     private auth: AuthService,
-    private api: ApiService
+    private api: ApiService,
+    private alertService: AlertService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -172,13 +176,19 @@ export class ModalClienteComponent implements OnInit {
 
     this.loading.set(true);
 
+    // Obtener empresa_id del usuario si no es admin
+    let empresaId = this.formData.empresa_id;
+    if (!this.isAdmin()) {
+      empresaId = this.auth.currentUser()?.empresa_id || null;
+    }
+
     const clienteData: CreateClienteDto = {
       cedula: this.formData.cedula.trim(),
       nombre: this.formData.nombre.trim(),
       apellido: this.formData.apellido?.trim() || undefined,
       email: this.formData.email?.trim() || undefined,
       telefono: this.formData.telefono?.trim() || undefined,
-      empresa_id: this.formData.empresa_id || undefined
+      empresa_id: empresaId || undefined
     };
 
     console.log(' Guardando cliente:', clienteData);
@@ -188,8 +198,27 @@ export class ModalClienteComponent implements OnInit {
       : this.clientesService.createCliente(clienteData);
 
     request.subscribe({
-      next: () => {
-        console.log(' Cliente guardado exitosamente');
+      next: (response: any) => {
+        console.log(' Cliente guardado exitosamente:', response);
+        
+        // La respuesta puede venir en diferentes formatos
+        const clienteData = response.cliente || response;
+        
+        // Construir mensaje de éxito
+        const accion = this.isEditMode() ? 'actualizado' : 'creado';
+        let mensaje = `Cliente ${accion} exitosamente\n\n`;
+        mensaje += `Nombre: ${clienteData.nombre}\n`;
+        mensaje += `Cédula: ${clienteData.cedula}\n`;
+        if (clienteData.email) mensaje += `Email: ${clienteData.email}\n`;
+        if (clienteData.telefono) mensaje += `Teléfono: ${clienteData.telefono}\n`;
+        if (clienteData.empresa_nombre) mensaje += `Empresa: ${clienteData.empresa_nombre}`;
+        
+        this.toastService.success(`Cliente ${accion} correctamente`);
+        this.alertService.success(
+          `✓ Cliente ${accion}`,
+          mensaje
+        );
+        
         this.clienteSaved.emit();
         this.close();
         this.loading.set(false);
@@ -210,6 +239,8 @@ export class ModalClienteComponent implements OnInit {
           errorMsg = error.error.message;
         }
         
+        this.toastService.error(errorMsg);
+        this.alertService.error('Error al guardar', errorMsg);
         this.errors.set({ general: errorMsg });
         this.loading.set(false);
       }

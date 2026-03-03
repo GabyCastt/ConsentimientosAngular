@@ -81,4 +81,11 @@ export class ClientesService {
     );
     return this.api.get<any>(endpoint);
   }
+
+  updateContacto(id: number, contacto: { email?: string; telefono?: string }): Observable<any> {
+    return this.api.patch<any>(
+      `${this.config.endpoints.clientes}/${id}/contacto`,
+      contacto
+    );
+  }
 }

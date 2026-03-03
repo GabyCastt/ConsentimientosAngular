@@ -22,21 +22,78 @@
                 <div class="col-8">
                   <h5 class="mb-1">
                     <i class="fas fa-user me-1 text-primary"></i>
-                    {{ cliente()!.nombre }}
+                    {{ cliente()!.cliente.nombre }}
                   </h5>
-                  <div class="row">
-                    <div class="col-6">
-                      <small><strong>CI:</strong> {{ cliente()!.cedula }}</small>
+                  
+                  @if (!editandoContacto()) {
+                    <div class="row">
+                      <div class="col-6">
+                        <small><strong>CI:</strong> {{ cliente()!.cliente.cedula }}</small>
+                      </div>
+                      <div class="col-6">
+                        <small><strong>Tel:</strong> {{ cliente()!.cliente.telefono || '-' }}</small>
+                      </div>
                     </div>
-                    <div class="col-6">
-                      <small><strong>Tel:</strong> {{ cliente()!.telefono || '-' }}</small>
+                    <div class="row">
+                      <div class="col-12">
+                        <small><strong>Email:</strong> {{ cliente()!.cliente.email || '-' }}</small>
+                      </div>
                     </div>
-                  </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <small><strong>Email:</strong> {{ cliente()!.email || '-' }}</small>
+                    <button 
+                      class="btn btn-sm btn-outline-primary mt-2"
+                      (click)="iniciarEdicionContacto()"
+                      title="Editar contacto">
+                      <i class="fas fa-edit me-1"></i>Editar Contacto
+                    </button>
+                  } @else {
+                    <!-- Formulario de edición -->
+                    <div class="edit-contacto-form mt-2">
+                      <div class="row">
+                        <div class="col-12 mb-2">
+                          <small><strong>CI:</strong> {{ cliente()!.cliente.cedula }}</small>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-12 mb-2">
+                          <label class="form-label-sm">Email:</label>
+                          <input 
+                            type="email" 
+                            class="form-control form-control-sm"
+                            [(ngModel)]="emailEdit"
+                            placeholder="correo@ejemplo.com">
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-12 mb-2">
+                          <label class="form-label-sm">Teléfono:</label>
+                          <input 
+                            type="tel" 
+                            class="form-control form-control-sm"
+                            [(ngModel)]="telefonoEdit"
+                            (input)="onTelefonoInput()"
+                            (keypress)="onTelefonoKeypress($event)"
+                            maxlength="10"
+                            placeholder="0987654321"
+                            pattern="[0-9]{10}">
+                          <small class="text-muted">Solo 10 dígitos numéricos</small>
+                        </div>
+                      </div>
+                      <div class="btn-group btn-group-sm mt-1">
+                        <button 
+                          class="btn btn-success"
+                          (click)="guardarContacto()"
+                          [disabled]="loading()">
+                          <i class="fas fa-save me-1"></i>Guardar
+                        </button>
+                        <button 
+                          class="btn btn-secondary"
+                          (click)="cancelarEdicionContacto()"
+                          [disabled]="loading()">
+                          <i class="fas fa-times me-1"></i>Cancelar
+                        </button>
+                      </div>
                     </div>
-                  </div>
+                  }
                 </div>
                 <div class="col-4">
                   <div class="stats-compact">

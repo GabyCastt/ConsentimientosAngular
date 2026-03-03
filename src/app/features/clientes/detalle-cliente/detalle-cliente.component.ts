@@ -5,6 +5,7 @@ import { ClientesService } from '../clientes.service';
 import { ClienteDetalle } from '../../../core/models/cliente.model';
 import { LoadingComponent } from '../../../shared/components/loading/loading.component';
 import { ToastService } from '../../../shared/services/toast.service';
+import { AlertService } from '../../../shared/services/alert.service';
 import { ConfigService } from '../../../core/services/config.service';
 
 @Component({
@@ -24,6 +25,7 @@ export class DetalleClienteComponent implements OnInit {
     private router: Router,
     private clientesService: ClientesService,
     private toastService: ToastService,
+    private alertService: AlertService,
     private config: ConfigService
   ) {}
 
@@ -96,30 +98,31 @@ export class DetalleClienteComponent implements OnInit {
       next: (response: any) => {
         console.log(' Certificado reenviado:', response);
         
+        // Construir mensaje detallado
+        let mensaje = 'Certificado reenviado exitosamente\n\n';
+        mensaje += `Email: ${response.email_enviado ? '✓ Enviado correctamente' : '✗ No enviado'}\n`;
+        mensaje += `WhatsApp: ${response.whatsapp_enviado ? '✓ Enviado correctamente' : '✗ No enviado'}\n`;
+        mensaje += `Archivos adjuntos: ${response.archivos_adjuntos || 0}`;
+        
         if (response.detalles) {
           const detalles = response.detalles;
-          let mensaje = 'Certificado reenviado:\n\n';
-          mensaje += ` Email: ${detalles.email_enviado ? 'Enviado ✓' : 'Error ✗'}\n`;
-          mensaje += ` WhatsApp: ${detalles.sms_enviado ? 'Enviado ✓' : 'Error ✗'}\n`;
-          mensaje += ` Archivos: ${detalles.archivos_adjuntos || 0}\n`;
-          mensaje += ` Certificado: ${detalles.certificado_generado ? 'Generado ✓' : 'Error ✗'}`;
-          
-          if (detalles.email_enviado) {
-            this.toastService.success('Certificado reenviado exitosamente');
-            alert(mensaje);
-          } else {
-            this.toastService.warning('Certificado procesado pero no se pudo enviar');
-            alert(mensaje);
-          }
-        } else {
-          this.toastService.success(response.message || 'Certificado reenviado exitosamente');
+          mensaje = 'Certificado reenviado exitosamente\n\n';
+          mensaje += `Email: ${detalles.email_enviado ? '✓ Enviado correctamente' : '✗ No enviado'}\n`;
+          mensaje += `WhatsApp: ${detalles.sms_enviado ? '✓ Enviado correctamente' : '✗ No enviado'}\n`;
+          mensaje += `Archivos adjuntos: ${detalles.archivos_adjuntos || 0}\n`;
+          mensaje += `Certificado: ${detalles.certificado_generado ? '✓ Generado correctamente' : '✗ No generado'}`;
         }
+        
+        this.toastService.success('Certificado reenviado exitosamente');
+        this.alertService.success('📧 Certificado reenviado', mensaje);
         
         this.loading.set(false);
       },
       error: (error) => {
         console.error(' Error reenviando certificado:', error);
-        this.toastService.error('Error reenviando certificado: ' + error.message);
+        const errorMsg = error.error?.message || error.message || 'Error al reenviar certificado';
+        this.toastService.error(errorMsg);
+        this.alertService.error('✗ Error al reenviar', errorMsg);
         this.loading.set(false);
       }
     });

@@ -240,3 +240,31 @@
     font-size: 0.7rem;
   }
 }
+
+// Formulario de edición de contacto
+.edit-contacto-form {
+  background: white;
+  border-radius: 4px;
+  padding: 0.5rem;
+  border: 1px solid #dee2e6;
+
+  .form-label-sm {
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: #495057;
+  }
+
+  .form-control-sm {
+    font-size: 0.85rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .btn-group-sm {
+    width: 100%;
+
+    .btn {
+      flex: 1;
+    }
+  }
+}

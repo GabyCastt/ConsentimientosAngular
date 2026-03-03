@@ -33,6 +33,11 @@ export class ListaClientesComponent implements OnInit {
   hasNextPage = signal(false);
   hasPrevPage = signal(false);
 
+  // Verificar si es admin
+  get isAdmin(): boolean {
+    return this.authService.currentUser()?.rol === 'admin';
+  }
+
   constructor(
     private clientesService: ClientesService,
     private toastService: ToastService,
