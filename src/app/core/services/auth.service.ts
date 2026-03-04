@@ -72,4 +72,38 @@ export class AuthService {
   getToken(): string | null {
     return localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
   }
+
+  // Métodos para verificar roles
+  isAdmin(): boolean {
+    return this.currentUser()?.rol === 'admin';
+  }
+
+  isDistribuidor(): boolean {
+    return this.currentUser()?.rol === 'distribuidor';
+  }
+
+  isEmpresa(): boolean {
+    return this.currentUser()?.rol === 'empresa';
+  }
+
+  hasRole(...roles: string[]): boolean {
+    const userRole = this.currentUser()?.rol;
+    return userRole ? roles.includes(userRole) : false;
+  }
+
+  getEmpresaId(): number | undefined {
+    return this.currentUser()?.empresa_id;
+  }
+
+  getUserId(): number | undefined {
+    return this.currentUser()?.id;
+  }
+
+  getUserName(): string {
+    return this.currentUser()?.nombre || 'Usuario';
+  }
+
+  getUserEmail(): string {
+    return this.currentUser()?.email || '';
+  }
 }
