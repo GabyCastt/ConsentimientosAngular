@@ -193,6 +193,10 @@ export class DetalleEmpresaComponent implements OnInit {
     this.router.navigate(['/empresas/lista']);
   }
 
+  irAGestionUsuarios(): void {
+    this.router.navigate(['/usuarios/empresa', this.empresaId()]);
+  }
+
   getLogoUrl(): string | null {
     const emp = this.empresa();
     return emp?.logo ? this.config.getLogoUrl(emp.logo) : null;

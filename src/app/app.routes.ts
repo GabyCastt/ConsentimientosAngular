@@ -60,6 +60,11 @@ export const routes: Routes = [
           .then(m => m.DISTRIBUIDORES_ROUTES)
       },
       {
+        path: 'usuarios',
+        loadChildren: () => import('./features/usuarios/usuarios.routes')
+          .then(m => m.USUARIOS_ROUTES)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

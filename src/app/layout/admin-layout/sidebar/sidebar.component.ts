@@ -173,6 +173,12 @@ export class SidebarComponent {
       roles: ['empresa']
     },
     { 
+      label: 'Mis Usuarios', 
+      icon: 'fas fa-user-friends', 
+      route: '/usuarios/mis-usuarios',
+      roles: ['empresa']
+    },
+    { 
       label: 'Mis Empresas', 
       icon: 'fas fa-building', 
       route: '/empresas/lista',

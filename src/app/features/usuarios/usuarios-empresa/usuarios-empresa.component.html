@@ -1,0 +1,193 @@
+<div class="usuarios-container">
+  <div class="breadcrumb">
+    <button class="btn btn-link" (click)="volverAEmpresas()">
+      <i class="fas fa-arrow-left"></i> Volver a Empresas
+    </button>
+  </div>
+
+  <div class="header">
+    <div>
+      <h2>Usuarios de {{ empresaNombre }}</h2>
+      <p class="subtitle">Gestión de usuarios de la empresa</p>
+    </div>
+    <button class="btn btn-primary" (click)="abrirModalCrear()">
+      <i class="fas fa-plus"></i> Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="error && !showModal && !showPasswordModal" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading && !showModal && !showPasswordModal" class="loading">
+    Cargando...
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="table-container" *ngIf="!loading || showModal || showPasswordModal">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Estado</th>
+          <th>Fecha Creación</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let usuario of usuarios">
+          <td>{{ usuario.id }}</td>
+          <td>{{ usuario.nombre }}</td>
+          <td>{{ usuario.email }}</td>
+          <td>
+            <span [class]="'badge ' + getEstadoClass(usuario.activo)">
+              {{ getEstadoTexto(usuario.activo) }}
+            </span>
+          </td>
+          <td>{{ usuario.created_at | date:'dd/MM/yyyy' }}</td>
+          <td class="actions">
+            <button 
+              class="btn btn-sm btn-info" 
+              (click)="abrirModalEditar(usuario)"
+              title="Editar">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button 
+              class="btn btn-sm btn-warning" 
+              (click)="abrirModalPassword(usuario)"
+              title="Cambiar contraseña">
+              <i class="fas fa-key"></i>
+            </button>
+            <button 
+              class="btn btn-sm btn-danger" 
+              (click)="eliminarUsuario(usuario)"
+              title="Eliminar">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr *ngIf="usuarios.length === 0">
+          <td colspan="6" class="text-center">No hay usuarios registrados en esta empresa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Crear/Editar Usuario -->
+<div class="modal" *ngIf="showModal" (click)="cerrarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ modalMode === 'crear' ? 'Crear Usuario' : 'Editar Usuario' }}</h3>
+      <button class="close" (click)="cerrarModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+      <form (ngSubmit)="guardarUsuario()">
+        <div class="form-group">
+          <label for="nombre">Nombre *</label>
+          <input 
+            type="text" 
+            id="nombre" 
+            [(ngModel)]="formData.nombre" 
+            name="nombre"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="formData.email" 
+            name="email"
+            class="form-control"
+            required>
+        </div>
+
+        <div class="form-group" *ngIf="modalMode === 'crear'">
+          <label for="password">Contraseña *</label>
+          <input 
+            type="password" 
+            id="password" 
+            [(ngModel)]="formData.password" 
+            name="password"
+            class="form-control"
+            minlength="6"
+            required>
+          <small>Mínimo 6 caracteres</small>
+        </div>
+
+        <div class="form-group" *ngIf="modalMode === 'editar'">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="formData.activo" 
+              name="activo">
+            Usuario activo
+          </label>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModal()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{ loading ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cambiar Contraseña -->
+<div class="modal" *ngIf="showPasswordModal" (click)="cerrarModalPassword()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Cambiar Contraseña</h3>
+      <button class="close" (click)="cerrarModalPassword()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+      <p>Usuario: <strong>{{ usuarioPassword?.nombre }}</strong></p>
+
+      <form (ngSubmit)="cambiarPassword()">
+        <div class="form-group">
+          <label for="nuevaPassword">Nueva Contraseña *</label>
+          <input 
+            type="password" 
+            id="nuevaPassword" 
+            [(ngModel)]="nuevaPassword" 
+            name="nuevaPassword"
+            class="form-control"
+            minlength="6"
+            required>
+          <small>Mínimo 6 caracteres</small>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cerrarModalPassword()">
+            Cancelar
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{ loading ? 'Cambiando...' : 'Cambiar Contraseña' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

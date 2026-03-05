@@ -101,9 +101,16 @@
     <div class="usuarios-section">
       <div class="section-header">
         <h2>Usuarios</h2>
-        <button class="btn btn-primary" (click)="abrirModalCrearUsuario()">
-          <i class="fas fa-plus"></i> Crear Usuario
-        </button>
+        <div class="section-actions">
+          @if (isAdmin()) {
+            <button class="btn btn-secondary" (click)="irAGestionUsuarios()">
+              <i class="fas fa-users-cog"></i> Gestión Completa
+            </button>
+          }
+          <button class="btn btn-primary" (click)="abrirModalCrearUsuario()">
+            <i class="fas fa-plus"></i> Crear Usuario
+          </button>
+        </div>
       </div>
 
       @if (loadingUsuarios()) {
