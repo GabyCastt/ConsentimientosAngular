@@ -63,7 +63,7 @@
             <thead>
               <tr>
                 <th>Cliente</th>
-                @if (isAdmin) {
+                @if (shouldShowEmpresaColumn) {
                   <th>Empresa</th>
                 }
                 <th>Contacto</th>
@@ -80,7 +80,7 @@
                     <br>
                     <small class="text-muted">CI: {{ cliente.cedula }}</small>
                   </td>
-                  @if (isAdmin) {
+                  @if (shouldShowEmpresaColumn) {
                     <td>
                       <div class="empresa-badge">
                         <i class="fas fa-building me-1 text-primary"></i>

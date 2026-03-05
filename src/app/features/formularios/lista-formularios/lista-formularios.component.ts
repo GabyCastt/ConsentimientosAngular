@@ -80,9 +80,17 @@ export class ListaFormulariosComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Verificar si es admin
+  // Verificar si es admin o distribuidor
   get isAdmin(): boolean {
     return this.authService.currentUser()?.rol === 'admin';
+  }
+
+  get isDistribuidor(): boolean {
+    return this.authService.currentUser()?.rol === 'distribuidor';
+  }
+
+  get shouldShowEmpresaColumn(): boolean {
+    return this.isAdmin || this.isDistribuidor;
   }
 
   ngOnInit(): void {

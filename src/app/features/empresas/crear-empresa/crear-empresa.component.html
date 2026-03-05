@@ -1,0 +1,152 @@
+<div class="crear-empresa-container">
+  <div class="header">
+    <h1>Crear Nueva Empresa</h1>
+    <p class="subtitle">Complete los datos de la empresa y del usuario administrador</p>
+  </div>
+
+  <form (ngSubmit)="guardar()" class="empresa-form">
+    <!-- Datos de la Empresa -->
+    <div class="form-section">
+      <h2>Datos de la Empresa</h2>
+      
+      <div class="form-group">
+        <label for="nombre">Nombre de la Empresa *</label>
+        <input
+          type="text"
+          id="nombre"
+          [(ngModel)]="formNombre"
+          name="nombre"
+          placeholder="Ej: Banco XYZ"
+          required
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ruc">RUC</label>
+          <input
+            type="text"
+            id="ruc"
+            [(ngModel)]="formRuc"
+            name="ruc"
+            placeholder="1234567890001"
+            maxlength="13"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="telefono">Teléfono</label>
+          <input
+            type="tel"
+            id="telefono"
+            [(ngModel)]="formTelefono"
+            name="telefono"
+            placeholder="0987654321"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email de Contacto</label>
+        <input
+          type="email"
+          id="email"
+          [(ngModel)]="formEmail"
+          name="email"
+          placeholder="contacto@empresa.com"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="slogan">Slogan</label>
+        <input
+          type="text"
+          id="slogan"
+          [(ngModel)]="formSlogan"
+          name="slogan"
+          placeholder="Tu mejor opción"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="logo">Logo</label>
+        <input
+          type="file"
+          id="logo"
+          (change)="onLogoChange($event)"
+          accept="image/*"
+        />
+        @if (logoPreview()) {
+          <div class="logo-preview">
+            <img [src]="logoPreview()" alt="Preview del logo" />
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Datos del Usuario -->
+    <div class="form-section">
+      <h2>Usuario Administrador de la Empresa</h2>
+      
+      <div class="form-group">
+        <label for="usuario_nombre">Nombre Completo *</label>
+        <input
+          type="text"
+          id="usuario_nombre"
+          [(ngModel)]="formUsuarioNombre"
+          name="usuario_nombre"
+          placeholder="Juan Pérez"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="usuario_email">Email *</label>
+        <input
+          type="email"
+          id="usuario_email"
+          [(ngModel)]="formUsuarioEmail"
+          name="usuario_email"
+          placeholder="admin@empresa.com"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="usuario_password">Contraseña *</label>
+        <input
+          type="password"
+          id="usuario_password"
+          [(ngModel)]="formUsuarioPassword"
+          name="usuario_password"
+          placeholder="Mínimo 6 caracteres"
+          minlength="6"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        (click)="cancelar()"
+        [disabled]="guardando()"
+      >
+        Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="guardando()"
+      >
+        @if (guardando()) {
+          <span>Guardando...</span>
+        } @else {
+          <span>Crear Empresa</span>
+        }
+      </button>
+    </div>
+  </form>
+</div>

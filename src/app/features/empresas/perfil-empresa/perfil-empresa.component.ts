@@ -1,7 +1,8 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EmpresasService, Empresa } from '../empresas.service';
+import { EmpresaService } from '../../../core/services/empresa.service';
+import { EmpresaConEstadisticas } from '../../../core/models/empresa.model';
 import { ConfigService } from '../../../core/services/config.service';
 
 @Component({
@@ -12,7 +13,7 @@ import { ConfigService } from '../../../core/services/config.service';
   styleUrls: ['./perfil-empresa.component.scss']
 })
 export class PerfilEmpresaComponent implements OnInit {
-  empresa = signal<Empresa | null>(null);
+  empresa = signal<EmpresaConEstadisticas | null>(null);
   loading = signal(false);
   editando = signal(false);
   
@@ -27,7 +28,7 @@ export class PerfilEmpresaComponent implements OnInit {
   tipoMensaje = signal<'success' | 'error' | 'info'>('info');
 
   constructor(
-    private empresasService: EmpresasService,
+    private empresaService: EmpresaService,
     public config: ConfigService
   ) {}
 
@@ -38,15 +39,16 @@ export class PerfilEmpresaComponent implements OnInit {
   cargarPerfil(): void {
     this.loading.set(true);
     
-    this.empresasService.getPerfil().subscribe({
+    this.empresaService.obtenerPerfil().subscribe({
       next: (response) => {
+        console.log('[OK] Perfil cargado:', response);
         this.empresa.set(response.empresa);
         this.nombre.set(response.empresa.nombre);
         this.slogan.set(response.empresa.slogan || '');
         this.loading.set(false);
       },
       error: (error) => {
-        console.error('Error cargando perfil:', error);
+        console.error('[ERROR] Error cargando perfil:', error);
         this.mostrarMensaje('Error al cargar perfil de empresa', 'error');
         this.loading.set(false);
       }
@@ -103,7 +105,7 @@ export class PerfilEmpresaComponent implements OnInit {
     
     this.loading.set(true);
     
-    this.empresasService.updatePerfil({
+    this.empresaService.actualizarPerfil({
       nombre: this.nombre(),
       slogan: this.slogan() || undefined,
       logo: this.logoFile || undefined
@@ -116,7 +118,7 @@ export class PerfilEmpresaComponent implements OnInit {
         this.cargarPerfil();
       },
       error: (error) => {
-        console.error('Error actualizando perfil:', error);
+        console.error('[ERROR] Error actualizando perfil:', error);
         this.mostrarMensaje(error.error?.error || 'Error al actualizar perfil', 'error');
         this.loading.set(false);
       }

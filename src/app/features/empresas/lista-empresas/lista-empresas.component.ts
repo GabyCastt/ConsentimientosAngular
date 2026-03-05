@@ -1,7 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { EmpresasService, Empresa } from '../empresas.service';
+import { Router } from '@angular/router';
+import { EmpresaService } from '../../../core/services/empresa.service';
+import { DistribuidorService } from '../../../core/services/distribuidor.service';
+import { Empresa } from '../../../core/models/empresa.model';
 import { ToastService } from '../../../shared/services/toast.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ConfigService } from '../../../core/services/config.service';
@@ -17,6 +20,7 @@ export class ListaEmpresasComponent implements OnInit {
   empresas = signal<Empresa[]>([]);
   loading = signal(true);
   isAdmin = signal(false);
+  isDistribuidor = signal(false);
   
   // Modal
   mostrarModal = signal(false);
@@ -32,33 +36,34 @@ export class ListaEmpresasComponent implements OnInit {
   logoFile: File | null = null;
   logoPreview = signal<string | null>(null);
   
-  // Campos para usuario distribuidor (solo al crear)
+  // Campos para usuario tipo 'empresa' (al crear)
   formUsuarioEmail = signal('');
   formUsuarioPassword = signal('');
   formUsuarioNombre = signal('');
 
   constructor(
-    private empresasService: EmpresasService,
+    private empresaService: EmpresaService,
+    private distribuidorService: DistribuidorService,
     private toastService: ToastService,
     private authService: AuthService,
+    private router: Router,
     public config: ConfigService
   ) {}
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUser();
     this.isAdmin.set(currentUser?.rol === 'admin');
+    this.isDistribuidor.set(currentUser?.rol === 'distribuidor');
     
-    if (this.isAdmin()) {
-      this.loadEmpresas();
-    } else {
-      this.loadPerfil();
-    }
+    this.loadEmpresas();
   }
 
   loadEmpresas(): void {
     this.loading.set(true);
     
-    this.empresasService.getEmpresas().subscribe({
+    // Admin y Distribuidor usan el mismo endpoint /api/empresas
+    // El backend filtra según el rol
+    this.empresaService.listarEmpresas().subscribe({
       next: (response) => {
         console.log('[OK] Empresas cargadas:', response);
         this.empresas.set(response.empresas);
@@ -72,23 +77,6 @@ export class ListaEmpresasComponent implements OnInit {
     });
   }
 
-  loadPerfil(): void {
-    this.loading.set(true);
-    
-    this.empresasService.getPerfil().subscribe({
-      next: (response) => {
-        console.log('[OK] Perfil de empresa cargado:', response);
-        this.empresas.set([response.empresa]);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('[ERROR] Error cargando perfil:', error);
-        this.toastService.error('Error al cargar perfil de empresa');
-        this.loading.set(false);
-      }
-    });
-  }
-
   abrirModalCrear(): void {
     this.empresaEditando.set(null);
     this.limpiarFormulario();
@@ -96,15 +84,11 @@ export class ListaEmpresasComponent implements OnInit {
   }
 
   editarEmpresa(empresa: Empresa): void {
-    this.empresaEditando.set(empresa);
-    this.formNombre.set(empresa.nombre);
-    this.formRuc.set(empresa.ruc || '');
-    this.formEmail.set(empresa.email || '');
-    this.formTelefono.set(empresa.telefono || '');
-    this.formSlogan.set(empresa.slogan || '');
-    this.logoFile = null;
-    this.logoPreview.set(null);
-    this.mostrarModal.set(true);
+    this.router.navigate(['/empresas/editar', empresa.id]);
+  }
+
+  verDetalle(empresa: Empresa): void {
+    this.router.navigate(['/empresas/detalle', empresa.id]);
   }
 
   cerrarModal(): void {
@@ -160,85 +144,66 @@ export class ListaEmpresasComponent implements OnInit {
       return;
     }
 
+    // Validar campos de usuario tipo 'empresa'
+    if (!this.formUsuarioEmail().trim()) {
+      this.toastService.error('El email del usuario es requerido');
+      return;
+    }
+    
+    if (!this.formUsuarioPassword().trim() || this.formUsuarioPassword().length < 6) {
+      this.toastService.error('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    
+    if (!this.formUsuarioNombre().trim()) {
+      this.toastService.error('El nombre del usuario es requerido');
+      return;
+    }
+
     this.guardando.set(true);
 
-    // Si estamos creando (no editando), usar el endpoint con distribuidor
-    if (!this.empresaEditando()) {
-      // Validar campos de usuario distribuidor
-      if (!this.formUsuarioEmail().trim()) {
-        this.toastService.error('El email del distribuidor es requerido');
-        this.guardando.set(false);
-        return;
-      }
-      
-      if (!this.formUsuarioPassword().trim() || this.formUsuarioPassword().length < 6) {
-        this.toastService.error('La contraseña debe tener al menos 6 caracteres');
-        this.guardando.set(false);
-        return;
-      }
-      
-      if (!this.formUsuarioNombre().trim()) {
-        this.toastService.error('El nombre del distribuidor es requerido');
-        this.guardando.set(false);
-        return;
-      }
+    const data = {
+      nombre: this.formNombre(),
+      ruc: this.formRuc() || undefined,
+      email: this.formEmail() || undefined,
+      telefono: this.formTelefono() || undefined,
+      slogan: this.formSlogan() || undefined,
+      logo: this.logoFile || undefined,
+      usuario_email: this.formUsuarioEmail(),
+      usuario_password: this.formUsuarioPassword(),
+      usuario_nombre: this.formUsuarioNombre()
+    };
 
-      const dataConDistribuidor = {
-        nombre: this.formNombre(),
-        slogan: this.formSlogan() || undefined,
-        logo: this.logoFile || undefined,
-        usuario_email: this.formUsuarioEmail(),
-        usuario_password: this.formUsuarioPassword(),
-        usuario_nombre: this.formUsuarioNombre()
-      };
-
-      this.empresasService.createEmpresaConDistribuidor(dataConDistribuidor).subscribe({
-        next: (response) => {
-          console.log('[OK] Empresa y distribuidor creados:', response);
-          this.toastService.success('Empresa y usuario distribuidor creados correctamente');
-          this.cerrarModal();
-          this.loadEmpresas();
-          this.guardando.set(false);
-        },
-        error: (error) => {
-          console.error('[ERROR] Error creando empresa:', error);
-          this.toastService.error(error.error?.error || 'Error al crear empresa');
-          this.guardando.set(false);
-        }
-      });
-    } else {
-      // Actualizar empresa existente
-      const data = {
-        nombre: this.formNombre(),
-        ruc: this.formRuc() || undefined,
-        email: this.formEmail() || undefined,
-        telefono: this.formTelefono() || undefined,
-        slogan: this.formSlogan() || undefined,
-        logo: this.logoFile || undefined
-      };
-
-      this.empresasService.updateEmpresa(this.empresaEditando()!.id, data).subscribe({
-        next: (response) => {
-          this.toastService.success('Empresa actualizada correctamente');
-          this.cerrarModal();
-          this.loadEmpresas();
-          this.guardando.set(false);
-        },
-        error: (error) => {
-          console.error('[ERROR] Error actualizando empresa:', error);
-          this.toastService.error(error.error?.error || 'Error al actualizar empresa');
-          this.guardando.set(false);
-        }
-      });
-    }
+    this.empresaService.crearEmpresa(data).subscribe({
+      next: (response) => {
+        console.log('[OK] Empresa creada:', response);
+        const mensaje = response.asignada_a_distribuidor 
+          ? 'Empresa creada y asignada correctamente'
+          : 'Empresa y usuario creados correctamente';
+        this.toastService.success(mensaje);
+        this.cerrarModal();
+        this.loadEmpresas();
+        this.guardando.set(false);
+      },
+      error: (error) => {
+        console.error('[ERROR] Error creando empresa:', error);
+        this.toastService.error(error.error?.error || 'Error al crear empresa');
+        this.guardando.set(false);
+      }
+    });
   }
 
   deleteEmpresa(empresa: Empresa): void {
+    if (!this.isAdmin()) {
+      this.toastService.error('Solo los administradores pueden eliminar empresas');
+      return;
+    }
+
     if (!confirm(`¿Estás seguro de eliminar la empresa ${empresa.nombre}?`)) {
       return;
     }
 
-    this.empresasService.deleteEmpresa(empresa.id).subscribe({
+    this.empresaService.eliminarEmpresa(empresa.id).subscribe({
       next: () => {
         this.toastService.success('Empresa eliminada correctamente');
         this.loadEmpresas();
@@ -251,11 +216,16 @@ export class ListaEmpresasComponent implements OnInit {
   }
 
   limpiarHuerfanas(): void {
+    if (!this.isAdmin()) {
+      this.toastService.error('Solo los administradores pueden limpiar empresas huérfanas');
+      return;
+    }
+
     if (!confirm('¿Deseas limpiar empresas sin usuarios, clientes ni formularios?')) {
       return;
     }
 
-    this.empresasService.limpiarEmpresasHuerfanas().subscribe({
+    this.empresaService.limpiarEmpresasHuerfanas().subscribe({
       next: (response) => {
         this.toastService.success(response.message);
         this.loadEmpresas();
@@ -284,7 +254,8 @@ export class ListaEmpresasComponent implements OnInit {
     img.style.display = 'none';
   }
 
-  formatDate(dateString: string): string {
+  formatDate(dateString: string | undefined): string {
+    if (!dateString) return 'N/A';
     return this.config.formatearTiempoRelativo(dateString);
   }
 }

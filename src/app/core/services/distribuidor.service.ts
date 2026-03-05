@@ -1,15 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
+import { Empresa, EmpresaEstadisticas } from '../models/empresa.model';
 
-export interface DistribuidorEmpresa {
-  id: number;
-  nombre: string;
-  ruc?: string;
-  email?: string;
-  telefono?: string;
-  logo?: string;
-  activo: boolean;
+export interface DistribuidorEmpresa extends Empresa {
+  asignado_en?: string;
 }
 
 export interface UsuarioEmpresa {
@@ -20,14 +15,39 @@ export interface UsuarioEmpresa {
   empresa_id: number;
   activo: boolean;
   created_at: string;
+  updated_at?: string;
 }
 
-export interface EstadisticasEmpresa {
-  total_formularios: number;
-  total_clientes: number;
-  total_respuestas: number;
-  formularios_activos: number;
-  clientes_recientes: number;
+export interface DistribuidorEmpresasResponse {
+  empresas: DistribuidorEmpresa[];
+  total: number;
+}
+
+export interface UsuariosEmpresaResponse {
+  usuarios: UsuarioEmpresa[];
+  total: number;
+}
+
+export interface CrearUsuarioEmpresaResponse {
+  message: string;
+  usuario: {
+    id: number;
+    email: string;
+    rol: string;
+    nombre: string;
+    empresa_id: number;
+    empresa_nombre: string;
+  };
+}
+
+export interface EstadisticasEmpresaResponse {
+  empresa: {
+    id: number;
+    nombre: string;
+    logo?: string | null;
+    slogan?: string | null;
+  };
+  estadisticas: EmpresaEstadisticas;
 }
 
 @Injectable({
@@ -39,8 +59,8 @@ export class DistribuidorService {
   /**
    * Obtener empresas asignadas al distribuidor
    */
-  getMisEmpresas(): Observable<DistribuidorEmpresa[]> {
-    return this.api.get<DistribuidorEmpresa[]>('/api/distribuidores/mis-empresas');
+  getMisEmpresas(): Observable<DistribuidorEmpresasResponse> {
+    return this.api.get<DistribuidorEmpresasResponse>('/api/distribuidores/mis-empresas');
   }
 
   /**
@@ -50,15 +70,20 @@ export class DistribuidorService {
     email: string;
     password: string;
     nombre: string;
-  }): Observable<any> {
-    return this.api.post(`/api/distribuidores/empresas/${empresaId}/usuarios`, data);
+  }): Observable<CrearUsuarioEmpresaResponse> {
+    return this.api.post<CrearUsuarioEmpresaResponse>(
+      `/api/distribuidores/empresas/${empresaId}/usuarios`, 
+      data
+    );
   }
 
   /**
    * Obtener usuarios de una empresa
    */
-  getUsuariosEmpresa(empresaId: number): Observable<UsuarioEmpresa[]> {
-    return this.api.get<UsuarioEmpresa[]>(`/api/distribuidores/empresas/${empresaId}/usuarios`);
+  getUsuariosEmpresa(empresaId: number): Observable<UsuariosEmpresaResponse> {
+    return this.api.get<UsuariosEmpresaResponse>(
+      `/api/distribuidores/empresas/${empresaId}/usuarios`
+    );
   }
 
   /**
@@ -67,23 +92,29 @@ export class DistribuidorService {
   actualizarUsuarioEmpresa(empresaId: number, userId: number, data: {
     nombre?: string;
     email?: string;
-    password?: string;
     activo?: boolean;
-  }): Observable<any> {
-    return this.api.put(`/api/distribuidores/empresas/${empresaId}/usuarios/${userId}`, data);
+  }): Observable<{ message: string; usuario: UsuarioEmpresa }> {
+    return this.api.put<{ message: string; usuario: UsuarioEmpresa }>(
+      `/api/distribuidores/empresas/${empresaId}/usuarios/${userId}`, 
+      data
+    );
   }
 
   /**
    * Eliminar usuario de empresa
    */
-  eliminarUsuarioEmpresa(empresaId: number, userId: number): Observable<any> {
-    return this.api.delete(`/api/distribuidores/empresas/${empresaId}/usuarios/${userId}`);
+  eliminarUsuarioEmpresa(empresaId: number, userId: number): Observable<{ message: string }> {
+    return this.api.delete<{ message: string }>(
+      `/api/distribuidores/empresas/${empresaId}/usuarios/${userId}`
+    );
   }
 
   /**
    * Obtener estadísticas de una empresa
    */
-  getEstadisticasEmpresa(empresaId: number): Observable<EstadisticasEmpresa> {
-    return this.api.get<EstadisticasEmpresa>(`/api/distribuidores/empresas/${empresaId}/estadisticas`);
+  getEstadisticasEmpresa(empresaId: number): Observable<EstadisticasEmpresaResponse> {
+    return this.api.get<EstadisticasEmpresaResponse>(
+      `/api/distribuidores/empresas/${empresaId}/estadisticas`
+    );
   }
 }

@@ -33,9 +33,17 @@ export class ListaClientesComponent implements OnInit {
   hasNextPage = signal(false);
   hasPrevPage = signal(false);
 
-  // Verificar si es admin
+  // Verificar si es admin o distribuidor
   get isAdmin(): boolean {
     return this.authService.currentUser()?.rol === 'admin';
+  }
+
+  get isDistribuidor(): boolean {
+    return this.authService.currentUser()?.rol === 'distribuidor';
+  }
+
+  get shouldShowEmpresaColumn(): boolean {
+    return this.isAdmin || this.isDistribuidor;
   }
 
   constructor(
@@ -62,8 +70,8 @@ export class ListaClientesComponent implements OnInit {
     const currentUser = this.authService.currentUser();
     console.log('[RELOAD] Cargando clientes página:', this.currentPage(), 'Tamaño:', this.pageSize());
     
-    // Admin ve todos los clientes (sin filtro de empresa)
-    const empresaId = currentUser?.rol === 'admin' ? undefined : currentUser?.empresa_id;
+    // Admin y Distribuidor ven todos los clientes con filtro opcional
+    const empresaId = (currentUser?.rol === 'admin' || currentUser?.rol === 'distribuidor') ? undefined : currentUser?.empresa_id;
     
     this.clientesService.getClientes(
       this.currentPage(),

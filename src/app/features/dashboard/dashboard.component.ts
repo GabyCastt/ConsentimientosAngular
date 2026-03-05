@@ -1,11 +1,14 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { DashboardService, DashboardStats, EstadisticasGlobales } from './dashboard.service';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
 import { ApiService } from '../../core/services/api.service';
 import { ConfigService } from '../../core/services/config.service';
 import { DiagnosticoService } from '../../core/services/diagnostico.service';
-import { EmpresasService, EmpresaEstadisticas } from '../empresas/empresas.service';
+import { EmpresaService } from '../../core/services/empresa.service';
+import { DistribuidorService } from '../../core/services/distribuidor.service';
+import { EmpresaEstadisticas } from '../../core/models/empresa.model';
 import { AuthService } from '../../core/services/auth.service';
 
 interface StatCard {
@@ -18,7 +21,7 @@ interface StatCard {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, LoadingComponent],
+  imports: [CommonModule, LoadingComponent, RouterLink],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
@@ -27,6 +30,7 @@ export class DashboardComponent implements OnInit {
   stats = signal<DashboardStats | null>(null);
   estadisticasGlobales = signal<EstadisticasGlobales | null>(null);
   empresaStats = signal<EmpresaEstadisticas | null>(null);
+  distribuidorEmpresas = signal<any[]>([]);
   isDistribuidor = signal(false);
   isAdmin = signal(false);
   
@@ -34,10 +38,11 @@ export class DashboardComponent implements OnInit {
 
   constructor(
     private dashboardService: DashboardService,
-    private empresasService: EmpresasService,
+    private empresaService: EmpresaService,
+    private distribuidorService: DistribuidorService,
     private authService: AuthService,
     private api: ApiService,
-    private config: ConfigService,
+    public config: ConfigService,
     private diagnostico: DiagnosticoService
   ) {
     // Hacer disponible el diagnóstico en la consola del navegador
@@ -56,31 +61,98 @@ export class DashboardComponent implements OnInit {
     });
     
     const currentUser = this.authService.currentUser();
-    this.isAdmin.set(currentUser?.rol === 'admin');
-    this.isDistribuidor.set(currentUser?.rol === 'distribuidor' || currentUser?.rol === 'empresa');
+    const userRole = currentUser?.rol;
     
-    if (this.isAdmin()) {
+    console.log('[INFO] Usuario actual:', { rol: userRole, empresa_id: currentUser?.empresa_id });
+    
+    this.isAdmin.set(userRole === 'admin');
+    this.isDistribuidor.set(userRole === 'distribuidor');
+    
+    // Cargar datos según el rol
+    if (userRole === 'admin') {
       this.loadEstadisticasGlobales();
-    } else if (this.isDistribuidor()) {
+    } else if (userRole === 'distribuidor') {
+      this.loadDistribuidorStats();
+    } else if (userRole === 'empresa') {
       this.loadEmpresaStats();
     } else {
       this.loadStats();
     }
   }
 
+  /**
+   * Cargar estadísticas para usuario tipo 'empresa'
+   * Usa: GET /api/empresas/perfil
+   */
   loadEmpresaStats(): void {
     this.loading.set(true);
     
-    this.empresasService.getPerfil().subscribe({
-      next: (response) => {
+    console.log('[INFO] Cargando perfil de empresa...');
+    this.empresaService.obtenerPerfil().subscribe({
+      next: (response: any) => {
         console.log('[OK] Estadísticas de empresa:', response);
         if (response.empresa.estadisticas) {
           this.empresaStats.set(response.empresa.estadisticas);
         }
         this.loading.set(false);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('[ERROR] Error cargando estadísticas de empresa:', error);
+        this.loading.set(false);
+      }
+    });
+  }
+
+  /**
+   * Cargar estadísticas para distribuidor
+   * Usa: GET /api/distribuidores/mis-empresas
+   */
+  loadDistribuidorStats(): void {
+    this.loading.set(true);
+    
+    console.log('[INFO] Cargando empresas del distribuidor...');
+    this.distribuidorService.getMisEmpresas().subscribe({
+      next: (response: any) => {
+        console.log('[OK] Empresas del distribuidor:', response);
+        this.distribuidorEmpresas.set(response.empresas || []);
+        
+        // Calcular estadísticas agregadas
+        const totalClientes = response.empresas.reduce((sum: number, emp: any) => sum + (emp.total_clientes || 0), 0);
+        const totalFormularios = response.empresas.reduce((sum: number, emp: any) => sum + (emp.total_formularios || 0), 0);
+        const totalConsentimientos = response.empresas.reduce((sum: number, emp: any) => sum + (emp.total_consentimientos || 0), 0);
+        
+        // Actualizar stat cards
+        this.statCards.set([
+          {
+            title: 'Mis Empresas',
+            value: response.total || 0,
+            icon: 'fas fa-building',
+            color: 'primary'
+          },
+          {
+            title: 'Total Clientes',
+            value: totalClientes,
+            icon: 'fas fa-users',
+            color: 'success'
+          },
+          {
+            title: 'Formularios',
+            value: totalFormularios,
+            icon: 'fas fa-file-alt',
+            color: 'info'
+          },
+          {
+            title: 'Consentimientos',
+            value: totalConsentimientos,
+            icon: 'fas fa-file-contract',
+            color: 'warning'
+          }
+        ]);
+        
+        this.loading.set(false);
+      },
+      error: (error: any) => {
+        console.error('[ERROR] Error cargando empresas del distribuidor:', error);
         this.loading.set(false);
       }
     });

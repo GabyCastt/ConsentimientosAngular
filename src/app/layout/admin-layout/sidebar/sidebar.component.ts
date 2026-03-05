@@ -170,13 +170,19 @@ export class SidebarComponent {
       label: 'Mi Empresa', 
       icon: 'fas fa-building', 
       route: '/empresas/perfil',
-      roles: ['empresa', 'usuario', 'distribuidor']
+      roles: ['empresa']
+    },
+    { 
+      label: 'Mis Empresas', 
+      icon: 'fas fa-building', 
+      route: '/empresas/lista',
+      roles: ['distribuidor']
     },
     { 
       label: 'Gestión Empresas', 
       icon: 'fas fa-building', 
       route: '/empresas/lista',
-      roles: ['admin', 'super_admin']
+      roles: ['admin']
     }
   ];
 

@@ -5,22 +5,24 @@
       <div class="header-info">
         <h1>
           <i class="fas fa-building"></i>
-          {{ isAdmin() ? 'Gestión de Empresas' : 'Mi Empresa' }}
+          {{ isAdmin() ? 'Gestión de Empresas' : 'Mis Empresas' }}
         </h1>
         <p class="subtitle">
-          {{ isAdmin() ? 'Administrar todas las empresas del sistema' : 'Información de tu empresa' }}
+          {{ isAdmin() ? 'Administrar todas las empresas del sistema' : 'Información de sus empresas' }}
         </p>
       </div>
       
-      @if (isAdmin()) {
+      @if (isAdmin() || isDistribuidor()) {
         <div class="header-actions">
-          <button 
-            class="btn btn-secondary"
-            (click)="limpiarHuerfanas()"
-            [disabled]="loading()">
-            <i class="fas fa-broom"></i>
-            Limpiar Huérfanas
-          </button>
+          @if (isAdmin()) {
+            <button 
+              class="btn btn-secondary"
+              (click)="limpiarHuerfanas()"
+              [disabled]="loading()">
+              <i class="fas fa-broom"></i>
+              Limpiar Huérfanas
+            </button>
+          }
           <button 
             class="btn btn-primary"
             (click)="abrirModalCrear()">
@@ -121,20 +123,28 @@
           </div>
 
           <!-- Acciones -->
-          @if (isAdmin()) {
+          @if (isAdmin() || isDistribuidor()) {
             <div class="empresa-actions">
+              <button 
+                class="btn-icon btn-view"
+                (click)="verDetalle(empresa)"
+                title="Ver Detalle">
+                <i class="fas fa-eye"></i>
+              </button>
               <button 
                 class="btn-icon btn-edit"
                 (click)="editarEmpresa(empresa)"
                 title="Editar">
                 <i class="fas fa-edit"></i>
               </button>
-              <button 
-                class="btn-icon btn-delete"
-                (click)="deleteEmpresa(empresa)"
-                title="Eliminar">
-                <i class="fas fa-trash"></i>
-              </button>
+              @if (isAdmin()) {
+                <button 
+                  class="btn-icon btn-delete"
+                  (click)="deleteEmpresa(empresa)"
+                  title="Eliminar">
+                  <i class="fas fa-trash"></i>
+                </button>
+              }
             </div>
           }
         </div>
@@ -147,8 +157,8 @@
     <div class="empty-state">
       <i class="fas fa-building"></i>
       <h3>No hay empresas registradas</h3>
-      <p>Comienza creando tu primera empresa</p>
-      @if (isAdmin()) {
+      <p>{{ isDistribuidor() ? 'Comienza creando tu primera empresa' : 'No hay empresas en el sistema' }}</p>
+      @if (isAdmin() || isDistribuidor()) {
         <button class="btn btn-primary" (click)="abrirModalCrear()">
           <i class="fas fa-plus"></i>
           Crear Primera Empresa
@@ -264,31 +274,31 @@
               rows="3"></textarea>
           </div>
 
-          <!-- Campos de Usuario Distribuidor (solo al crear) -->
+          <!-- Campos de Usuario tipo 'empresa' (solo al crear) -->
           @if (!empresaEditando()) {
             <div class="form-section">
               <h3>
                 <i class="fas fa-user-tie"></i>
-                Usuario Distribuidor
+                Usuario Administrador de la Empresa
               </h3>
               <p class="section-description">
-                Se creará automáticamente un usuario distribuidor para esta empresa
+                Se creará automáticamente un usuario tipo 'empresa' para administrar esta empresa
               </p>
 
-              <!-- Email del distribuidor -->
+              <!-- Email del usuario -->
               <div class="form-group">
-                <label for="usuario_email">Email del Distribuidor *</label>
+                <label for="usuario_email">Email del Usuario *</label>
                 <input 
                   type="email" 
                   id="usuario_email"
                   class="form-control"
                   [(ngModel)]="formUsuarioEmail"
                   name="usuario_email"
-                  placeholder="distribuidor@empresa.com"
+                  placeholder="admin@empresa.com"
                   required>
               </div>
 
-              <!-- Contraseña del distribuidor -->
+              <!-- Contraseña del usuario -->
               <div class="form-group">
                 <label for="usuario_password">Contraseña *</label>
                 <input 
@@ -303,7 +313,7 @@
                 <small class="form-text">Mínimo 6 caracteres</small>
               </div>
 
-              <!-- Nombre del distribuidor -->
+              <!-- Nombre del usuario -->
               <div class="form-group">
                 <label for="usuario_nombre">Nombre Completo *</label>
                 <input 

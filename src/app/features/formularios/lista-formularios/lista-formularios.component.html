@@ -42,7 +42,7 @@
             <thead>
               <tr>
                 <th>Nombre</th>
-                @if (isAdmin) {
+                @if (shouldShowEmpresaColumn) {
                   <th>Empresa</th>
                 }
                 <th>Descripción</th>
@@ -61,7 +61,7 @@
                   <td>
                     <strong>{{ formulario.nombre }}</strong>
                   </td>
-                  @if (isAdmin) {
+                  @if (shouldShowEmpresaColumn) {
                     <td>
                       <div class="empresa-badge">
                         <i class="fas fa-building me-1 text-primary"></i>
