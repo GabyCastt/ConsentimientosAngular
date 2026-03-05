@@ -183,6 +183,12 @@ export class SidebarComponent {
       icon: 'fas fa-building', 
       route: '/empresas/lista',
       roles: ['admin']
+    },
+    { 
+      label: 'Distribuidores', 
+      icon: 'fas fa-user-tie', 
+      route: '/distribuidores/lista',
+      roles: ['admin']
     }
   ];
 

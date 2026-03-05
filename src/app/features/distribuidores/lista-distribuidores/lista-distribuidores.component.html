@@ -1,0 +1,76 @@
+<div class="distribuidores-container">
+  <div class="header">
+    <h1>Gestión de Distribuidores</h1>
+    <button class="btn btn-primary" routerLink="/distribuidores/crear">
+      <i class="fas fa-plus"></i> Crear Distribuidor
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Cargando distribuidores...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error" class="distribuidores-list">
+    <div *ngIf="distribuidores.length === 0" class="empty-state">
+      <p>No hay distribuidores registrados</p>
+      <button class="btn btn-primary" routerLink="/distribuidores/crear">
+        Crear primer distribuidor
+      </button>
+    </div>
+
+    <div *ngIf="distribuidores.length > 0" class="table-container">
+      <table class="distribuidores-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Empresas</th>
+            <th>Estado</th>
+            <th>Fecha Creación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let distribuidor of distribuidores" [class.inactive]="!distribuidor.activo">
+            <td>{{ distribuidor.id }}</td>
+            <td>{{ distribuidor.nombre }}</td>
+            <td>{{ distribuidor.email }}</td>
+            <td class="text-center">
+              <span class="badge">{{ distribuidor.total_empresas || 0 }}</span>
+            </td>
+            <td>
+              <span class="status-badge" [class.active]="distribuidor.activo" [class.inactive]="!distribuidor.activo">
+                {{ distribuidor.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td>{{ distribuidor.created_at | date:'dd/MM/yyyy' }}</td>
+            <td class="text-center actions">
+              <button class="btn btn-sm btn-outline-primary" (click)="verDetalle(distribuidor.id)" title="Ver detalle">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-warning" (click)="editarDistribuidor(distribuidor.id)" title="Editar">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button 
+                class="btn btn-sm" 
+                [class.btn-outline-success]="!distribuidor.activo"
+                [class.btn-outline-secondary]="distribuidor.activo"
+                (click)="toggleActivo(distribuidor)" 
+                [title]="distribuidor.activo ? 'Desactivar' : 'Activar'">
+                <i [class.fas]="true" [class.fa-check]="!distribuidor.activo" [class.fa-ban]="distribuidor.activo"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="eliminarDistribuidor(distribuidor)" title="Eliminar">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

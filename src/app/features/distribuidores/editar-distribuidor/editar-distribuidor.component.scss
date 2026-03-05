@@ -1,0 +1,160 @@
+.editar-distribuidor-container {
+  animation: fadeIn 0.3s ease-in;
+}
+
+.header {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #042396;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+}
+
+.loading, .error-message {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  color: #d32f2f;
+  background: #ffebee;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.form-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
+  }
+
+  input[type="text"],
+  input[type="email"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+
+    &:focus {
+      outline: none;
+      border-color: #042396;
+      box-shadow: 0 0 0 0.2rem rgba(4, 35, 150, 0.25);
+    }
+
+    &.error {
+      border-color: #dc3545;
+    }
+  }
+
+  .error-text {
+    display: block;
+    margin-top: 0.25rem;
+    color: #dc3545;
+    font-size: 0.875rem;
+  }
+
+  &.checkbox-group {
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-weight: 500;
+
+      input[type="checkbox"] {
+        width: auto;
+        cursor: pointer;
+      }
+
+      span {
+        font-weight: 600;
+      }
+    }
+
+    small {
+      display: block;
+      margin-top: 0.5rem;
+      color: #6c757d;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    h1 {
+      font-size: 1rem;
+    }
+  }
+
+  .form-card {
+    padding: 1.5rem;
+  }
+}
+
+
+// Estilos para botones outline
+.btn-outline-secondary {
+  color: #424242;
+  border: 2px solid #424242;
+  background: white;
+
+  &:hover {
+    background: #424242;
+    color: white;
+  }
+
+  i {
+    color: #424242;
+  }
+
+  &:hover i {
+    color: white;
+  }
+}

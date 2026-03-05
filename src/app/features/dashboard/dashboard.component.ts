@@ -82,18 +82,50 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Cargar estadísticas para usuario tipo 'empresa'
-   * Usa: GET /api/empresas/perfil
+   * Usa: GET /api/estadisticas/dashboard (filtrado automático por empresa)
    */
   loadEmpresaStats(): void {
     this.loading.set(true);
     
-    console.log('[INFO] Cargando perfil de empresa...');
-    this.empresaService.obtenerPerfil().subscribe({
+    console.log('[INFO] Cargando estadísticas de empresa...');
+    this.dashboardService.getStats().subscribe({
       next: (response: any) => {
         console.log('[OK] Estadísticas de empresa:', response);
-        if (response.empresa.estadisticas) {
-          this.empresaStats.set(response.empresa.estadisticas);
-        }
+        
+        // El backend devuelve { success: true, data: {...} }
+        const data = response.success ? response.data : response;
+        
+        // Actualizar stat cards
+        this.statCards.set([
+          {
+            title: 'Clientes',
+            value: data.clientes?.total || 0,
+            icon: 'fas fa-users',
+            color: 'primary'
+          },
+          {
+            title: 'Formularios',
+            value: data.formularios?.total || 0,
+            icon: 'fas fa-clipboard-list',
+            color: 'info'
+          },
+          {
+            title: 'Consentimientos',
+            value: data.consentimientos_procesados?.total || 0,
+            icon: 'fas fa-file-signature',
+            color: 'success'
+          },
+          {
+            title: 'Verificados',
+            value: data.consentimientos_procesados?.verificados || 0,
+            icon: 'fas fa-check-circle',
+            color: 'warning'
+          }
+        ]);
+        
+        // Guardar stats completas
+        this.stats.set(data);
+        
         this.loading.set(false);
       },
       error: (error: any) => {
@@ -105,35 +137,32 @@ export class DashboardComponent implements OnInit {
 
   /**
    * Cargar estadísticas para distribuidor
-   * Usa: GET /api/distribuidores/mis-empresas
+   * Usa: GET /api/estadisticas/dashboard (filtrado automático por distribuidor)
    */
   loadDistribuidorStats(): void {
     this.loading.set(true);
     
-    console.log('[INFO] Cargando empresas del distribuidor...');
-    this.distribuidorService.getMisEmpresas().subscribe({
+    console.log('[INFO] Cargando estadísticas del distribuidor...');
+    this.dashboardService.getStats().subscribe({
       next: (response: any) => {
-        console.log('[OK] Empresas del distribuidor:', response);
-        this.distribuidorEmpresas.set(response.empresas || []);
+        console.log('[OK] Estadísticas del distribuidor:', response);
         
-        // Calcular estadísticas agregadas
-        const totalClientes = response.empresas.reduce((sum: number, emp: any) => sum + (emp.total_clientes || 0), 0);
-        const totalFormularios = response.empresas.reduce((sum: number, emp: any) => sum + (emp.total_formularios || 0), 0);
-        const totalConsentimientos = response.empresas.reduce((sum: number, emp: any) => sum + (emp.total_consentimientos || 0), 0);
+        // El backend devuelve { success: true, data: {...} }
+        const data = response.success ? response.data : response;
+        
+        // Calcular totales consolidados
+        const totalClientes = data.clientes?.total || 0;
+        const totalFormularios = data.formularios?.total || 0;
+        const totalConsentimientos = data.consentimientos_procesados?.total || 0;
+        const totalVerificados = data.consentimientos_procesados?.verificados || 0;
         
         // Actualizar stat cards
         this.statCards.set([
           {
-            title: 'Mis Empresas',
-            value: response.total || 0,
-            icon: 'fas fa-building',
-            color: 'primary'
-          },
-          {
             title: 'Total Clientes',
             value: totalClientes,
             icon: 'fas fa-users',
-            color: 'success'
+            color: 'primary'
           },
           {
             title: 'Formularios',
@@ -145,14 +174,23 @@ export class DashboardComponent implements OnInit {
             title: 'Consentimientos',
             value: totalConsentimientos,
             icon: 'fas fa-file-contract',
+            color: 'success'
+          },
+          {
+            title: 'Verificados',
+            value: totalVerificados,
+            icon: 'fas fa-check-circle',
             color: 'warning'
           }
         ]);
         
+        // Guardar stats completas
+        this.stats.set(data);
+        
         this.loading.set(false);
       },
       error: (error: any) => {
-        console.error('[ERROR] Error cargando empresas del distribuidor:', error);
+        console.error('[ERROR] Error cargando estadísticas del distribuidor:', error);
         this.loading.set(false);
       }
     });

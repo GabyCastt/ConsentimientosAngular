@@ -141,7 +141,7 @@
   }
 
   <!-- Estadísticas para Distribuidores -->
-  @if (isDistribuidor() && distribuidorEmpresas().length > 0) {
+  @if (isDistribuidor()) {
     <!-- Estadísticas Principales -->
     <div class="row">
       @for (card of statCards(); track card.title) {
@@ -157,69 +157,20 @@
       }
     </div>
 
-    <!-- Lista de Empresas del Distribuidor -->
+    <!-- Mensaje informativo -->
     <div class="row">
       <div class="col-lg-12 mb-4">
-        <div class="card">
-          <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">
-              <i class="fas fa-building me-2"></i>
-              Mis Empresas
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Empresa</th>
-                    <th class="text-center">Usuarios</th>
-                    <th class="text-center">Clientes</th>
-                    <th class="text-center">Formularios</th>
-                    <th class="text-center">Consentimientos</th>
-                    <th class="text-center">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (empresa of distribuidorEmpresas(); track empresa.id) {
-                    <tr>
-                      <td>
-                        <div class="d-flex align-items-center">
-                          @if (empresa.logo) {
-                            <img [src]="config.getLogoUrl(empresa.logo)" 
-                                 alt="Logo" 
-                                 class="me-2"
-                                 style="width: 32px; height: 32px; object-fit: contain; border-radius: 4px;">
-                          }
-                          <div>
-                            <strong>{{ empresa.nombre }}</strong>
-                            @if (empresa.slogan) {
-                              <br><small class="text-muted">{{ empresa.slogan }}</small>
-                            }
-                          </div>
-                        </div>
-                      </td>
-                      <td class="text-center">{{ empresa.total_usuarios || 0 }}</td>
-                      <td class="text-center">{{ empresa.total_clientes || 0 }}</td>
-                      <td class="text-center">{{ empresa.total_formularios || 0 }}</td>
-                      <td class="text-center">{{ empresa.total_consentimientos || 0 }}</td>
-                      <td class="text-center">
-                        <a [routerLink]="['/empresas/detalle', empresa.id]" 
-                           class="btn btn-sm btn-outline-primary me-1"
-                           title="Ver Detalle">
-                          <i class="fas fa-eye"></i>
-                        </a>
-                        <a [routerLink]="['/empresas/editar', empresa.id]" 
-                           class="btn btn-sm btn-outline-secondary"
-                           title="Editar">
-                          <i class="fas fa-edit"></i>
-                        </a>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+        <div class="card bg-light">
+          <div class="card-body text-center py-5">
+            <i class="fas fa-building fa-4x text-primary mb-3"></i>
+            <h4>Gestiona tus empresas</h4>
+            <p class="text-muted mb-4">
+              Accede a la sección "Mis Empresas" desde el menú lateral para ver el detalle completo de cada empresa, 
+              gestionar usuarios y ver estadísticas individuales.
+            </p>
+            <a routerLink="/empresas/lista" class="btn btn-primary">
+              <i class="fas fa-arrow-right me-2"></i>Ir a Mis Empresas
+            </a>
           </div>
         </div>
       </div>
@@ -227,112 +178,75 @@
   }
 
   <!-- Estadísticas para Empresa (usuario tipo 'empresa') -->
-  @if (!isAdmin() && !isDistribuidor() && empresaStats()) {
+  @if (!isAdmin() && !isDistribuidor() && stats()) {
     <!-- Estadísticas Principales -->
     <div class="row">
-      <div class="col-md-3 mb-4">
-        <div class="card stat-card text-center">
-          <div class="card-body">
-            <i class="fas fa-users fa-2x text-primary mb-2"></i>
-            <h5 class="card-title">Usuarios</h5>
-            <h3 class="card-text">{{ empresaStats()!.total_usuarios }}</h3>
+      @for (card of statCards(); track card.title) {
+        <div class="col-md-3 mb-4">
+          <div class="card stat-card text-center">
+            <div class="card-body">
+              <i [class]="card.icon + ' fa-2x text-' + card.color + ' mb-2'"></i>
+              <h5 class="card-title">{{ card.title }}</h5>
+              <h3 class="card-text">{{ card.value }}</h3>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="col-md-3 mb-4">
-        <div class="card stat-card text-center">
-          <div class="card-body">
-            <i class="fas fa-user-friends fa-2x text-success mb-2"></i>
-            <h5 class="card-title">Clientes</h5>
-            <h3 class="card-text">{{ empresaStats()!.total_clientes }}</h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-4">
-        <div class="card stat-card text-center">
-          <div class="card-body">
-            <i class="fas fa-clipboard-list fa-2x text-info mb-2"></i>
-            <h5 class="card-title">Formularios</h5>
-            <h3 class="card-text">{{ empresaStats()!.total_formularios }}</h3>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3 mb-4">
-        <div class="card stat-card text-center">
-          <div class="card-body">
-            <i class="fas fa-file-signature fa-2x text-warning mb-2"></i>
-            <h5 class="card-title">Consentimientos</h5>
-            <h3 class="card-text">{{ empresaStats()!.total_consentimientos }}</h3>
-          </div>
-        </div>
-      </div>
+      }
     </div>
 
-    <!-- Respuestas de Formularios -->
-    <div class="row">
-      <div class="col-lg-12 mb-4">
-        <div class="card">
-          <div class="card-header bg-info text-white">
-            <h5 class="mb-0">
-              <i class="fas fa-tasks me-2"></i>
-              Respuestas de Formularios
-            </h5>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col-md-3 mb-3">
-                <div class="detail-stat">
-                  <i class="fas fa-list text-primary fa-2x mb-2"></i>
-                  <h4>{{ empresaStats()!.respuestas_formularios?.total || 0 }}</h4>
-                  <p class="text-muted mb-0">Total</p>
+    <!-- Detalles adicionales -->
+    @if (stats()!.consentimientos_procesados) {
+      <div class="row">
+        <div class="col-lg-12 mb-4">
+          <div class="card">
+            <div class="card-header bg-primary text-white">
+              <h5 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>
+                Actividad de Consentimientos
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <div class="detail-stat text-center">
+                    <i class="fas fa-check-double text-success fa-2x mb-2"></i>
+                    <h4>{{ stats()!.consentimientos_procesados!.completadas || 0 }}</h4>
+                    <p class="text-muted mb-0">Completados</p>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="detail-stat text-center">
+                    <i class="fas fa-user-check text-info fa-2x mb-2"></i>
+                    <h4>{{ stats()!.consentimientos_procesados!.verificados || 0 }}</h4>
+                    <p class="text-muted mb-0">Verificados</p>
+                  </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <div class="detail-stat text-center">
+                    <i class="fas fa-hourglass-half text-warning fa-2x mb-2"></i>
+                    <h4>{{ stats()!.consentimientos_procesados!.pendientes || 0 }}</h4>
+                    <p class="text-muted mb-0">Pendientes</p>
+                  </div>
                 </div>
               </div>
-              <div class="col-md-3 mb-3">
-                <div class="detail-stat">
-                  <i class="fas fa-user-check text-info fa-2x mb-2"></i>
-                  <h4>{{ empresaStats()!.respuestas_formularios?.verificados || 0 }}</h4>
-                  <p class="text-muted mb-0">Verificados</p>
+              @if (stats()!.consentimientos_procesados!.total > 0) {
+                <div class="progress progress-lg mt-3">
+                  <div 
+                    class="progress-bar bg-success" 
+                    role="progressbar" 
+                    [style.width.%]="(stats()!.consentimientos_procesados!.completadas / stats()!.consentimientos_procesados!.total * 100)"
+                    [attr.aria-valuenow]="stats()!.consentimientos_procesados!.completadas"
+                    [attr.aria-valuemin]="0"
+                    [attr.aria-valuemax]="stats()!.consentimientos_procesados!.total">
+                    {{ (stats()!.consentimientos_procesados!.completadas / stats()!.consentimientos_procesados!.total * 100).toFixed(1) }}% Completados
+                  </div>
                 </div>
-              </div>
-              <div class="col-md-3 mb-3">
-                <div class="detail-stat">
-                  <i class="fas fa-check-double text-success fa-2x mb-2"></i>
-                  <h4>{{ empresaStats()!.respuestas_formularios?.completados || 0 }}</h4>
-                  <p class="text-muted mb-0">Completados</p>
-                </div>
-              </div>
-              <div class="col-md-3 mb-3">
-                <div class="detail-stat">
-                  <i class="fas fa-hourglass-half text-warning fa-2x mb-2"></i>
-                  <h4>{{ empresaStats()!.respuestas_formularios?.pendientes || 0 }}</h4>
-                  <p class="text-muted mb-0">Pendientes</p>
-                </div>
-              </div>
+              }
             </div>
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- Método Más Usado -->
-    <div class="row">
-      <div class="col-lg-12 mb-4">
-        <div class="card bg-gradient-primary text-white">
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="me-4">
-                <i class="fas fa-trophy fa-3x"></i>
-              </div>
-              <div>
-                <h5 class="mb-1">Método Más Usado</h5>
-                <h3 class="mb-0">{{ formatMetodoNombre(empresaStats()!.metodo_mas_usado || '') }}</h3>
-                <p class="mb-0 opacity-75">{{ empresaStats()!.metodo_mas_usado_total || 0 }} usos</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    }
   }
 
   <!-- Estadísticas para Admin (original) -->

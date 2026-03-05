@@ -61,6 +61,8 @@ export class ModalFormularioComponent implements OnInit {
 
   // Computed
   isAdmin = computed(() => this.auth.currentUser()?.rol === 'admin');
+  isDistribuidor = computed(() => this.auth.currentUser()?.rol === 'distribuidor');
+  requiereEmpresaSelector = computed(() => this.isAdmin() || this.isDistribuidor());
 
   // Tipos de consentimiento disponibles
   tiposConsentimiento: TipoConsentimiento[] = [
@@ -112,7 +114,7 @@ export class ModalFormularioComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (this.isAdmin()) {
+    if (this.requiereEmpresaSelector()) {
       this.cargarEmpresas();
     }
   }
@@ -120,14 +122,29 @@ export class ModalFormularioComponent implements OnInit {
   cargarEmpresas(): void {
     this.loadingEmpresas.set(true);
     
-    this.api.get<any>(this.config.endpoints.empresas).subscribe({
+    // Admin: obtiene todas las empresas
+    // Distribuidor: obtiene solo sus empresas asignadas
+    const endpoint = this.isDistribuidor() 
+      ? '/api/distribuidores/mis-empresas'
+      : this.config.endpoints.empresas;
+    
+    console.log('🔍 [DEBUG] Cargando empresas desde:', endpoint);
+    
+    this.api.get<any>(endpoint).subscribe({
       next: (response) => {
         const empresas = response.empresas || response || [];
+        console.log('🔍 [DEBUG] Empresas cargadas:', empresas);
         this.empresas.set(empresas);
         this.loadingEmpresas.set(false);
+        
+        // Si es distribuidor y no hay empresa seleccionada, preseleccionar la primera
+        if (this.isDistribuidor() && empresas.length > 0 && !this.formData.empresa_id) {
+          this.formData.empresa_id = empresas[0].id;
+          console.log('🔍 [DEBUG] Empresa preseleccionada:', this.formData.empresa_id);
+        }
       },
       error: (error) => {
-        console.error(' Error cargando empresas:', error);
+        console.error('❌ [ERROR] Error cargando empresas:', error);
         this.empresas.set([]);
         this.loadingEmpresas.set(false);
       }
@@ -135,7 +152,11 @@ export class ModalFormularioComponent implements OnInit {
   }
 
   open(formulario?: any): void {
-    if (this.isAdmin() && this.empresas().length === 0) {
+    console.log('🔍 [DEBUG] Abriendo modal formulario');
+    console.log('🔍 [DEBUG] Es distribuidor:', this.isDistribuidor());
+    console.log('🔍 [DEBUG] Requiere selector:', this.requiereEmpresaSelector());
+    
+    if (this.requiereEmpresaSelector() && this.empresas().length === 0) {
       this.cargarEmpresas();
     }
 
@@ -152,6 +173,12 @@ export class ModalFormularioComponent implements OnInit {
     } else {
       this.isEditMode.set(false);
       this.reset();
+      
+      // Si es distribuidor y ya hay empresas cargadas, preseleccionar la primera
+      if (this.isDistribuidor() && this.empresas().length > 0) {
+        this.formData.empresa_id = this.empresas()[0].id;
+        console.log('🔍 [DEBUG] Empresa preseleccionada en open:', this.formData.empresa_id);
+      }
     }
 
     this.isOpen.set(true);
@@ -209,8 +236,8 @@ export class ModalFormularioComponent implements OnInit {
       errors['validacion'] = 'Debes seleccionar un tipo de verificación';
     }
 
-    // Validar empresa si es admin
-    if (this.isAdmin() && !this.formData.empresa_id) {
+    // Validar empresa si es admin o distribuidor
+    if (this.requiereEmpresaSelector() && !this.formData.empresa_id) {
       errors['empresa'] = 'Debes seleccionar una empresa';
     }
 
@@ -225,15 +252,28 @@ export class ModalFormularioComponent implements OnInit {
 
     this.loading.set(true);
 
+    // Obtener empresa_id según el rol
+    let empresaId = this.formData.empresa_id;
+    
+    // Solo usuarios tipo 'empresa' usan su empresa_id automáticamente
+    // Admin y distribuidor deben especificar empresa_id
+    if (!this.requiereEmpresaSelector()) {
+      empresaId = this.auth.currentUser()?.empresa_id || null;
+    }
+
     const formularioData = {
       nombre: this.formData.nombre,
       descripcion: this.formData.descripcion || undefined,
       tipos_consentimientos: this.formData.tipos_consentimientos,
       tipo_validacion: this.formData.tipo_validacion,
-      empresa_id: this.formData.empresa_id || undefined
+      empresa_id: empresaId || undefined
     };
 
-    // console.log(' Guardando formulario:', formularioData);
+    console.log('🔍 [DEBUG] Guardando formulario:', formularioData);
+    console.log('🔍 [DEBUG] Rol usuario:', this.auth.currentUser()?.rol);
+    console.log('🔍 [DEBUG] Requiere selector:', this.requiereEmpresaSelector());
+    console.log('🔍 [DEBUG] empresa_id del form:', this.formData.empresa_id);
+    console.log('🔍 [DEBUG] empresaId final:', empresaId);
 
     const request = this.isEditMode()
       ? this.api.put(`${this.config.endpoints.formularios}/${this.formularioId()}`, formularioData)
@@ -272,7 +312,24 @@ export class ModalFormularioComponent implements OnInit {
       },
       error: (error) => {
         console.error(' Error guardando formulario:', error);
-        const errorMsg = error.error?.error || error.error?.message || 'Error al guardar formulario';
+        let errorMsg = 'Error al guardar formulario';
+        
+        // Manejar errores específicos
+        if (error.error?.error) {
+          errorMsg = error.error.error;
+          
+          // Mensajes específicos según el error
+          if (errorMsg.includes('No tienes acceso a esta empresa')) {
+            errorMsg = 'No tienes acceso a esta empresa';
+          } else if (errorMsg.includes('Debe especificar una empresa')) {
+            errorMsg = 'Debes especificar una empresa';
+          } else if (errorMsg.includes('Tipos de consentimiento inválidos')) {
+            errorMsg = 'Tipos de consentimiento inválidos';
+          }
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        }
+        
         this.errors.set({ general: errorMsg });
         this.loading.set(false);
       }

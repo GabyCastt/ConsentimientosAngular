@@ -1,0 +1,137 @@
+<div class="detalle-distribuidor-container">
+  <div class="header">
+    <h1>Detalle del Distribuidor</h1>
+    <div class="header-actions">
+      <button class="btn btn-sm btn-outline-warning" (click)="editarDistribuidor()" *ngIf="distribuidor">
+        <i class="fas fa-edit"></i>
+      </button>
+      <button class="btn btn-sm btn-outline-secondary" routerLink="/distribuidores/lista">
+        <i class="fas fa-arrow-left"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Cargando información...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && distribuidor" class="content">
+    <!-- Información básica -->
+    <div class="info-card">
+      <h2>Información Básica</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>ID:</label>
+          <span>{{ distribuidor.id }}</span>
+        </div>
+        <div class="info-item">
+          <label>Nombre:</label>
+          <span>{{ distribuidor.nombre }}</span>
+        </div>
+        <div class="info-item">
+          <label>Email:</label>
+          <span>{{ distribuidor.email }}</span>
+        </div>
+        <div class="info-item">
+          <label>Estado:</label>
+          <span class="status-badge" [class.active]="distribuidor.activo" [class.inactive]="!distribuidor.activo">
+            {{ distribuidor.activo ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+        <div class="info-item">
+          <label>Fecha de creación:</label>
+          <span>{{ distribuidor.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="info-item" *ngIf="distribuidor.updated_at">
+          <label>Última actualización:</label>
+          <span>{{ distribuidor.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+
+      <div class="actions-section">
+        <button class="btn btn-primary" (click)="togglePasswordForm()">
+          <i class="fas fa-key"></i> {{ showPasswordForm ? 'Cancelar' : 'Cambiar Contraseña' }}
+        </button>
+      </div>
+
+      <div *ngIf="showPasswordForm" class="password-form">
+        <form [formGroup]="passwordForm" (ngSubmit)="cambiarPassword()">
+          <div class="form-group">
+            <label for="password">Nueva Contraseña</label>
+            <div class="password-input">
+              <input 
+                [type]="showPassword ? 'text' : 'password'" 
+                id="password" 
+                formControlName="password"
+                placeholder="Mínimo 6 caracteres">
+              <button 
+                type="button" 
+                class="toggle-password" 
+                (click)="togglePasswordVisibility()">
+                <i class="fas" [class.fa-eye]="!showPassword" [class.fa-eye-slash]="showPassword"></i>
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success" [disabled]="passwordForm.invalid">
+            Actualizar Contraseña
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Empresas asignadas -->
+    <div class="empresas-card">
+      <div class="card-header">
+        <h2>Empresas Asignadas ({{ distribuidor.empresas?.length || 0 }})</h2>
+        <button class="btn btn-primary" (click)="toggleAsignarForm()">
+          <i class="fas" [class.fa-plus]="!showAsignarForm" [class.fa-times]="showAsignarForm"></i> {{ showAsignarForm ? 'Cancelar' : 'Asignar Empresa' }}
+        </button>
+      </div>
+
+      <div *ngIf="showAsignarForm" class="asignar-form">
+        <form [formGroup]="asignarForm" (ngSubmit)="asignarEmpresa()">
+          <div class="form-group">
+            <label for="empresaId">Seleccionar Empresa</label>
+            <select id="empresaId" formControlName="empresaId">
+              <option value="">-- Seleccione una empresa --</option>
+              <option *ngFor="let empresa of empresasDisponibles" [value]="empresa.id">
+                {{ empresa.nombre }}
+              </option>
+            </select>
+            <small class="form-text text-muted">
+              <i class="fas fa-info-circle"></i> Si la empresa ya tiene un distribuidor, se te pedirá confirmación para reasignarla.
+            </small>
+          </div>
+          <button type="submit" class="btn btn-success" [disabled]="asignarForm.invalid">
+            <i class="fas fa-check"></i> Asignar
+          </button>
+        </form>
+      </div>
+
+      <div *ngIf="!distribuidor.empresas || distribuidor.empresas.length === 0" class="empty-state">
+        <p>No hay empresas asignadas a este distribuidor</p>
+      </div>
+
+      <div *ngIf="distribuidor.empresas && distribuidor.empresas.length > 0" class="empresas-list">
+        <div *ngFor="let empresa of distribuidor.empresas" class="empresa-item">
+          <div class="empresa-info">
+            <img *ngIf="empresa.logo" [src]="empresa.logo" [alt]="empresa.nombre" class="empresa-logo">
+            <div class="empresa-details">
+              <h3>{{ empresa.nombre }}</h3>
+              <p *ngIf="empresa.slogan">{{ empresa.slogan }}</p>
+            </div>
+          </div>
+          <button 
+            class="btn btn-sm btn-outline-danger" 
+            (click)="desasignarEmpresa(empresa.id, empresa.nombre)">
+            <i class="fas fa-unlink"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -48,8 +48,10 @@ export class ModalClienteComponent implements OnInit {
   // Validations
   errors = signal<Record<string, string>>({});
   
-  // Computed para verificar si es admin
+  // Computed para verificar si es admin o distribuidor
   isAdmin = computed(() => this.auth.currentUser()?.rol === 'admin');
+  isDistribuidor = computed(() => this.auth.currentUser()?.rol === 'distribuidor');
+  requiereEmpresaSelector = computed(() => this.isAdmin() || this.isDistribuidor());
 
   constructor(
     private clientesService: ClientesService,
@@ -61,8 +63,8 @@ export class ModalClienteComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Cargar empresas si es admin
-    if (this.isAdmin()) {
+    // Cargar empresas si es admin o distribuidor
+    if (this.requiereEmpresaSelector()) {
       this.cargarEmpresas();
     }
   }
@@ -70,12 +72,26 @@ export class ModalClienteComponent implements OnInit {
   cargarEmpresas(): void {
     this.loadingEmpresas.set(true);
     
-    this.api.get<any>(this.config.endpoints.empresas).subscribe({
+    // Admin: obtiene todas las empresas
+    // Distribuidor: obtiene solo sus empresas asignadas
+    const endpoint = this.isDistribuidor() 
+      ? '/api/distribuidores/mis-empresas'
+      : this.config.endpoints.empresas;
+    
+    console.log('🔍 [DEBUG] Cargando empresas desde:', endpoint);
+    
+    this.api.get<any>(endpoint).subscribe({
       next: (response) => {
         console.log('[INFO] Empresas recibidas:', response);
         const empresas = response.empresas || response || [];
         this.empresas.set(empresas);
         this.loadingEmpresas.set(false);
+        
+        // Si es distribuidor y no hay empresa seleccionada, preseleccionar la primera
+        if (this.isDistribuidor() && empresas.length > 0 && !this.formData.empresa_id) {
+          this.formData.empresa_id = empresas[0].id;
+          console.log('🔍 [DEBUG] Empresa preseleccionada:', this.formData.empresa_id);
+        }
       },
       error: (error) => {
         console.error('[ERROR] Error cargando empresas:', error);
@@ -86,8 +102,8 @@ export class ModalClienteComponent implements OnInit {
   }
 
   open(cliente?: Cliente): void {
-    // Cargar empresas si es admin y aún no se han cargado
-    if (this.isAdmin() && this.empresas().length === 0) {
+    // Cargar empresas si es admin o distribuidor y aún no se han cargado
+    if (this.requiereEmpresaSelector() && this.empresas().length === 0) {
       this.cargarEmpresas();
     }
 
@@ -105,6 +121,11 @@ export class ModalClienteComponent implements OnInit {
     } else {
       this.isEditMode.set(false);
       this.reset();
+      
+      // Si es distribuidor, preseleccionar la primera empresa
+      if (this.isDistribuidor() && this.empresas().length > 0) {
+        this.formData.empresa_id = this.empresas()[0].id;
+      }
     }
     
     this.isOpen.set(true);
@@ -160,8 +181,8 @@ export class ModalClienteComponent implements OnInit {
       errors['contacto'] = 'Debes proporcionar al menos un email válido o un teléfono válido';
     }
 
-    // Validar empresa si es admin
-    if (this.isAdmin() && !this.formData.empresa_id) {
+    // Validar empresa si es admin o distribuidor
+    if (this.requiereEmpresaSelector() && !this.formData.empresa_id) {
       errors['empresa'] = 'Debes seleccionar una empresa';
     }
 
@@ -176,9 +197,12 @@ export class ModalClienteComponent implements OnInit {
 
     this.loading.set(true);
 
-    // Obtener empresa_id del usuario si no es admin
+    // Obtener empresa_id según el rol
     let empresaId = this.formData.empresa_id;
-    if (!this.isAdmin()) {
+    
+    // Solo usuarios tipo 'empresa' usan su empresa_id automáticamente
+    // Admin y distribuidor deben especificar empresa_id
+    if (!this.requiereEmpresaSelector()) {
       empresaId = this.auth.currentUser()?.empresa_id || null;
     }
 
@@ -231,9 +255,13 @@ export class ModalClienteComponent implements OnInit {
         if (error.error?.error) {
           errorMsg = error.error.error;
           
-          // Mensaje específico para cliente duplicado
+          // Mensajes específicos según el error
           if (errorMsg.includes('Ya existe un cliente con esta cédula')) {
             errorMsg = 'Ya existe un cliente con esta cédula en esta empresa';
+          } else if (errorMsg.includes('No tienes acceso a esta empresa')) {
+            errorMsg = 'No tienes acceso a esta empresa';
+          } else if (errorMsg.includes('Debe especificar una empresa')) {
+            errorMsg = 'Debes especificar una empresa';
           }
         } else if (error.error?.message) {
           errorMsg = error.error.message;

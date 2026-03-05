@@ -18,6 +18,7 @@ export interface DashboardStats {
   consentimientos_procesados?: {
     total: number;
     completadas: number;
+    verificados: number;
     pendientes: number;
   };
   formularios?: {
@@ -108,15 +109,79 @@ export class DashboardService {
     private config: ConfigService
   ) {}
 
+  /**
+   * Obtener estadísticas del dashboard
+   * Endpoint: GET /api/estadisticas/dashboard
+   */
   getStats(): Observable<DashboardStats> {
     return this.api.get<DashboardStats>(
       this.config.endpoints.estadisticasDashboard
     );
   }
 
+  /**
+   * Obtener estadísticas globales (Solo Admin)
+   * Endpoint: GET /api/estadisticas/global
+   */
   getEstadisticasGlobales(): Observable<{ success: boolean; data: EstadisticasGlobales }> {
     return this.api.get<{ success: boolean; data: EstadisticasGlobales }>(
       this.config.endpoints.estadisticasGlobal
     );
+  }
+
+  /**
+   * Obtener estadísticas de formularios
+   * Endpoint: GET /api/estadisticas/formularios
+   */
+  getEstadisticasFormularios(): Observable<{
+    success: boolean;
+    data: {
+      formularios: Array<{
+        id: number;
+        nombre: string;
+        empresa_nombre: string;
+        activo: number;
+        tipos_consentimientos: string[];
+        estadisticas: {
+          total_respuestas: number;
+          completadas: number;
+          pendientes: number;
+          tasa_completado: number;
+        };
+        url_publica: string;
+        created_at: string;
+      }>;
+      resumen: {
+        total_formularios: number;
+        formularios_activos: number;
+        formularios_inactivos: number;
+      };
+    };
+  }> {
+    return this.api.get(this.config.endpoints.estadisticasFormularios);
+  }
+
+  /**
+   * Obtener estadísticas por período
+   * Endpoint: GET /api/estadisticas/periodo?periodo=30
+   */
+  getEstadisticasPeriodo(dias: number = 30): Observable<{
+    success: boolean;
+    data: {
+      clientes: {
+        total: number;
+        con_email: number;
+        con_telefono: number;
+      };
+      consentimientos_procesados: {
+        total: number;
+        verificados: number;
+        completadas: number;
+        pendientes: number;
+      };
+      periodo_dias: number;
+    };
+  }> {
+    return this.api.get(`${this.config.endpoints.estadisticasPeriodo}?periodo=${dias}`);
   }
 }

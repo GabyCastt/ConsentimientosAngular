@@ -55,6 +55,11 @@ export const routes: Routes = [
           .then(m => m.EMPRESAS_ROUTES)
       },
       {
+        path: 'distribuidores',
+        loadChildren: () => import('./features/distribuidores/distribuidores.routes')
+          .then(m => m.DISTRIBUIDORES_ROUTES)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

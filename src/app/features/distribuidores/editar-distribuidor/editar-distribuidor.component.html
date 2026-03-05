@@ -1,0 +1,67 @@
+<div class="editar-distribuidor-container">
+  <div class="header">
+    <h1>Editar Distribuidor</h1>
+    <button class="btn btn-sm btn-outline-secondary" [routerLink]="['/distribuidores/detalle', distribuidor.id]" *ngIf="distribuidor">
+      <i class="fas fa-arrow-left"></i>
+    </button>
+  </div>
+
+  <div *ngIf="loading && !distribuidor" class="loading">
+    <p>Cargando información...</p>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && distribuidor" class="form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nombre">Nombre completo *</label>
+        <input 
+          type="text" 
+          id="nombre" 
+          formControlName="nombre"
+          placeholder="Ej: Juan Pérez"
+          [class.error]="form.get('nombre')?.invalid && form.get('nombre')?.touched">
+        <span class="error-text" *ngIf="getErrorMessage('nombre')">
+          {{ getErrorMessage('nombre') }}
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email *</label>
+        <input 
+          type="email" 
+          id="email" 
+          formControlName="email"
+          placeholder="distribuidor@email.com"
+          [class.error]="form.get('email')?.invalid && form.get('email')?.touched">
+        <span class="error-text" *ngIf="getErrorMessage('email')">
+          {{ getErrorMessage('email') }}
+        </span>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="activo">
+          <span>Distribuidor activo</span>
+        </label>
+        <small>Si está desactivado, el distribuidor no podrá acceder al sistema</small>
+      </div>
+
+      <div class="form-actions">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          [routerLink]="['/distribuidores/detalle', distribuidor.id]" 
+          [disabled]="loading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || form.invalid">
+          {{ loading ? 'Guardando...' : 'Guardar Cambios' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
