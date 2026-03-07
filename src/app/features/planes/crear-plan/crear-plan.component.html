@@ -1,0 +1,133 @@
+<div class="crear-plan-container">
+  <div class="header">
+    <h1>Crear Nuevo Plan</h1>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <form [formGroup]="planForm" (ngSubmit)="onSubmit()" class="plan-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="plan_codigo">Código del Plan *</label>
+        <input 
+          type="text" 
+          id="plan_codigo" 
+          formControlName="plan_codigo" 
+          class="form-control"
+          placeholder="Ej: BASICO, PREMIUM">
+        <small class="text-danger" *ngIf="planForm.get('plan_codigo')?.touched && planForm.get('plan_codigo')?.errors">
+          El código es requerido
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="plan_nombre">Nombre del Plan *</label>
+        <input 
+          type="text" 
+          id="plan_nombre" 
+          formControlName="plan_nombre" 
+          class="form-control"
+          placeholder="Ej: Plan Básico">
+        <small class="text-danger" *ngIf="planForm.get('plan_nombre')?.touched && planForm.get('plan_nombre')?.errors">
+          El nombre es requerido
+        </small>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="plan_descripcion">Descripción</label>
+      <textarea 
+        id="plan_descripcion" 
+        formControlName="plan_descripcion" 
+        class="form-control"
+        rows="3"
+        placeholder="Descripción del plan"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="plan_precio">Precio *</label>
+        <input 
+          type="number" 
+          id="plan_precio" 
+          formControlName="plan_precio" 
+          class="form-control"
+          step="0.01"
+          min="0">
+      </div>
+
+      <div class="form-group">
+        <label for="plan_duracion_meses">Duración (meses) *</label>
+        <input 
+          type="number" 
+          id="plan_duracion_meses" 
+          formControlName="plan_duracion_meses" 
+          class="form-control"
+          min="1">
+      </div>
+
+      <div class="form-group">
+        <label for="plan_orden">Orden *</label>
+        <input 
+          type="number" 
+          id="plan_orden" 
+          formControlName="plan_orden" 
+          class="form-control"
+          min="1">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="plan_ilimitado">
+          Formularios ilimitados
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group" *ngIf="!planForm.get('plan_ilimitado')?.value">
+      <label for="plan_cantidad_formularios">Cantidad de Formularios *</label>
+      <input 
+        type="number" 
+        id="plan_cantidad_formularios" 
+        formControlName="plan_cantidad_formularios" 
+        class="form-control"
+        min="0">
+    </div>
+
+    <div class="form-group">
+      <label>Tipos de Verificación Permitidos</label>
+      <div class="checkbox-list">
+        <label *ngFor="let tipo of tiposVerificacion" class="checkbox-item">
+          <input 
+            type="checkbox" 
+            [checked]="isTipoSelected(tipo.value)"
+            (change)="onTipoVerificacionChange(tipo.value, $event)">
+          {{ tipo.label }}
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="plan_activo">
+          Plan activo
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancelar()" [disabled]="loading">
+        Cancelar
+      </button>
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <i class="fas fa-spinner fa-spin" *ngIf="loading"></i>
+        {{ loading ? 'Creando...' : 'Crear Plan' }}
+      </button>
+    </div>
+  </form>
+</div>

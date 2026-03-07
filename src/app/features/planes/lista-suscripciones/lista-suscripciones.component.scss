@@ -1,0 +1,91 @@
+.suscripciones-container {
+  padding: 2rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+  }
+}
+
+.loading, .empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+
+  i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: #f8f9fa;
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #495057;
+      border-bottom: 2px solid #dee2e6;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #dee2e6;
+
+      &:hover {
+        background: #f8f9fa;
+      }
+
+      td {
+        padding: 1rem;
+        vertical-align: middle;
+      }
+    }
+  }
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+
+  &.badge-success {
+    background: #d1e7dd;
+    color: #0f5132;
+  }
+
+  &.badge-danger {
+    background: #f8d7da;
+    color: #842029;
+  }
+
+  &.badge-secondary {
+    background: #e9ecef;
+    color: #6c757d;
+  }
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 0.875rem;
+}

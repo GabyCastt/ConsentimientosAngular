@@ -1,0 +1,80 @@
+<div class="catalogo-planes-container">
+  <div class="header">
+    <h1>Catálogo de Planes</h1>
+    <button class="btn btn-primary" (click)="crearPlan()">
+      <i class="fas fa-plus"></i> Crear Plan
+    </button>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros">
+    <label class="checkbox-label">
+      <input 
+        type="checkbox" 
+        [(ngModel)]="mostrarInactivos"
+        (ngModelChange)="onMostrarInactivosChange()">
+      <span>Mostrar planes inactivos</span>
+    </label>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando planes...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && planes.length === 0" class="empty-state">
+    <i class="fas fa-box-open"></i>
+    <p>No hay planes en el catálogo</p>
+    <button class="btn btn-primary" (click)="crearPlan()">Crear primer plan</button>
+  </div>
+
+  <div class="planes-grid" *ngIf="!loading && planes.length > 0">
+    <div class="plan-card" *ngFor="let plan of planes" [class.inactivo]="plan.plan_activo === 0">
+      <div class="plan-header">
+        <h3>{{ plan.plan_nombre }}</h3>
+        <span class="badge" [class.badge-success]="plan.plan_activo === 1" [class.badge-danger]="plan.plan_activo === 0">
+          {{ plan.plan_activo === 1 ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      
+      <div class="plan-codigo">{{ plan.plan_codigo }}</div>
+      
+      <div class="plan-precio">
+        <span class="precio">${{ plan.plan_precio }}</span>
+        <span class="duracion">/ {{ plan.plan_duracion_meses }} meses</span>
+      </div>
+
+      <div class="plan-descripcion">
+        {{ plan.plan_descripcion }}
+      </div>
+
+      <div class="plan-features">
+        <div class="feature">
+          <i class="fas fa-file-alt"></i>
+          <span *ngIf="plan.plan_ilimitado">Formularios ilimitados</span>
+          <span *ngIf="!plan.plan_ilimitado">{{ plan.plan_cantidad_formularios }} formularios</span>
+        </div>
+        
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <span>{{ getTiposVerificacionTexto(plan.tipos_verificacion_permitidos) }}</span>
+        </div>
+      </div>
+
+      <div class="plan-actions">
+        <button class="btn btn-sm btn-outline-primary" (click)="editarPlan(plan.plan_id)">
+          <i class="fas fa-edit"></i> Editar
+        </button>
+        <button 
+          class="btn btn-sm btn-outline-danger" 
+          (click)="desactivarPlan(plan)"
+          *ngIf="plan.plan_activo === 1">
+          <i class="fas fa-ban"></i> Desactivar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

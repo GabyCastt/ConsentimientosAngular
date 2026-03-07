@@ -1,0 +1,95 @@
+.ver-planes-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #6c757d;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #6c757d;
+}
+
+.planes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.plan-card {
+  background: white;
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transform: translateY(-4px);
+    border-color: #0d6efd;
+  }
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #e9ecef;
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+}
+
+.plan-precio {
+  .precio {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0d6efd;
+  }
+
+  .duracion {
+    display: block;
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+}
+
+.plan-descripcion {
+  text-align: center;
+  color: #495057;
+  margin-bottom: 2rem;
+  min-height: 3rem;
+}
+
+.plan-features {
+  .feature {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+
+    i {
+      color: #198754;
+      margin-top: 0.25rem;
+    }
+  }
+}

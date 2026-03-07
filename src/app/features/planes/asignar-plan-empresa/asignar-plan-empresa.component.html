@@ -1,0 +1,185 @@
+<div class="asignar-plan-container">
+  <div class="breadcrumb">
+    <button class="btn-link" (click)="volver()">
+      <i class="fas fa-arrow-left"></i> Volver a Empresas
+    </button>
+  </div>
+
+  <div class="header">
+    <h2>Asignar Plan a {{ empresaNombre }}</h2>
+    <p class="subtitle">Complete la información para asignar un plan a esta empresa</p>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="successMessage" class="alert alert-success">
+    <i class="fas fa-check-circle"></i> {{ successMessage }}
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    <i class="fas fa-exclamation-circle"></i> {{ error }}
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading && planesDisponibles.length === 0" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando...
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-container" *ngIf="!loading || planesDisponibles.length > 0">
+    <form [formGroup]="planForm" (ngSubmit)="asignarPlan()">
+      
+      <!-- Selección de Plan -->
+      <div class="form-section">
+        <h3>Seleccionar Plan</h3>
+        
+        <div class="form-group">
+          <label for="plan_id">Plan *</label>
+          <select 
+            id="plan_id" 
+            formControlName="plan_id"
+            (change)="onPlanChange()"
+            class="form-control">
+            <option value="">-- Seleccione un plan --</option>
+            <option *ngFor="let plan of planesDisponibles" [value]="plan.plan_id">
+              {{ plan.plan_nombre }} - ${{ plan.plan_precio }} / {{ plan.plan_duracion_meses }} meses
+            </option>
+          </select>
+          <div class="error-message" *ngIf="planForm.get('plan_id')?.invalid && planForm.get('plan_id')?.touched">
+            Debe seleccionar un plan
+          </div>
+        </div>
+
+        <!-- Info del plan seleccionado -->
+        <div class="plan-info" *ngIf="planForm.get('plan_id')?.value">
+          <div class="info-card">
+            <h4>{{ getPlanInfo(+planForm.get('plan_id')!.value)?.plan_nombre }}</h4>
+            <p class="plan-description">
+              {{ getPlanInfo(+planForm.get('plan_id')!.value)?.plan_descripcion }}
+            </p>
+            <div class="plan-features">
+              <div class="feature">
+                <i class="fas fa-file-alt"></i>
+                <span *ngIf="getPlanInfo(+planForm.get('plan_id')!.value)?.plan_ilimitado">
+                  Formularios ilimitados
+                </span>
+                <span *ngIf="!getPlanInfo(+planForm.get('plan_id')!.value)?.plan_ilimitado">
+                  {{ getPlanInfo(+planForm.get('plan_id')!.value)?.plan_cantidad_formularios }} formularios
+                </span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-shield-alt"></i>
+                <span>{{ getTiposVerificacionTexto(getPlanInfo(+planForm.get('plan_id')!.value)?.tipos_verificacion_permitidos || []) }}</span>
+              </div>
+              <div class="feature">
+                <i class="fas fa-calendar"></i>
+                <span>Duración: {{ getPlanInfo(+planForm.get('plan_id')!.value)?.plan_duracion_meses }} meses</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fechas -->
+      <div class="form-section">
+        <h3>Vigencia del Plan</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="planempresa_fecha_inicio">Fecha de Inicio *</label>
+            <input 
+              type="date" 
+              id="planempresa_fecha_inicio" 
+              formControlName="planempresa_fecha_inicio"
+              class="form-control">
+            <div class="error-message" *ngIf="planForm.get('planempresa_fecha_inicio')?.invalid && planForm.get('planempresa_fecha_inicio')?.touched">
+              La fecha de inicio es obligatoria
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="planempresa_caduca">Fecha de Vencimiento *</label>
+            <input 
+              type="date" 
+              id="planempresa_caduca" 
+              formControlName="planempresa_caduca"
+              class="form-control">
+            <div class="error-message" *ngIf="planForm.get('planempresa_caduca')?.invalid && planForm.get('planempresa_caduca')?.touched">
+              La fecha de vencimiento es obligatoria
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información de Pago -->
+      <div class="form-section">
+        <h3>Información de Pago</h3>
+        
+        <div class="form-group">
+          <label for="planempresa_valor">Valor del Plan *</label>
+          <div class="input-group">
+            <span class="input-prefix">$</span>
+            <input 
+              type="number" 
+              id="planempresa_valor" 
+              formControlName="planempresa_valor"
+              step="0.01"
+              min="0"
+              class="form-control">
+          </div>
+          <div class="error-message" *ngIf="planForm.get('planempresa_valor')?.invalid && planForm.get('planempresa_valor')?.touched">
+            El valor debe ser mayor o igual a 0
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="planempresa_nrcomprobante">Número de Comprobante</label>
+            <input 
+              type="text" 
+              id="planempresa_nrcomprobante" 
+              formControlName="planempresa_nrcomprobante"
+              placeholder="Ej: COMP-001"
+              class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label for="planempresa_banco">Banco</label>
+            <input 
+              type="text" 
+              id="planempresa_banco" 
+              formControlName="planempresa_banco"
+              placeholder="Ej: Banco Pichincha"
+              class="form-control">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="planempresa_comentario">Comentarios</label>
+          <textarea 
+            id="planempresa_comentario" 
+            formControlName="planempresa_comentario"
+            rows="3"
+            placeholder="Comentarios adicionales sobre la asignación del plan"
+            class="form-control"></textarea>
+        </div>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="volver()" [disabled]="loading">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || planForm.invalid">
+          <i class="fas fa-check"></i> {{ loading ? 'Asignando...' : 'Asignar Plan' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Empty state -->
+  <div class="empty-state" *ngIf="!loading && planesDisponibles.length === 0">
+    <i class="fas fa-box-open"></i>
+    <p>No hay planes disponibles para asignar</p>
+    <small>{{ isAdmin ? 'No hay planes en el catálogo' : 'No tienes planes asignados' }}</small>
+  </div>
+</div>

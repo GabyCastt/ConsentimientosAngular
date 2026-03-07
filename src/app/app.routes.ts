@@ -65,6 +65,11 @@ export const routes: Routes = [
           .then(m => m.USUARIOS_ROUTES)
       },
       {
+        path: 'planes',
+        loadChildren: () => import('./features/planes/planes.routes')
+          .then(m => m.PLANES_ROUTES)
+      },
+      {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full'

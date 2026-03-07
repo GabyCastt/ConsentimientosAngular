@@ -87,9 +87,14 @@
     <div class="empresas-card">
       <div class="card-header">
         <h2>Empresas Asignadas ({{ distribuidor.empresas?.length || 0 }})</h2>
-        <button class="btn btn-primary" (click)="toggleAsignarForm()">
-          <i class="fas" [class.fa-plus]="!showAsignarForm" [class.fa-times]="showAsignarForm"></i> {{ showAsignarForm ? 'Cancelar' : 'Asignar Empresa' }}
-        </button>
+        <div class="header-actions">
+          <button class="btn btn-secondary" (click)="gestionarPlanes()">
+            <i class="fas fa-box"></i> Gestionar Planes
+          </button>
+          <button class="btn btn-primary" (click)="toggleAsignarForm()">
+            <i class="fas" [class.fa-plus]="!showAsignarForm" [class.fa-times]="showAsignarForm"></i> {{ showAsignarForm ? 'Cancelar' : 'Asignar Empresa' }}
+          </button>
+        </div>
       </div>
 
       <div *ngIf="showAsignarForm" class="asignar-form">

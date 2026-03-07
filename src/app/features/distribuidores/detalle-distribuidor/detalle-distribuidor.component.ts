@@ -190,4 +190,10 @@ export class DetalleDistribuidorComponent implements OnInit {
       this.router.navigate(['/distribuidores/editar', this.distribuidor.id]);
     }
   }
+
+  gestionarPlanes(): void {
+    if (this.distribuidor) {
+      this.router.navigate(['/distribuidores/planes', this.distribuidor.id]);
+    }
+  }
 }

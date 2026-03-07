@@ -1,0 +1,52 @@
+<div class="plan-widget" *ngIf="!loading && planActivo?.estadisticas?.tiene_plan">
+  <div class="widget-header">
+    <h3>Mi Plan</h3>
+    <a routerLink="/planes/mi-plan" class="btn-link">Ver detalles</a>
+  </div>
+
+  <div class="plan-name">{{ planActivo?.plan?.plan_nombre }}</div>
+
+  <div class="plan-stats">
+    <div class="stat">
+      <div class="stat-label">Formularios</div>
+      <div class="stat-value" [ngClass]="getDisponiblesColor()">
+        <span *ngIf="planActivo?.estadisticas?.ilimitado">Ilimitados</span>
+        <span *ngIf="!planActivo?.estadisticas?.ilimitado">
+          {{ planActivo?.estadisticas?.disponibles }} disponibles
+        </span>
+      </div>
+    </div>
+
+    <div class="stat">
+      <div class="stat-label">Vence en</div>
+      <div class="stat-value">
+        {{ planActivo?.estadisticas?.dias_restantes }} días
+      </div>
+    </div>
+  </div>
+
+  <div class="progress-bar" *ngIf="!planActivo?.estadisticas?.ilimitado">
+    <div 
+      class="progress-fill" 
+      [style.width.%]="getProgressPercentage()"
+      [ngClass]="getProgressClass()">
+    </div>
+  </div>
+
+  <div class="alert-mini" *ngIf="!planActivo?.estadisticas?.ilimitado && planActivo?.estadisticas?.disponibles === 0">
+    <i class="fas fa-exclamation-circle"></i>
+    Límite alcanzado
+  </div>
+</div>
+
+<div class="plan-widget no-plan" *ngIf="!loading && !planActivo?.estadisticas?.tiene_plan">
+  <div class="widget-header">
+    <h3>Sin Plan Activo</h3>
+  </div>
+  <p>Contacte a su administrador</p>
+  <a routerLink="/planes/ver-planes" class="btn btn-sm btn-primary">Ver Planes</a>
+</div>
+
+<div class="plan-widget loading" *ngIf="loading">
+  <i class="fas fa-spinner fa-spin"></i>
+</div>

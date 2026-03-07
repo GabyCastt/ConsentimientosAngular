@@ -189,6 +189,10 @@ export class DetalleEmpresaComponent implements OnInit {
     this.router.navigate(['/empresas/editar', this.empresaId()]);
   }
 
+  asignarPlan(): void {
+    this.router.navigate(['/planes/asignar', this.empresaId()]);
+  }
+
   volver(): void {
     this.router.navigate(['/empresas/lista']);
   }

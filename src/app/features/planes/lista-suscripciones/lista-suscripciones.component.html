@@ -1,0 +1,56 @@
+<div class="suscripciones-container">
+  <div class="header">
+    <h1>Suscripciones de Empresas</h1>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando suscripciones...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div class="table-container" *ngIf="!loading && suscripciones.length > 0">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Empresa</th>
+          <th>Plan</th>
+          <th>Estado</th>
+          <th>Formularios</th>
+          <th>Utilizados</th>
+          <th>Disponibles</th>
+          <th>Vencimiento</th>
+          <th>Valor</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sub of suscripciones">
+          <td>{{ sub.empresa_nombre || 'Empresa #' + sub.emp_codigo }}</td>
+          <td>
+            <strong>{{ sub.plan_nombre }}</strong>
+            <br>
+            <small class="text-muted">{{ sub.plan_codigo }}</small>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="getEstadoClass(sub.planempresa_estado)">
+              {{ sub.planempresa_estado }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="sub.planempresa_ilimitado">Ilimitado</span>
+            <span *ngIf="!sub.planempresa_ilimitado">{{ sub.planempresa_cantidad }}</span>
+          </td>
+          <td>{{ sub.planempresa_utilizados }}</td>
+          <td>{{ getDisponibles(sub) }}</td>
+          <td>{{ sub.planempresa_caduca | date: 'dd/MM/yyyy' }}</td>
+          <td>${{ sub.planempresa_valor }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!loading && suscripciones.length === 0" class="empty-state">
+    <i class="fas fa-inbox"></i>
+    <p>No hay suscripciones registradas</p>
+  </div>
+</div>

@@ -1,0 +1,127 @@
+<div class="mi-plan-container">
+  <div class="header">
+    <h1>Mi Plan</h1>
+    <a routerLink="/planes/ver-planes" class="btn btn-outline-primary">
+      <i class="fas fa-eye"></i> Ver Planes Disponibles
+    </a>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando información del plan...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && !planActivo?.estadisticas?.tiene_plan" class="no-plan">
+    <i class="fas fa-exclamation-circle"></i>
+    <h3>No tiene un plan activo</h3>
+    <p>Contacte a su distribuidor o administrador para activar un plan</p>
+    <a routerLink="/planes/ver-planes" class="btn btn-primary">Ver Planes Disponibles</a>
+  </div>
+
+  <div *ngIf="!loading && !error && planActivo?.estadisticas?.tiene_plan" class="plan-info">
+    <!-- Tarjeta principal del plan -->
+    <div class="plan-card">
+      <div class="plan-header">
+        <div>
+          <h2>{{ planActivo?.plan?.plan_nombre }}</h2>
+          <span class="plan-codigo">{{ planActivo?.plan?.plan_codigo }}</span>
+        </div>
+        <span class="badge" [ngClass]="'badge-' + getEstadoColor()">
+          {{ planActivo?.plan?.planempresa_estado }}
+        </span>
+      </div>
+
+      <div class="plan-stats">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Formularios Disponibles</div>
+            <div class="stat-value" [ngClass]="getDisponiblesColor()">
+              <span *ngIf="planActivo?.estadisticas?.ilimitado">Ilimitados</span>
+              <span *ngIf="!planActivo?.estadisticas?.ilimitado">
+                {{ planActivo?.estadisticas?.disponibles }} de {{ planActivo?.estadisticas?.cantidad_total }}
+              </span>
+            </div>
+            <div class="stat-detail" *ngIf="!planActivo?.estadisticas?.ilimitado">
+              {{ planActivo?.estadisticas?.utilizados }} utilizados
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-calendar-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Vencimiento</div>
+            <div class="stat-value">
+              {{ planActivo?.estadisticas?.caduca | date: 'dd/MM/yyyy' }}
+            </div>
+            <div class="stat-detail" [ngClass]="getDiasRestantesColor()">
+              {{ planActivo?.estadisticas?.dias_restantes }} días restantes
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-label">Valor del Plan</div>
+            <div class="stat-value">
+              ${{ planActivo?.estadisticas?.valor }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progreso de uso -->
+      <div class="usage-progress" *ngIf="!planActivo?.estadisticas?.ilimitado">
+        <div class="progress-label">
+          <span>Uso de formularios</span>
+          <span>{{ planActivo?.estadisticas?.utilizados }} / {{ planActivo?.estadisticas?.cantidad_total }}</span>
+        </div>
+        <div class="progress-bar">
+          <div 
+            class="progress-fill" 
+            [style.width.%]="getProgressWidth()"
+            [ngClass]="getProgressClass(planActivo?.estadisticas?.disponibles)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipos de verificación -->
+      <div class="verification-types">
+        <h3>Tipos de Verificación Incluidos</h3>
+        <div class="types-list">
+          <span class="type-badge" *ngFor="let tipo of planActivo?.plan?.tipos_verificacion_permitidos">
+            <i class="fas fa-check-circle"></i>
+            {{ getTiposVerificacionTexto([tipo]) }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Alertas -->
+      <div class="alert alert-warning" *ngIf="shouldShowWarningAlert()">
+        <i class="fas fa-exclamation-triangle"></i>
+        Está por alcanzar el límite de formularios. Considere actualizar su plan.
+      </div>
+
+      <div class="alert alert-danger" *ngIf="shouldShowDangerAlert()">
+        <i class="fas fa-ban"></i>
+        Ha alcanzado el límite de formularios. Contacte a su distribuidor para actualizar el plan.
+      </div>
+
+      <div class="alert alert-warning" *ngIf="shouldShowExpirationAlert()">
+        <i class="fas fa-clock"></i>
+        Su plan vence en {{ planActivo?.estadisticas?.dias_restantes }} días. Contacte a su distribuidor para renovar.
+      </div>
+    </div>
+  </div>
+</div>

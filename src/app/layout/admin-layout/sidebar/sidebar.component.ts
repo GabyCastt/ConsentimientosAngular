@@ -179,9 +179,21 @@ export class SidebarComponent {
       roles: ['empresa']
     },
     { 
+      label: 'Mi Plan', 
+      icon: 'fas fa-star', 
+      route: '/planes/mi-plan',
+      roles: ['empresa']
+    },
+    { 
       label: 'Mis Empresas', 
       icon: 'fas fa-building', 
       route: '/empresas/lista',
+      roles: ['distribuidor']
+    },
+    { 
+      label: 'Mis Planes', 
+      icon: 'fas fa-box', 
+      route: '/planes/mis-planes',
       roles: ['distribuidor']
     },
     { 
@@ -194,6 +206,18 @@ export class SidebarComponent {
       label: 'Distribuidores', 
       icon: 'fas fa-user-tie', 
       route: '/distribuidores/lista',
+      roles: ['admin']
+    },
+    { 
+      label: 'Catálogo de Planes', 
+      icon: 'fas fa-tags', 
+      route: '/planes/catalogo',
+      roles: ['admin']
+    },
+    { 
+      label: 'Suscripciones', 
+      icon: 'fas fa-list-alt', 
+      route: '/planes/suscripciones',
       roles: ['admin']
     }
   ];

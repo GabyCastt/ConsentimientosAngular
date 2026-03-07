@@ -1,0 +1,46 @@
+<div class="mis-planes-container">
+  <div class="header">
+    <h1>Mis Planes Disponibles</h1>
+    <p>Estos son los planes que puede asignar a sus empresas</p>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando planes...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <div *ngIf="!loading && planes.length === 0" class="empty-state">
+    <i class="fas fa-box-open"></i>
+    <p>No tiene planes asignados. Contacte al administrador.</p>
+  </div>
+
+  <div class="planes-grid" *ngIf="!loading && planes.length > 0">
+    <div class="plan-card" *ngFor="let plan of planes">
+      <div class="plan-header">
+        <h3>{{ plan.plan_nombre }}</h3>
+        <div class="plan-codigo">{{ plan.plan_codigo }}</div>
+      </div>
+      
+      <div class="plan-precio">
+        <span class="precio">${{ plan.plan_precio }}</span>
+        <span class="duracion">/ {{ plan.plan_duracion_meses }} meses</span>
+      </div>
+
+      <div class="plan-descripcion">{{ plan.plan_descripcion }}</div>
+
+      <div class="plan-features">
+        <div class="feature">
+          <i class="fas fa-file-alt"></i>
+          <span *ngIf="plan.plan_ilimitado">Formularios ilimitados</span>
+          <span *ngIf="!plan.plan_ilimitado">{{ plan.plan_cantidad_formularios }} formularios</span>
+        </div>
+        
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <span>{{ getTiposVerificacionTexto(plan.tipos_verificacion_permitidos) }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

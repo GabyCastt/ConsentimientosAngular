@@ -5,6 +5,9 @@
     <div class="header">
       <h1>{{ empresa()!.nombre }}</h1>
       <div class="header-actions">
+        <button class="btn btn-sm btn-success" (click)="asignarPlan()">
+          <i class="fas fa-box"></i> Asignar Plan
+        </button>
         <button class="btn btn-sm btn-outline-secondary" (click)="volver()">
           <i class="fas fa-arrow-left"></i>
         </button>

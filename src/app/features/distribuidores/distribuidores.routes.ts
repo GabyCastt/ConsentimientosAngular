@@ -31,6 +31,13 @@ export const DISTRIBUIDORES_ROUTES: Routes = [
     title: 'Detalle de Distribuidor'
   },
   {
+    path: 'planes/:id',
+    loadComponent: () => import('./planes-distribuidor/planes-distribuidor.component')
+      .then(m => m.PlanesDistribuidorComponent),
+    canActivate: [roleGuard(['admin'])],
+    title: 'Planes del Distribuidor'
+  },
+  {
     path: '',
     redirectTo: 'lista',
     pathMatch: 'full'
