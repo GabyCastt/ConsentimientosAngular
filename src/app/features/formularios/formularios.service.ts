@@ -67,6 +67,14 @@ export interface AutoVerifyResponse {
   mensaje: string;
 }
 
+export interface TiposVerificacionPermitidosResponse {
+  tipos_permitidos: string[];
+  plan_activo: boolean;
+  plan_nombre?: string;
+  plan_codigo?: string;
+  mensaje?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -81,6 +89,14 @@ export class FormulariosService {
   // Listar formularios
   getFormularios(): Observable<{ formularios: Formulario[] }> {
     return this.api.get<{ formularios: Formulario[] }>(this.config.endpoints.formularios);
+  }
+
+  // Obtener tipos de verificación permitidos según el plan
+  getTiposVerificacionPermitidos(empresaId?: number): Observable<TiposVerificacionPermitidosResponse> {
+    const endpoint = empresaId 
+      ? `${this.config.endpoints.formularios}/tipos-verificacion-permitidos?empresa_id=${empresaId}`
+      : `${this.config.endpoints.formularios}/tipos-verificacion-permitidos`;
+    return this.api.get<TiposVerificacionPermitidosResponse>(endpoint);
   }
 
   // Cambiar estado del formulario

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../core/services/api.service';
 import { ConfigService } from '../../../core/services/config.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FormulariosService, TiposVerificacionPermitidosResponse } from '../formularios.service';
 
 interface Empresa {
   id: number;
@@ -42,7 +43,12 @@ export class ModalFormularioComponent implements OnInit {
   isEditMode = signal(false);
   loading = signal(false);
   loadingEmpresas = signal(false);
+  loadingTiposPermitidos = signal(false);
   formularioId = signal<number | null>(null);
+
+  // Tipos de verificación permitidos según el plan
+  tiposPermitidos = signal<string[]>([]);
+  planInfo = signal<TiposVerificacionPermitidosResponse | null>(null);
 
   // Form data
   formData = {
@@ -63,12 +69,21 @@ export class ModalFormularioComponent implements OnInit {
   isAdmin = computed(() => this.auth.currentUser()?.rol === 'admin');
   isDistribuidor = computed(() => this.auth.currentUser()?.rol === 'distribuidor');
   requiereEmpresaSelector = computed(() => this.isAdmin() || this.isDistribuidor());
+  
+  // Tipos de validación filtrados según el plan
+  tiposValidacionDisponibles = computed(() => {
+    const permitidos = this.tiposPermitidos();
+    if (permitidos.length === 0) {
+      return this.tiposValidacion; // Mostrar todos si aún no se cargaron
+    }
+    return this.tiposValidacion.filter(tipo => permitidos.includes(tipo.value));
+  });
 
   // Tipos de consentimiento disponibles
   tiposConsentimiento: TipoConsentimiento[] = [
-    { value: 'datos_personales', label: 'Datos Personales', icon: 'fa-shield-alt', color: 'primary' },
-    { value: 'imagen', label: 'Uso de Imagen', icon: 'fa-image', color: 'info' },
-    { value: 'marketing', label: 'Marketing', icon: 'fa-bullhorn', color: 'warning' }
+    { value: 'datos_personales', label: 'Datos Personales', icon: 'fa-file-alt', color: 'primary' },
+    { value: 'imagen', label: 'Uso de Imagen', icon: 'fa-file-alt', color: 'info' },
+    { value: 'marketing', label: 'Marketing', icon: 'fa-file-alt', color: 'warning' }
   ];
 
   // Tipos de validación disponibles
@@ -110,12 +125,57 @@ export class ModalFormularioComponent implements OnInit {
   constructor(
     private api: ApiService,
     private config: ConfigService,
-    private auth: AuthService
+    private auth: AuthService,
+    private formulariosService: FormulariosService
   ) {}
 
   ngOnInit(): void {
     if (this.requiereEmpresaSelector()) {
       this.cargarEmpresas();
+    } else {
+      // Para usuarios tipo 'empresa', cargar tipos permitidos inmediatamente
+      this.cargarTiposPermitidos();
+    }
+  }
+
+  cargarTiposPermitidos(empresaId?: number): void {
+    this.loadingTiposPermitidos.set(true);
+    
+    // Determinar empresa_id según el rol
+    let idEmpresa = empresaId;
+    if (!this.requiereEmpresaSelector()) {
+      idEmpresa = this.auth.currentUser()?.empresa_id;
+    }
+    
+    console.log('🔍 [DEBUG] Cargando tipos permitidos para empresa:', idEmpresa);
+    
+    this.formulariosService.getTiposVerificacionPermitidos(idEmpresa).subscribe({
+      next: (response) => {
+        console.log('✅ [DEBUG] Tipos permitidos:', response);
+        this.tiposPermitidos.set(response.tipos_permitidos);
+        this.planInfo.set(response);
+        
+        // Si el tipo actual no está permitido, seleccionar el primero disponible
+        if (!response.tipos_permitidos.includes(this.formData.tipo_validacion)) {
+          this.formData.tipo_validacion = response.tipos_permitidos[0] || 'sms_email';
+        }
+        
+        this.loadingTiposPermitidos.set(false);
+      },
+      error: (error) => {
+        console.error('❌ [ERROR] Error cargando tipos permitidos:', error);
+        // En caso de error, permitir solo sms_email por defecto
+        this.tiposPermitidos.set(['sms_email']);
+        this.formData.tipo_validacion = 'sms_email';
+        this.loadingTiposPermitidos.set(false);
+      }
+    });
+  }
+
+  onEmpresaChange(): void {
+    // Cuando cambia la empresa seleccionada, recargar tipos permitidos
+    if (this.formData.empresa_id) {
+      this.cargarTiposPermitidos(this.formData.empresa_id);
     }
   }
 
@@ -170,6 +230,9 @@ export class ModalFormularioComponent implements OnInit {
         tipo_validacion: formulario.tipo_validacion || 'sms_email',
         empresa_id: formulario.empresa_id
       };
+      
+      // Cargar tipos permitidos para la empresa del formulario
+      this.cargarTiposPermitidos(formulario.empresa_id);
     } else {
       this.isEditMode.set(false);
       this.reset();
@@ -178,6 +241,10 @@ export class ModalFormularioComponent implements OnInit {
       if (this.isDistribuidor() && this.empresas().length > 0) {
         this.formData.empresa_id = this.empresas()[0].id;
         console.log('🔍 [DEBUG] Empresa preseleccionada en open:', this.formData.empresa_id);
+        this.cargarTiposPermitidos(this.formData.empresa_id);
+      } else if (!this.requiereEmpresaSelector()) {
+        // Para usuarios tipo 'empresa', cargar tipos permitidos
+        this.cargarTiposPermitidos();
       }
     }
 
@@ -216,6 +283,12 @@ export class ModalFormularioComponent implements OnInit {
 
   getTipoValidacionSeleccionado(): TipoValidacion | undefined {
     return this.tiposValidacion.find(t => t.value === this.formData.tipo_validacion);
+  }
+
+  getNombresPermitidos(): string {
+    return this.tiposValidacionDisponibles()
+      .map(t => t.label)
+      .join(', ');
   }
 
   validate(): boolean {
@@ -311,7 +384,7 @@ export class ModalFormularioComponent implements OnInit {
         this.loading.set(false);
       },
       error: (error) => {
-        console.error(' Error guardando formulario:', error);
+        console.error('❌ Error guardando formulario:', error);
         let errorMsg = 'Error al guardar formulario';
         
         // Manejar errores específicos
@@ -325,6 +398,14 @@ export class ModalFormularioComponent implements OnInit {
             errorMsg = 'Debes especificar una empresa';
           } else if (errorMsg.includes('Tipos de consentimiento inválidos')) {
             errorMsg = 'Tipos de consentimiento inválidos';
+          } else if (errorMsg.includes('no está incluido en su plan')) {
+            // Mostrar tipos permitidos si el error es de validación de plan
+            const tiposPermitidos = error.error.tipos_permitidos || this.tiposPermitidos();
+            const nombresPermitidos = this.tiposValidacion
+              .filter(t => tiposPermitidos.includes(t.value))
+              .map(t => t.label)
+              .join(', ');
+            errorMsg = `${errorMsg}\n\nTipos disponibles en su plan: ${nombresPermitidos}`;
           }
         } else if (error.error?.message) {
           errorMsg = error.error.message;

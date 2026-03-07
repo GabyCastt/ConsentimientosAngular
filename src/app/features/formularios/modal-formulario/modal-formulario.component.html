@@ -74,6 +74,7 @@
                     class="form-select"
                     [(ngModel)]="formData.empresa_id"
                     name="empresa_id"
+                    (change)="onEmpresaChange()"
                     [class.is-invalid]="errors()['empresa']"
                     [class.is-valid]="formData.empresa_id && !errors()['empresa']">
                     <option [ngValue]="null">Seleccionar empresa...</option>
@@ -119,7 +120,7 @@
                       [checked]="isTipoConsentimientoSelected(tipo.value)"
                       (change)="toggleTipoConsentimiento(tipo.value)">
                     <label class="form-check-label" [for]="'tipo-' + tipo.value">
-                      <i [class]="'fas ' + tipo.icon + ' text-' + tipo.color + ' me-1'"></i>
+                      <i [class]="'fas ' + tipo.icon + ' icon-tipo-' + tipo.value"></i>
                       {{ tipo.label }}
                     </label>
                   </div>
@@ -139,29 +140,55 @@
                 <i class="fas fa-shield-alt me-1 text-primary"></i>
                 Tipo de Verificación <span class="text-danger">*</span>
               </label>
-              <select
-                class="form-select"
-                [(ngModel)]="formData.tipo_validacion"
-                name="tipo_validacion"
-                [class.is-invalid]="errors()['validacion']">
-                @for (tipo of tiposValidacion; track tipo.value) {
-                  <option [value]="tipo.value">
-                    {{ tipo.label }}
-                    @if (tipo.costo) {
-                      (Costo adicional)
-                    }
-                  </option>
+              
+              @if (loadingTiposPermitidos()) {
+                <div class="text-center py-2">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Cargando tipos disponibles...
+                </div>
+              } @else {
+                <!-- Mensaje informativo sobre el plan -->
+                @if (planInfo(); as info) {
+                  @if (!info.plan_activo) {
+                    <div class="alert alert-warning mb-2">
+                      <i class="fas fa-info-circle me-2"></i>
+                      <strong>Sin plan activo.</strong> Solo está disponible verificación por SMS/Email.
+                      <a href="#/planes/ver-planes" class="alert-link ms-2">Ver Planes Disponibles</a>
+                    </div>
+                  } @else if (tiposPermitidos().length < 4) {
+                    <div class="alert alert-info mb-2">
+                      <i class="fas fa-check-circle me-2"></i>
+                      <strong>Plan: {{ info.plan_nombre }}:</strong> 
+                      Incluye {{ getNombresPermitidos() }}
+                      <a href="/planes/ver-planes" class="alert-link ms-2">Ver Otros Planes</a>
+                    </div>
+                  }
                 }
-              </select>
-              @if (errors()['validacion']) {
-                <div class="invalid-feedback d-block">
-                  {{ errors()['validacion'] }}
+                
+                <select
+                  class="form-select"
+                  [(ngModel)]="formData.tipo_validacion"
+                  name="tipo_validacion"
+                  [class.is-invalid]="errors()['validacion']">
+                  @for (tipo of tiposValidacionDisponibles(); track tipo.value) {
+                    <option [value]="tipo.value">
+                      {{ tipo.label }}
+                      @if (tipo.costo) {
+                        (Costo adicional)
+                      }
+                    </option>
+                  }
+                </select>
+                @if (errors()['validacion']) {
+                  <div class="invalid-feedback d-block">
+                    {{ errors()['validacion'] }}
+                  </div>
+                }
+                <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Selecciona cómo los usuarios verificarán su identidad
                 </div>
               }
-              <div class="form-text">
-                <i class="fas fa-info-circle me-1"></i>
-                Selecciona cómo los usuarios verificarán su identidad
-              </div>
             </div>
 
             <!-- Información sobre el tipo de verificación seleccionado -->

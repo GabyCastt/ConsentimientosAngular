@@ -75,18 +75,8 @@
                   <td>
                     <div class="tipos-badges">
                       @for (tipo of formulario.tipos_consentimientos; track tipo) {
-                        <span class="badge badge-tipo" [attr.data-tipo]="tipo" [title]="getTipoConsentimientoLabel(tipo)">
-                          @if (tipo === 'datos_personales') {
-                            <i class="fas fa-shield-alt"></i>
-                          } @else if (tipo === 'imagen') {
-                            <i class="fas fa-image"></i>
-                          } @else if (tipo === 'marketing') {
-                            <i class="fas fa-bullhorn"></i>
-                          } @else if (tipo === 'terceros') {
-                            <i class="fas fa-share-alt"></i>
-                          } @else {
-                            <i class="fas fa-file-alt"></i>
-                          }
+                        <span class="badge badge-tipo-icon" [attr.data-tipo]="tipo" [title]="getTipoConsentimientoLabel(tipo)">
+                          <i class="fas fa-file-alt"></i>
                         </span>
                       }
                     </div>

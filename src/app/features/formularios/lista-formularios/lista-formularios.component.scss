@@ -109,7 +109,7 @@
 .tipos-badges {
   display: inline-flex;
   flex-wrap: nowrap;
-  gap: 0.3rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
@@ -127,35 +127,90 @@
   cursor: pointer;
 
   &:hover {
-    transform: scale(1.15);
+    transform: scale(1.2);
   }
 
   i {
-    font-size: 1rem;
+    font-size: 1.25rem;
     margin: 0;
   }
 
   &[data-tipo="datos_personales"] {
     i {
-      color: #007bff;
+      color: #0d6efd; // primary - igual que en clientes
     }
   }
 
   &[data-tipo="imagen"] {
     i {
-      color: #6f42c1;
+      color: #0dcaf0; // info - igual que en clientes
     }
   }
 
   &[data-tipo="marketing"] {
     i {
-      color: #fd7e14;
+      color: #ffc107; // warning - igual que en clientes
     }
   }
 
   &[data-tipo="terceros"] {
     i {
       color: #20c997;
+    }
+  }
+}
+
+// Badges con iconos Font Awesome
+.badge-tipo-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  i {
+    font-size: 1.25rem;
+    margin: 0;
+  }
+
+  &[data-tipo="datos_personales"] {
+    background: #0d6efd;
+    
+    i {
+      color: white;
+    }
+  }
+
+  &[data-tipo="imagen"] {
+    background: #6f42c1;
+    
+    i {
+      color: white;
+    }
+  }
+
+  &[data-tipo="marketing"] {
+    background: #fd7e14;
+    
+    i {
+      color: white;
+    }
+  }
+
+  &[data-tipo="terceros"] {
+    background: #20c997;
+    
+    i {
+      color: white;
     }
   }
 }
